@@ -61,3 +61,6 @@ To extract the bone from a zip of dicom images:
     
 To extract the skin from a NRRD volume:
 > vtkpython dicom2stl.py -t skin -o skin.stl volume.nrrd
+
+To extract a specific iso-value from a VTK volume:
+> vtkpython dicom2stl.py -t 128 -o iso.stl volume.vtk
