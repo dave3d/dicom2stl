@@ -111,14 +111,10 @@ def reduceMesh(mymesh, reductionFactor):
         deci.Update()
         print ("Surface reduced")
         m2 = deci.GetOutput()
-        print "    ", m2.GetNumberOfPolys(), "polygons"
-        elapsedTime(t)
-        if vtk.vtkVersion.GetVTKMajorVersion() >= 6:
-            deci.SetInputData( None )
-        else:
-            deci.SetInput( None )
         del deci
         deci = None
+        print "    ", m2.GetNumberOfPolys(), "polygons"
+        elapsedTime(t)
         return m2
     except:
         print "Surface reduction failed"
