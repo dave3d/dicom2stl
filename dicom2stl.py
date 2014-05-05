@@ -207,6 +207,7 @@ def loadZipDicom(name):
     print "Reading Dicom zip file:", name
     myzip = zipfile.ZipFile(name, 'r')
     fnames = myzip.namelist()
+    dcmdirs = []
 
     for x in fnames:
         basename = os.path.basename(x)
@@ -218,27 +219,30 @@ def loadZipDicom(name):
 
         if (x.endswith(".dcm")) and (dicomString in x):
             dcmnames.append(x)
+            xpath = os.path.dirname(x)
+            if xpath not in dcmdirs:
+                dcmdirs.append(xpath)
 
-    if verbose:
-        if verbose>1:
-            print dcmnames
-        else:
-            l = len(dcmnames)
-            print l, "files"
-            print "[", dcmnames[0], dcmnames[1], " ... ", dcmnames[l-1], "]"
 
     try:
         myzip.extractall(tempdir)
     except:
         print "Zip extract failed"
-    savedir = os.getcwd()
-    lsdir = os.listdir(tempdir)
-    os.chdir(tempdir)
+
     try:
-        img = sitk.ReadImage( dcmnames )
+        isr = sitk.ImageSeriesReader()
+        dcmpath = tempdir+'/'+dcmdirs[0]
+        dcmpath = '/Users/dchen/PELVIX/Bassin Bassin (Adulte)/Bassin  2.0mm std - 2'
+        mynames = isr.GetGDCMSeriesFileNames(dcmpath)
+        print mynames[0]
+        print "    ... " + mynames[len(mynames)-1], "\n"
+
+        isr.SetFileNames(mynames)
+        img = isr.Execute()
     except:
         print "SimpleITK ReadImage failed on Dicom series"
-    os.chdir(savedir)
+        e = sys.exc_info()[0]
+        print "Error: ", e, "\n"
     return img
 
 
@@ -269,7 +273,9 @@ else:
             else:
                 l = len(fname)
                 print "Reading images: ", fname[0], fname[1], "...", fname[l-1]
-        img = sitk.ReadImage( fname )
+        isr = sitk.ImageSeriesReader()
+        isr.SetFileNames(fname)
+        img = isr.Execute()
         firstslice = sitk.ReadImage( fname[0] )
         metasrc = firstslice
 
