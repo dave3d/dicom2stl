@@ -8,7 +8,13 @@
 #      http://www.apache.org/licenses/LICENSE-2.0
 #
 
-import sys, os, zipfile, tempfile, getopt, math, time, gc
+#  Note: if you run this script with the individual Dicom slices provided on the
+#  command line, they might not be ordered in the correct order.  You are better
+#  off providing a zip file or a directory.  Dicom slices are not necessarily
+#  ordered the same alphabetically as they are physically.
+#
+
+import sys, os, zipfile, tempfile, getopt, math, time, gc, glob
 
 
 # Global variables
@@ -19,6 +25,7 @@ debug            = 0
 zipFlag          = False
 dicomString      = ""
 cleanUp          = True
+dirFlag          = False
 
 isovalue         = 0
 CTonly           = False
@@ -46,6 +53,8 @@ def usage():
     print ("dicom2stl.py: [options] volume_image")
     print ("   or")
     print ("dicom2stl.py: [options] slice1 ... sliceN")
+    print ("   or")
+    print ("dicom2stl.py: [options] dicom_directory")
     print
     print ("    -h, --help           This help message")
     print ("    -v, --verbose        Verbose output")
@@ -179,6 +188,8 @@ if len(fname) == 0:
 if zipfile.is_zipfile(fname[0]):
     zipFlag = True
 
+if os.path.isdir(fname[0]):
+    dirFlag = True
 
 
 if verbose:
@@ -199,6 +210,24 @@ if debug:
 img      = sitk.Image( 100,100,100, sitk.sitkUInt8 )
 dcmnames = []
 metasrc  = img
+
+
+#  Unzip a zipfile of dicom images into a temp directory
+#
+def loadDicomDirectory(name):
+    try:
+        isr = sitk.ImageSeriesReader()
+        mynames = isr.GetGDCMSeriesFileNames(name)
+        print mynames[0]
+        print "    ... " + mynames[len(mynames)-1], "\n"
+
+        isr.SetFileNames(mynames)
+        img = isr.Execute()
+    except:
+        print "SimpleITK ReadImage failed on Dicom directory " + name
+        e = sys.exc_info()[0]
+        print "Error: ", e, "\n"
+    return img
 
 
 #  Unzip a zipfile of dicom images into a temp directory
@@ -229,22 +258,8 @@ def loadZipDicom(name):
     except:
         print "Zip extract failed"
 
-    try:
-        isr = sitk.ImageSeriesReader()
-        dcmpath = tempdir+'/'+dcmdirs[0]
-        dcmpath = '/Users/dchen/PELVIX/Bassin Bassin (Adulte)/Bassin  2.0mm std - 2'
-        mynames = isr.GetGDCMSeriesFileNames(dcmpath)
-        print mynames[0]
-        print "    ... " + mynames[len(mynames)-1], "\n"
-
-        isr.SetFileNames(mynames)
-        img = isr.Execute()
-    except:
-        print "SimpleITK ReadImage failed on Dicom series"
-        e = sys.exc_info()[0]
-        print "Error: ", e, "\n"
-    return img
-
+    dcmpath = tempdir+'/'+dcmdirs[0]
+    return loadDicomDirectory(dcmpath)
 
 
 #  Load our Dicom data
@@ -259,25 +274,34 @@ if zipFlag:
 
 
 else:
-    # Case for a single volume image
-    if len(fname) == 1:
+    if dirFlag:
         if verbose:
-            print "Reading volume: ", fname[0]
-        img = sitk.ReadImage( fname[0] )
-        metasrc = img
-    else:
-    # Case for a series of image files
-        if verbose:
-            if verbose>1:
-                print "Reading images: ", fname
-            else:
-                l = len(fname)
-                print "Reading images: ", fname[0], fname[1], "...", fname[l-1]
-        isr = sitk.ImageSeriesReader()
-        isr.SetFileNames(fname)
-        img = isr.Execute()
-        firstslice = sitk.ReadImage( fname[0] )
+            print "directory"
+        img = loadDicomDirectory( fname[0] )
+        dcmslices = glob.glob(fname[0]+'/*.dcm')
+        firstslice = sitk.ReadImage(dcmslices[0])
         metasrc = firstslice
+
+    else:
+        # Case for a single volume image
+        if len(fname) == 1:
+            if verbose:
+                print "Reading volume: ", fname[0]
+            img = sitk.ReadImage( fname[0] )
+            metasrc = img
+        else:
+        # Case for a series of image files
+            if verbose:
+                if verbose>1:
+                    print "Reading images: ", fname
+                else:
+                    l = len(fname)
+                    print "Reading images: ", fname[0], fname[1], "...", fname[l-1]
+            isr = sitk.ImageSeriesReader()
+            isr.SetFileNames(fname)
+            img = isr.Execute()
+            firstslice = sitk.ReadImage( fname[0] )
+            metasrc = firstslice
 
 if CTonly and ( (sitk.Version.MinorVersion()>8) or (sitk.Version.MajorVersion()>0) ):
     # Check the metadata for CT image type.  Note that this only works with
