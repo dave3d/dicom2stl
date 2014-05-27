@@ -42,6 +42,10 @@ anisotropicSmoothing = False
 medianFilter     = False
 metadataFile     = ""
 
+rotFlag          = False
+rotAxis          = 1
+rotAngle         = 180
+
 options = []
 
 
@@ -71,10 +75,12 @@ def usage():
     print ("    -a, --anisotropic    Apply anisotropic smoothing to the volume")
     print ("    -i value, --isovalue value    Iso-surface value")
     print ("    -d string, --double string    Double threshold with 4 values in a string seperated by semicolons")
+    print ("    --rotaxis int        Rotation axis (default=1, Y-axis)")
+    print ("    --rotangle float     Rotation angle (default=180 degrees)")
     print
     print ("  Enable/Disable various filtering options")
-    print ("    --disable string     Disable an option [anisotropic, shrink, median, largest]")
-    print ("    --enable  string     Enable an option [anisotropic, shrink, median, largest]")
+    print ("    --disable string     Disable an option [anisotropic, shrink, median, largest, rotation]")
+    print ("    --enable  string     Enable an option [anisotropic, shrink, median, largest, rotation]")
 
 
 # Parse the command line arguments
@@ -83,7 +89,7 @@ def usage():
 try:
     opts, args = getopt.getopt(sys.argv[1:], "vDhacli:s:t:d:o:m:",
         [ "verbose", "help", "debug", "anisotropic", "clean", "ct", "isovalue=", "search=", "type=",
-          "double=", "disable=", "enable=", "largest", "metadata"] )
+          "double=", "disable=", "enable=", "largest", "metadata", "rotaxis=", "rotangle="] )
 except getopt.GetoptError, err:
     print (str(err))
     usage()
@@ -125,6 +131,10 @@ for o, a in opts:
             thresholds.append(float(v))
         thresholds.sort()
         doubleThreshold = True
+    elif o in ("--rotaxis"):
+        rotAxis = int(a)
+    elif o in ("--rotangle"):
+        rotAngle = float(a)
     elif o in ("--disable"):
         options.append("no"+a)
     elif o in ("--enable"):
@@ -148,6 +158,8 @@ for x in options:
         medianFilter = val
     if y.startswith("large"):
         connectivityFilter = val
+    if y.startswith("rotat"):
+        rotFlag = val
 
 
 print
@@ -447,7 +459,12 @@ gc.collect()
 mesh4 = vtkutils.reduceMesh(mesh3, quad)
 mesh3 = None
 gc.collect()
-vtkutils.writeMesh(mesh4, outname)
+
+if rotFlag:
+    mesh5 = vtkutils.rotateMesh(mesh4, rotAxis, rotAngle)
+else:
+    mesh5 = mesh4
+vtkutils.writeMesh(mesh5, outname)
 mesh4 = None
 gc.collect()
 

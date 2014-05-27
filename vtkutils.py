@@ -98,6 +98,31 @@ def smoothMesh(mesh, nIterations=10):
         traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
     return None
 
+def rotateMesh(mesh, axis=1, angle=0):
+    try:
+        print "Rotating surface: axis=", axis, "angle=", angle
+        matrix = vtk.vtkTransform();
+        if axis==0:
+            matrix.RotateX(angle)
+        if axis==1:
+            matrix.RotateY(angle)
+        if axis==2:
+            matrix.RotateZ(angle)
+        tfilter = vtk.vtkTransformPolyDataFilter();
+        tfilter.SetTransform(matrix);
+        if vtk.vtkVersion.GetVTKMajorVersion() >= 6:
+            tfilter.SetInputData( mesh )
+        else:
+            tfilter.SetInput( mesh )
+        tfilter.Update()
+        mesh2 = tfilter.GetOutput()
+        return mesh2
+    except:
+        print "Surface rotating failed"
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+    return None
+
 #@profile
 def reduceMesh(mymesh, reductionFactor):
     try:
