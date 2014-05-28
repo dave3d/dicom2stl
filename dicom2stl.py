@@ -204,8 +204,6 @@ if os.path.isdir(fname[0]):
     dirFlag = True
 
 
-if verbose:
-    print "File names: ", fname, "\n"
 else:
     l = len(fname)
     if l>1:
@@ -223,55 +221,21 @@ img      = sitk.Image( 100,100,100, sitk.sitkUInt8 )
 dcmnames = []
 metasrc  = img
 
+import dicomutils
 
-#  Unzip a zipfile of dicom images into a temp directory
-#
-def loadDicomDirectory(name):
-    try:
-        isr = sitk.ImageSeriesReader()
-        mynames = isr.GetGDCMSeriesFileNames(name)
-        print mynames[0]
-        print "    ... " + mynames[len(mynames)-1], "\n"
-
-        isr.SetFileNames(mynames)
-        img = isr.Execute()
-    except:
-        print "SimpleITK ReadImage failed on Dicom directory " + name
-        e = sys.exc_info()[0]
-        print "Error: ", e, "\n"
-    return img
-
-
-#  Unzip a zipfile of dicom images into a temp directory
+#  Unzip a zipfile of dicom images into a temp directory, then
+#  load the series that has the most slices
 #
 def loadZipDicom(name):
     print "Reading Dicom zip file:", name
     myzip = zipfile.ZipFile(name, 'r')
-    fnames = myzip.namelist()
-    dcmdirs = []
-
-    for x in fnames:
-        basename = os.path.basename(x)
-        if len(basename):
-            if basename[0] == '.':
-                continue
-        else:
-            continue
-
-        if (x.endswith(".dcm")) and (dicomString in x):
-            dcmnames.append(x)
-            xpath = os.path.dirname(x)
-            if xpath not in dcmdirs:
-                dcmdirs.append(xpath)
-
 
     try:
         myzip.extractall(tempdir)
     except:
         print "Zip extract failed"
 
-    dcmpath = tempdir+'/'+dcmdirs[0]
-    return loadDicomDirectory(dcmpath)
+    return dicomutils.loadLargestSeries(tempdir)
 
 
 #  Load our Dicom data
@@ -289,10 +253,7 @@ else:
     if dirFlag:
         if verbose:
             print "directory"
-        img = loadDicomDirectory( fname[0] )
-        dcmslices = glob.glob(fname[0]+'/*.dcm')
-        firstslice = sitk.ReadImage(dcmslices[0])
-        metasrc = firstslice
+        img, datadic = dicomutils.loadLargestSeries( fname[0] )
 
     else:
         # Case for a single volume image
@@ -300,7 +261,7 @@ else:
             if verbose:
                 print "Reading volume: ", fname[0]
             img = sitk.ReadImage( fname[0] )
-            metasrc = img
+            datadic = img.GetMetaDataKeys()
         else:
         # Case for a series of image files
             if verbose:
@@ -313,7 +274,7 @@ else:
             isr.SetFileNames(fname)
             img = isr.Execute()
             firstslice = sitk.ReadImage( fname[0] )
-            metasrc = firstslice
+            datadic = firstslice.GetMetaDataKeys()
 
 if CTonly and ( (sitk.Version.MinorVersion()>8) or (sitk.Version.MajorVersion()>0) ):
     # Check the metadata for CT image type.  Note that this only works with
@@ -321,7 +282,6 @@ if CTonly and ( (sitk.Version.MinorVersion()>8) or (sitk.Version.MajorVersion()>
     modality = "CT"
     modalitykey = "0008|0060"
     try:
-        datadic = metasrc.GetMetaDataKeys()
         if modalitykey in datadic:
              modality = metasrc.GetMetaData("0008|0060")
         if debug:
