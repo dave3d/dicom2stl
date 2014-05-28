@@ -73,3 +73,8 @@ To extract the skin from a NRRD volume:
 
 To extract a specific iso-value from a VTK volume:
 > vtkpython dicom2stl.py -t 128 -o iso.stl volume.vtk
+
+To extract soft tissue from a dicom series in directory and
+apply a 180 degree Y axis rotation:
+> vtkpython dicom2stl.py --enable rotation -t soft_tissue -o soft.stl dicom_dir
+
