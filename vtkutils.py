@@ -1,5 +1,14 @@
 #! /usr/bin/env vtkpython
 
+#
+#  A collection of VTK functions for processing surfaces and volume.
+#
+#  Written by David T. Chen from the National Library of Medicine, dchen@mail.nih.gov.
+#  It is covered by the Apache License, Version 2.0:
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+
+
 import sys, time, gc
 import traceback, vtk
 
@@ -309,7 +318,7 @@ def memquery3():
     print "Hiya 3"
 
 #
-#  Main
+#  Main (test code)
 #
 if __name__ == "__main__":
     print "vtkutils.py"
