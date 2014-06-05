@@ -35,10 +35,19 @@ def getAllSeries(dirs):
             seriessets.append([s, d, files])
     return seriessets
 
+def getModality(img):
+    modality = ""
+    if (sitk.Version.MinorVersion()>8) or (sitk.Version.MajorVersion()>0):
+        try:
+            modality = img.GetMetaData("0008|0060")
+        except AttributeError:
+            modality = ""
+    return modality
+
 
 #   Load the largest dicom series it finds in a recursive scan of
 #   a directory.  Largest means has the most slices.  It also returns
-#   the metadata dictionary of the first slice
+#   the modality.
 #
 def loadLargestSeries(dicomdir):
     files, dirs = scanDirForDicom(dicomdir)
@@ -60,12 +69,13 @@ def loadLargestSeries(dicomdir):
     ss = seriessets[maxindex]
     files = ss[2]
     isr.SetFileNames(files)
-    print "Loading series", ss[0], "in directory", ss[1]
+    print "\nLoading series", ss[0], "in directory", ss[1]
     img = isr.Execute()
 
     firstslice = sitk.ReadImage(files[0])
-    datadic = firstslice.GetMetaDataKeys()
-    return img, datadic
+    modality = getModality(firstslice)
+
+    return img, modality
 
 
 #

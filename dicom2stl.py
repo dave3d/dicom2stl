@@ -41,6 +41,7 @@ connectivityFilter = False
 anisotropicSmoothing = False
 medianFilter     = False
 metadataFile     = ""
+modality         = ""
 
 rotFlag          = False
 rotAxis          = 1
@@ -244,16 +245,14 @@ if zipFlag:
     # Case for a zip file of images
     if verbose:
         print "zip"
-    img = loadZipDicom( fname[0] )
-    firstslice = sitk.ReadImage(tempdir+"/"+dcmnames[0])
-    metasrc = firstslice
+    img, modality = loadZipDicom( fname[0] )
 
 
 else:
     if dirFlag:
         if verbose:
             print "directory"
-        img, datadic = dicomutils.loadLargestSeries( fname[0] )
+        img, modality = dicomutils.loadLargestSeries( fname[0] )
 
     else:
         # Case for a single volume image
@@ -261,7 +260,8 @@ else:
             if verbose:
                 print "Reading volume: ", fname[0]
             img = sitk.ReadImage( fname[0] )
-            datadic = img.GetMetaDataKeys()
+            modality = dicomutils.getModality(img)
+
         else:
         # Case for a series of image files
             if verbose:
@@ -274,20 +274,11 @@ else:
             isr.SetFileNames(fname)
             img = isr.Execute()
             firstslice = sitk.ReadImage( fname[0] )
-            datadic = firstslice.GetMetaDataKeys()
+            modality = dicomutils.getModality(firstslice)
 
 if CTonly and ( (sitk.Version.MinorVersion()>8) or (sitk.Version.MajorVersion()>0) ):
     # Check the metadata for CT image type.  Note that this only works with
     # SimpleITK version 0.8.0.  For earlier versions there is no GetMetaDataKeys method
-    modality = "CT"
-    modalitykey = "0008|0060"
-    try:
-        if modalitykey in datadic:
-             modality = metasrc.GetMetaData("0008|0060")
-        if debug:
-             print datadic
-    except AttributeError:
-        print "Warning: could not access dicom meta-data"
 
     if modality.find("CT") == -1:
         print "Imaging modality is not CT.  Exiting."
