@@ -1,7 +1,11 @@
 #! /usr/bin/env python
 
 #
-#  Function load the largest Dicom series in a directory.
+#  Function to load the largest Dicom series in a directory.
+#
+#  It scans the directory recursively search for files with the ".dcm"
+#  suffix.  Note that DICOM fails don't always have that suffix.  In
+#  that case this function will fail.
 #
 #  Written by David T. Chen from the National Library of Medicine, dchen@mail.nih.gov.
 #  It is covered by the Apache License, Version 2.0:
@@ -40,12 +44,12 @@ def getModality(img):
     if (sitk.Version.MinorVersion()>8) or (sitk.Version.MajorVersion()>0):
         try:
             modality = img.GetMetaData("0008|0060")
-        except AttributeError:
+        except:
             modality = ""
     return modality
 
 
-#   Load the largest dicom series it finds in a recursive scan of
+#   Load the largest Dicom series it finds in a recursive scan of
 #   a directory.  Largest means has the most slices.  It also returns
 #   the modality.
 #

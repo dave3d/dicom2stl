@@ -27,7 +27,7 @@ How it works
 ============
 First the script reads in a series of 2-d images or a simple 3-d image.  It can read
 any format supported by ITK.  If the input name is a zip file or a directory name,
-the script expects a single series of DCM images.
+the script expects a single series of DCM images, all with the ".dcm" suffix.
 
 Note: if you run this script with the individual Dicom slices provided on the
 command line, they might not be ordered in the correct order.  You are better
