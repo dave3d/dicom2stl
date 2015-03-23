@@ -13,11 +13,11 @@ The script is written in Python and uses 2 external packages, vtk and SimpleITK.
 vtk can be downloaded and built from the following repository:
 > https://github.com/Kitware/VTK
 
-On some Linux distributions it can be installed with the following command:
+Alternatively, on some Linux distributions it can be installed with the following command:
 > sudo apt-get install vtk
 
 SimpleITK can be installed via the following command:
-> easy_install vtk
+> easy_install SimpleITK
 
 The options for the script can be seen by running it:
 > vtkpython dicom2stl.py --help
