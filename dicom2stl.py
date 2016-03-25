@@ -394,8 +394,20 @@ if verbose:
 #vtkname =  tempdir+"/vol.vtk"
 #sitk.WriteImage( img, vtkname )
 
+import platform
 import sitk2vtk
-vtkimg = sitk2vtk.sitk2vtk(img)
+import vtk
+vtkimg = None
+
+if platform.system() is "Windows":
+    # hacky work-around to avoid a crash on Windows
+    vtkimg = vtk.vtkImageData()
+    vtkimg.SetDimensions(10,10,10)
+    vtkimg.AllocateScalars(vtk.VTK_CHAR, 1)
+    sitk2vtk.sitk2vtk(img, vtkimg, False)
+else:
+    vtkimg = sitk2vtk.sitk2vtk(img)
+
 img = None
 gc.collect()
 
@@ -405,17 +417,26 @@ if debug:
     print "\nVTK version: ", vtk.vtkVersion.GetVTKVersion()
     print "VTK: ", vtk, "\n"
 
+
 import vtkutils
 
+if debug:
+  print "Extracting surface"
 mesh = vtkutils.extractSurface(vtkimg, isovalue)
 vtkimg = None
 gc.collect()
+if debug:
+  print "Cleaning mesh"
 mesh2 = vtkutils.cleanMesh(mesh, connectivityFilter)
 mesh = None
 gc.collect()
+if debug:
+  print "Smoothing mesh"
 mesh3 = vtkutils.smoothMesh(mesh2, smoothIterations)
 mesh2 = None
 gc.collect()
+if debug:
+  print "Simplifying mesh"
 mesh4 = vtkutils.reduceMesh(mesh3, quad)
 mesh3 = None
 gc.collect()

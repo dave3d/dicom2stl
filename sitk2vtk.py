@@ -1,4 +1,4 @@
-#! /usr/bin/env vtkpy
+#! /usr/bin/env vtkpython
 
 #
 #  Function to convert a SimpleITK image to a VTK image.
@@ -8,6 +8,7 @@
 #       http://www.apache.org/licenses/LICENSE-2.0
 #
 
+from copy import *
 import SimpleITK as sitk
 import vtk
 from numpy import *
@@ -39,7 +40,7 @@ pixelmap = { sitk.sitkUInt8:   vtk.VTK_UNSIGNED_CHAR,  sitk.sitkInt8:    vtk.VTK
 
 # A function that converts a SimpleITK image to a VTK image, via numpy
 #
-def sitk2vtk(img):
+def sitk2vtk(img, outVol=None, debugOn=False):
 
     size     = list(img.GetSize())
     origin   = list(img.GetOrigin())
@@ -53,6 +54,8 @@ def sitk2vtk(img):
     # convert the SimpleITK image to a numpy array
     i2 = sitk.GetArrayFromImage(img)
     i2_string = i2.tostring()
+    if debugOn:
+        print "data string address inside sitk2vtk", hex(id(i2_string))
 
     # send the numpy array to VTK with a vtkImageImport object
     dataImporter = vtk.vtkImageImport()
@@ -84,6 +87,40 @@ def sitk2vtk(img):
     dataImporter.Update()
 
     vtk_image = dataImporter.GetOutput()
+
+    # outVol and this DeepCopy are a work-around to avoid a crash on Windows
+    if outVol is not None:
+        outVol.DeepCopy(vtk_image)
+
+    if debugOn:
+        print "Volume object inside sitk2vtk"
+        print vtk_image
+        print "type = ", vtktype
+        print "num components = ", ncomp
+        print size
+        print origin
+        print spacing
+        print vtk_image.GetScalarComponentAsFloat(0,0,0,0)
+
     return vtk_image
 
+
+if __name__ == "__main__":
+    import platform
+
+    print "Testing"
+    print len(i2_string)
+    img = sitk.GaussianSource(sitk.sitkUInt8, [102,102,102])
+
+    if platform.system() == "Windows":
+        invol = vtk.vtkImageData()
+        invol.SetDimensions(10,10,10)
+        vol = sitk2vtk(img, invol, True)
+        print "Accessing VTK image"
+        print invol.GetScalarComponentAsFloat(5,5,5,0)
+    else:
+        vol = sitk2vtk(img, True)
+        print len(i2_string)
+        print "Accessing VTK image"
+        print vol.GetScalarComponentAsFloat(5,5,5,0)
 

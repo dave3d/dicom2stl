@@ -77,9 +77,9 @@ if __name__ == "__main__":
     print "dicomutils.py"
     print sys.argv[1]
 
-    img = loadBiggestSeries(sys.argv[1])
-    print img
-    sys.exit(0)
+#    img = loadLargestSeries(sys.argv[1])
+#    print img
+#    sys.exit(0)
 
     files, dirs = scanDirForDicom(sys.argv[1])
     print ""
