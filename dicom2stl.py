@@ -24,7 +24,8 @@ debug            = 0
 
 zipFlag          = False
 dicomString      = ""
-cleanUp          = True
+cleanUp          = False
+tempDir          = ""
 dirFlag          = False
 
 isovalue         = 0
@@ -41,6 +42,7 @@ connectivityFilter = False
 anisotropicSmoothing = False
 medianFilter     = False
 metadataFile     = ""
+modality         = ""
 
 rotFlag          = False
 rotAxis          = 1
@@ -60,36 +62,41 @@ def usage():
     print ("   or")
     print ("dicom2stl.py: [options] dicom_directory")
     print
-    print ("    -h, --help           This help message")
-    print ("    -v, --verbose        Verbose output")
-    print ("    -D, --debug          Debug mode")
+    print ("  -h, --help          This help message")
+    print ("  -v, --verbose       Verbose output")
+    print ("  -D, --debug         Debug mode")
     print
-    print ("    -o string            Output file name (default=result.stl)")
-    print ("    -m string            Metadata file name (default=\"\")")
-    print ("    -t string, --type string        CT Tissue type [skin, bone, soft_tissue, fat]")
-    print ("    -c, --clean          Clean up temp files")
-    print ("    --ct                 Only allow CT images")
+    print ("  -o string           Output file name (default=result.stl)")
+    print ("  -m string           Metadata file name (default=\"\")")
+    print ("  --ct                Only allow CT images")
+    print ("  -c, --clean         Clean up temp files")
+    print ("  -T string, --temp string      Directory to place temporary files")
+    print ("  -s string, --search string    Dicom series search string")
     print
-    print ("    -s string, --search string    Dicom series search string")
-    print ("    -l, --largest        Keep only the largest connected mesh")
-    print ("    -a, --anisotropic    Apply anisotropic smoothing to the volume")
-    print ("    -i value, --isovalue value    Iso-surface value")
-    print ("    -d string, --double string    Double threshold with 4 values in a string seperated by semicolons")
-    print ("    --rotaxis int        Rotation axis (default=1, Y-axis)")
-    print ("    --rotangle float     Rotation angle (default=180 degrees)")
+    print ("  Volume processing options")
+    print ("  -t string, --type string      CT Tissue type [skin, bone, soft_tissue, fat]")
+    print ("  -a, --anisotropic             Apply anisotropic smoothing to the volume")
+    print ("  -i num, --isovalue num        Iso-surface value")
+    print ("  -d string, --double string    Double threshold with 4 values in a string seperated by semicolons")
+    print
+    print ("  Mesh options")
+    print ("  -l, --largest       Keep only the largest connected mesh")
+    print ("  --rotaxis int       Rotation axis (default=1, Y-axis)")
+    print ("  --rotangle float    Rotation angle (default=180 degrees)")
     print
     print ("  Enable/Disable various filtering options")
-    print ("    --disable string     Disable an option [anisotropic, shrink, median, largest, rotation]")
-    print ("    --enable  string     Enable an option [anisotropic, shrink, median, largest, rotation]")
+    print ("  --disable string    Disable an option [anisotropic, shrink, median, largest, rotation]")
+    print ("  --enable  string    Enable an option [anisotropic, shrink, median, largest, rotation]")
 
 
 # Parse the command line arguments
 #
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "vDhacli:s:t:d:o:m:",
+    opts, args = getopt.getopt(sys.argv[1:], "vDhacli:s:t:d:o:m:T:",
         [ "verbose", "help", "debug", "anisotropic", "clean", "ct", "isovalue=", "search=", "type=",
-          "double=", "disable=", "enable=", "largest", "metadata", "rotaxis=", "rotangle="] )
+          "double=", "disable=", "enable=", "largest", "metadata", "rotaxis=", "rotangle=",
+          "temp=" ] )
 except getopt.GetoptError, err:
     print (str(err))
     usage()
@@ -108,6 +115,8 @@ for o, a in opts:
         sys.exit()
     elif o in ("-c", "--clean"):
         cleanUp = True
+    elif o in ("-T", "--temp"):
+        tempDir = a
     elif o in ("-a", "--anisotropic"):
         anisotropicSmoothing = True
     elif o in ("-i", "--isovalue"):
@@ -163,8 +172,9 @@ for x in options:
 
 
 print
-tempdir = tempfile.mkdtemp()
-print "Temp dir: ", tempdir
+if tempDir == "":
+    tempDir = tempfile.mkdtemp()
+print "Temp dir: ", tempDir
 
 if tissueType:
     # Convert tissue type name to threshold values
@@ -231,11 +241,11 @@ def loadZipDicom(name):
     myzip = zipfile.ZipFile(name, 'r')
 
     try:
-        myzip.extractall(tempdir)
+        myzip.extractall(tempDir)
     except:
         print "Zip extract failed"
 
-    return dicomutils.loadLargestSeries(tempdir)
+    return dicomutils.loadLargestSeries(tempDir)
 
 
 #  Load our Dicom data
@@ -244,16 +254,14 @@ if zipFlag:
     # Case for a zip file of images
     if verbose:
         print "zip"
-    img = loadZipDicom( fname[0] )
-    firstslice = sitk.ReadImage(tempdir+"/"+dcmnames[0])
-    metasrc = firstslice
+    img, modality = loadZipDicom( fname[0] )
 
 
 else:
     if dirFlag:
         if verbose:
             print "directory"
-        img, datadic = dicomutils.loadLargestSeries( fname[0] )
+        img, modality = dicomutils.loadLargestSeries( fname[0] )
 
     else:
         # Case for a single volume image
@@ -261,7 +269,8 @@ else:
             if verbose:
                 print "Reading volume: ", fname[0]
             img = sitk.ReadImage( fname[0] )
-            datadic = img.GetMetaDataKeys()
+            modality = dicomutils.getModality(img)
+
         else:
         # Case for a series of image files
             if verbose:
@@ -274,27 +283,18 @@ else:
             isr.SetFileNames(fname)
             img = isr.Execute()
             firstslice = sitk.ReadImage( fname[0] )
-            datadic = firstslice.GetMetaDataKeys()
+            modality = dicomutils.getModality(firstslice)
 
 if CTonly and ( (sitk.Version.MinorVersion()>8) or (sitk.Version.MajorVersion()>0) ):
     # Check the metadata for CT image type.  Note that this only works with
-    # SimpleITK version 0.8.0.  For earlier versions there is no GetMetaDataKeys method
-    modality = "CT"
-    modalitykey = "0008|0060"
-    try:
-        if modalitykey in datadic:
-             modality = metasrc.GetMetaData("0008|0060")
-        if debug:
-             print datadic
-    except AttributeError:
-        print "Warning: could not access dicom meta-data"
+    # SimpleITK version 0.8.0 or later.  For earlier versions there is no GetMetaDataKeys method
 
     if modality.find("CT") == -1:
         print "Imaging modality is not CT.  Exiting."
         sys.exit(1)
 
 
-#vtkname =  tempdir+"/vol0.vtk"
+#vtkname =  tempDir+"/vol0.vtk"
 #sitk.WriteImage( img, vtkname )
 
 def roundThousand(x):
@@ -391,7 +391,7 @@ if verbose:
         print img
     print
 
-#vtkname =  tempdir+"/vol.vtk"
+#vtkname =  tempDir+"/vol.vtk"
 #sitk.WriteImage( img, vtkname )
 
 import platform
@@ -453,6 +453,6 @@ gc.collect()
 # remove the temp directory
 import shutil
 if cleanUp:
-    shutil.rmtree(tempdir)
+    shutil.rmtree(tempDir)
 
 print

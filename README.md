@@ -13,11 +13,11 @@ The script is written in Python and uses 2 external packages, vtk and SimpleITK.
 vtk can be downloaded and built from the following repository:
 > https://github.com/Kitware/VTK
 
-On some Linux distributions it can be installed with the following command:
+Alternatively, on some Linux distributions it can be installed with the following command:
 > sudo apt-get install vtk
 
 SimpleITK can be installed via the following command:
-> easy_install vtk
+> easy_install SimpleITK
 
 The options for the script can be seen by running it:
 > vtkpython dicom2stl.py --help
@@ -27,7 +27,7 @@ How it works
 ============
 First the script reads in a series of 2-d images or a simple 3-d image.  It can read
 any format supported by ITK.  If the input name is a zip file or a directory name,
-the script expects a single series of DCM images.
+the script expects a single series of DCM images, all with the ".dcm" suffix.
 
 Note: if you run this script with the individual Dicom slices provided on the
 command line, they might not be ordered in the correct order.  You are better
