@@ -54,7 +54,7 @@ options = []
 
 
 def usage():
-    print
+    print ("")
     print ("dicom2stl.py: [options] dicom.zip")
     print ("   or")
     print ("dicom2stl.py: [options] volume_image")
@@ -62,29 +62,30 @@ def usage():
     print ("dicom2stl.py: [options] slice1 ... sliceN")
     print ("   or")
     print ("dicom2stl.py: [options] dicom_directory")
-    print
+    print ("")
     print ("  -h, --help          This help message")
     print ("  -v, --verbose       Verbose output")
     print ("  -D, --debug         Debug mode")
-    print
+    print ("")
     print ("  -o string           Output file name (default=result.stl)")
     print ("  -m string           Metadata file name (default=\"\")")
     print ("  --ct                Only allow CT images")
     print ("  -c, --clean         Clean up temp files")
     print ("  -T string, --temp string      Directory to place temporary files")
     print ("  -s string, --search string    Dicom series search string")
-    print
+    print ("")
     print ("  Volume processing options")
     print ("  -t string, --type string      CT Tissue type [skin, bone, soft_tissue, fat]")
     print ("  -a, --anisotropic             Apply anisotropic smoothing to the volume")
     print ("  -i num, --isovalue num        Iso-surface value")
     print ("  -d string, --double string    Double threshold with 4 values in a string seperated by semicolons")
-    print
+    print ("")
     print ("  Mesh options")
     print ("  -l, --largest       Keep only the largest connected mesh")
     print ("  --rotaxis int       Rotation axis (default=1, Y-axis)")
     print ("  --rotangle float    Rotation angle (default=180 degrees)")
-    print
+    print ("  --smooth int        Smoothing iterations (default=25)")
+    print ("")
     print ("  Enable/Disable various filtering options")
     print ("  --disable string    Disable an option [anisotropic, shrink, median, largest, rotation]")
     print ("  --enable  string    Enable an option [anisotropic, shrink, median, largest, rotation]")
@@ -96,7 +97,7 @@ def usage():
 try:
     opts, args = getopt.getopt(sys.argv[1:], "vDhacli:s:t:d:o:m:T:",
         [ "verbose", "help", "debug", "anisotropic", "clean", "ct", "isovalue=", "search=", "type=",
-          "double=", "disable=", "enable=", "largest", "metadata", "rotaxis=", "rotangle=",
+          "double=", "disable=", "enable=", "largest", "metadata", "rotaxis=", "rotangle=", "smooth=",
           "temp=" ] )
 except getopt.GetoptError as err:
     print (str(err))
@@ -145,6 +146,8 @@ for o, a in opts:
         rotAxis = int(a)
     elif o in ("--rotangle"):
         rotAngle = float(a)
+    elif o in ("--smooth"):
+        smoothIterations = int(a)
     elif o in ("--disable"):
         options.append("no"+a)
     elif o in ("--enable"):
@@ -432,7 +435,7 @@ mesh2 = vtkutils.cleanMesh(mesh, connectivityFilter)
 mesh = None
 gc.collect()
 if debug:
-  print ("Smoothing mesh")
+  print ("Smoothing mesh", smoothIterations, "iterations")
 mesh3 = vtkutils.smoothMesh(mesh2, smoothIterations)
 mesh2 = None
 gc.collect()
