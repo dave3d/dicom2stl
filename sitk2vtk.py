@@ -8,6 +8,7 @@
 #       http://www.apache.org/licenses/LICENSE-2.0
 #
 
+from __future__ import print_function
 from copy import *
 import SimpleITK as sitk
 import vtk
@@ -55,7 +56,7 @@ def sitk2vtk(img, outVol=None, debugOn=False):
     i2 = sitk.GetArrayFromImage(img)
     i2_string = i2.tostring()
     if debugOn:
-        print "data string address inside sitk2vtk", hex(id(i2_string))
+        print ("data string address inside sitk2vtk", hex(id(i2_string)))
 
     # send the numpy array to VTK with a vtkImageImport object
     dataImporter = vtk.vtkImageImport()
@@ -93,14 +94,14 @@ def sitk2vtk(img, outVol=None, debugOn=False):
         outVol.DeepCopy(vtk_image)
 
     if debugOn:
-        print "Volume object inside sitk2vtk"
-        print vtk_image
-        print "type = ", vtktype
-        print "num components = ", ncomp
-        print size
-        print origin
-        print spacing
-        print vtk_image.GetScalarComponentAsFloat(0,0,0,0)
+        print ("Volume object inside sitk2vtk")
+        print (vtk_image)
+        print ("type = ", vtktype)
+        print ("num components = ", ncomp)
+        print (size)
+        print (origin)
+        print (spacing)
+        print (vtk_image.GetScalarComponentAsFloat(0,0,0,0))
 
     return vtk_image
 
@@ -108,19 +109,19 @@ def sitk2vtk(img, outVol=None, debugOn=False):
 if __name__ == "__main__":
     import platform
 
-    print "Testing"
-    print len(i2_string)
+    print ("Testing")
+    print (len(i2_string))
     img = sitk.GaussianSource(sitk.sitkUInt8, [102,102,102])
 
     if platform.system() == "Windows":
         invol = vtk.vtkImageData()
         invol.SetDimensions(10,10,10)
         vol = sitk2vtk(img, invol, True)
-        print "Accessing VTK image"
-        print invol.GetScalarComponentAsFloat(5,5,5,0)
+        print ("Accessing VTK image")
+        print (invol.GetScalarComponentAsFloat(5,5,5,0))
     else:
         vol = sitk2vtk(img, True)
-        print len(i2_string)
-        print "Accessing VTK image"
-        print vol.GetScalarComponentAsFloat(5,5,5,0)
+        print (len(i2_string))
+        print ("Accessing VTK image")
+        print (vol.GetScalarComponentAsFloat(5,5,5,0))
 

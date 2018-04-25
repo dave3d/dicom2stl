@@ -14,6 +14,7 @@
 #  ordered the same alphabetically as they are physically.
 #
 
+from __future__ import print_function
 import sys, os, zipfile, tempfile, getopt, math, time, gc, glob
 
 
@@ -97,7 +98,7 @@ try:
         [ "verbose", "help", "debug", "anisotropic", "clean", "ct", "isovalue=", "search=", "type=",
           "double=", "disable=", "enable=", "largest", "metadata", "rotaxis=", "rotangle=",
           "temp=" ] )
-except getopt.GetoptError, err:
+except getopt.GetoptError as err:
     print (str(err))
     usage()
     sys.exit(2)
@@ -107,7 +108,7 @@ for o, a in opts:
     if o in ("-v", "--verbose"):
         verbose = verbose + 1
     elif o in ("-D", "--debug"):
-        print "Debug"
+        print ("Debug")
         debug = debug + 1
         cleanFlag = False
     elif o in ("-h", "--help"):
@@ -171,14 +172,14 @@ for x in options:
         rotFlag = val
 
 
-print
+print ("")
 if tempDir == "":
     tempDir = tempfile.mkdtemp()
-print "Temp dir: ", tempDir
+print ("Temp dir: ", tempDir)
 
 if tissueType:
     # Convert tissue type name to threshold values
-    print "Tissue type: ", tissueType
+    print ("Tissue type: ", tissueType)
     if tissueType.find("bone") > -1:
         thresholds = [200., 800., 1300., 1500.]
     elif tissueType.find("skin") > -1:
@@ -193,18 +194,18 @@ if tissueType:
 
 if doubleThreshold:
    # check that there are 4 threshold values.
-   print "Thresholds: ", thresholds
+   print ("Thresholds: ", thresholds)
    if len(thresholds) != 4:
-       print "Error: Threshold is not of size 4.", thresholds
+       print ("Error: Threshold is not of size 4.", thresholds)
        sys.exit(3)
 else:
-    print "Isovalue = ", isovalue
+    print ("Isovalue = ", isovalue)
 
 
 fname = args
 
 if len(fname) == 0:
-    print "Error: no input given."
+    print ("Error: no input given.")
     sys.exit(4)
 
 if zipfile.is_zipfile(fname[0]):
@@ -217,15 +218,15 @@ if os.path.isdir(fname[0]):
 else:
     l = len(fname)
     if l>1:
-        print "File names: ", fname[0], fname[1], "...", fname[l-1], "\n"
+        print ("File names: ", fname[0], fname[1], "...", fname[l-1], "\n")
     else:
-        print "File names: ", fname, "\n"
+        print ("File names: ", fname, "\n")
 
 import SimpleITK as sitk
 
 if debug:
-    print "SimpleITK version: ", sitk.Version.VersionString()
-    print "SimpleITK: ", sitk, "\n"
+    print ("SimpleITK version: ", sitk.Version.VersionString())
+    print ("SimpleITK: ", sitk, "\n")
 
 img      = sitk.Image( 100,100,100, sitk.sitkUInt8 )
 dcmnames = []
@@ -237,13 +238,13 @@ import dicomutils
 #  load the series that has the most slices
 #
 def loadZipDicom(name):
-    print "Reading Dicom zip file:", name
+    print ("Reading Dicom zip file:", name)
     myzip = zipfile.ZipFile(name, 'r')
 
     try:
         myzip.extractall(tempDir)
     except:
-        print "Zip extract failed"
+        print ("Zip extract failed")
 
     return dicomutils.loadLargestSeries(tempDir)
 
@@ -253,21 +254,21 @@ def loadZipDicom(name):
 if zipFlag:
     # Case for a zip file of images
     if verbose:
-        print "zip"
+        print ("zip")
     img, modality = loadZipDicom( fname[0] )
 
 
 else:
     if dirFlag:
         if verbose:
-            print "directory"
+            print ("directory")
         img, modality = dicomutils.loadLargestSeries( fname[0] )
 
     else:
         # Case for a single volume image
         if len(fname) == 1:
             if verbose:
-                print "Reading volume: ", fname[0]
+                print ("Reading volume: ", fname[0])
             img = sitk.ReadImage( fname[0] )
             modality = dicomutils.getModality(img)
 
@@ -275,10 +276,10 @@ else:
         # Case for a series of image files
             if verbose:
                 if verbose>1:
-                    print "Reading images: ", fname
+                    print ("Reading images: ", fname)
                 else:
                     l = len(fname)
-                    print "Reading images: ", fname[0], fname[1], "...", fname[l-1]
+                    print ("Reading images: ", fname[0], fname[1], "...", fname[l-1])
             isr = sitk.ImageSeriesReader()
             isr.SetFileNames(fname)
             img = isr.Execute()
@@ -290,7 +291,7 @@ if CTonly and ( (sitk.Version.MinorVersion()>8) or (sitk.Version.MajorVersion()>
     # SimpleITK version 0.8.0 or later.  For earlier versions there is no GetMetaDataKeys method
 
     if modality.find("CT") == -1:
-        print "Imaging modality is not CT.  Exiting."
+        print ("Imaging modality is not CT.  Exiting.")
         sys.exit(1)
 
 
@@ -303,7 +304,7 @@ def roundThousand(x):
 
 def elapsedTime(start_time):
     dt = roundThousand(time.clock()-start_time)
-    print "    ", dt, "seconds"
+    print ("    ", dt, "seconds")
 
 # Write out the metadata text file
 #
@@ -334,10 +335,10 @@ if shrinkFlag:
     if sum>3:
         # if sum==3, no shrink happens
         t = time.clock()
-        print "Shrink factors: ", sfactor
+        print ("Shrink factors: ", sfactor)
         img = sitk.Shrink(img, sfactor)
         newsize = img.GetSize()
-        print size, "->", newsize
+        print (size, "->", newsize)
         elapsedTime(t)
 
 gc.collect()
@@ -347,7 +348,7 @@ gc.collect()
 # that preserves edges.
 #
 if anisotropicSmoothing:
-    print "Anisotropic Smoothing"
+    print ("Anisotropic Smoothing")
     t = time.clock()
     pixelType = img.GetPixelID()
     img = sitk.Cast(img, sitk.sitkFloat32)
@@ -359,7 +360,7 @@ if anisotropicSmoothing:
 # Apply the double threshold filter to the volume
 #
 if doubleThreshold:
-    print "Double Threshold"
+    print ("Double Threshold")
     t = time.clock()
     img = sitk.DoubleThreshold(img, thresholds[0], thresholds[1], thresholds[2], thresholds[3], 255, 0)
     isovalue = 64.0
@@ -369,7 +370,7 @@ if doubleThreshold:
 # Apply a 3x3x1 median filter.  I only use 1 in the Z direction so it's not so slow.
 #
 if medianFilter:
-    print "Median filter"
+    print ("Median filter")
     t = time.clock()
     img = sitk.Median(img, [3,3,1])
     elapsedTime(t)
@@ -382,14 +383,14 @@ img = sitk.ConstantPad(img, pad, pad)
 gc.collect()
 
 if verbose:
-    print "\nImage for isocontouring"
-    print img.GetSize()
-    print img.GetPixelIDTypeAsString()
-    print img.GetSpacing()
-    print img.GetOrigin()
+    print ("\nImage for isocontouring")
+    print (img.GetSize())
+    print (img.GetPixelIDTypeAsString())
+    print (img.GetSpacing())
+    print (img.GetOrigin())
     if verbose>1:
-        print img
-    print
+        print (img)
+    print ("")
 
 #vtkname =  tempDir+"/vol.vtk"
 #sitk.WriteImage( img, vtkname )
@@ -414,29 +415,29 @@ gc.collect()
 import traceback, vtk
 
 if debug:
-    print "\nVTK version: ", vtk.vtkVersion.GetVTKVersion()
-    print "VTK: ", vtk, "\n"
+    print ("\nVTK version: ", vtk.vtkVersion.GetVTKVersion())
+    print ("VTK: ", vtk, "\n")
 
 
 import vtkutils
 
 if debug:
-  print "Extracting surface"
+  print ("Extracting surface")
 mesh = vtkutils.extractSurface(vtkimg, isovalue)
 vtkimg = None
 gc.collect()
 if debug:
-  print "Cleaning mesh"
+  print ("Cleaning mesh" )
 mesh2 = vtkutils.cleanMesh(mesh, connectivityFilter)
 mesh = None
 gc.collect()
 if debug:
-  print "Smoothing mesh"
+  print ("Smoothing mesh")
 mesh3 = vtkutils.smoothMesh(mesh2, smoothIterations)
 mesh2 = None
 gc.collect()
 if debug:
-  print "Simplifying mesh"
+  print ("Simplifying mesh")
 mesh4 = vtkutils.reduceMesh(mesh3, quad)
 mesh3 = None
 gc.collect()
@@ -455,4 +456,4 @@ import shutil
 if cleanUp:
     shutil.rmtree(tempDir)
 
-print
+print ("")

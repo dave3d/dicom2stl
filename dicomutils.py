@@ -12,6 +12,7 @@
 #      http://www.apache.org/licenses/LICENSE-2.0
 #
 
+from __future__ import print_function
 import sys, os, fnmatch
 import zipfile
 import SimpleITK as sitk
@@ -35,7 +36,7 @@ def getAllSeries(dirs):
         series = isr.GetGDCMSeriesIDs(d)
         for s in series:
             files = isr.GetGDCMSeriesFileNames(d, s)
-            print s, d, len(files)
+            print (s, d, len(files))
             seriessets.append([s, d, files])
     return seriessets
 
@@ -67,13 +68,13 @@ def loadLargestSeries(dicomdir):
             maxindex = count
         count = count + 1
     if maxindex<0:
-        print "Error:  no series found"
+        print ("Error:  no series found")
         return None
     isr = sitk.ImageSeriesReader()
     ss = seriessets[maxindex]
     files = ss[2]
     isr.SetFileNames(files)
-    print "\nLoading series", ss[0], "in directory", ss[1]
+    print ("\nLoading series", ss[0], "in directory", ss[1])
     img = isr.Execute()
 
     firstslice = sitk.ReadImage(files[0])
@@ -87,27 +88,27 @@ def loadLargestSeries(dicomdir):
 #
 
 if __name__ == "__main__":
-    print ""
-    print "dicomutils.py"
-    print sys.argv[1]
+    print ("")
+    print ("dicomutils.py")
+    print (sys.argv[1])
 
 #    img = loadLargestSeries(sys.argv[1])
-#    print img
+#    print (img)
 #    sys.exit(0)
 
     files, dirs = scanDirForDicom(sys.argv[1])
-    print ""
-    print "files"
-    print files
-    print ""
-    print "dirs"
-    print dirs
+    print ("")
+    print ("files")
+    print (files)
+    print ("")
+    print ("dirs")
+    print (dirs)
 
-    print "series"
+    print ("series")
     seriessets = getAllSeries(dirs)
     for ss in seriessets:
-       print ss[0], " ", ss[1]
-       print len(ss[2])
-       print ""
+       print (ss[0], " ", ss[1])
+       print (len(ss[2]))
+       print ("")
 
 
