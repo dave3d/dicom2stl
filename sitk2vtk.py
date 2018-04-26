@@ -20,35 +20,35 @@ from numpy import *
 
 # dictionary to convert SimpleITK pixel types to VTK
 #
-pixelmap = { sitk.sitkUInt8:   vtk.VTK_UNSIGNED_CHAR,  sitk.sitkInt8:    vtk.VTK_CHAR,
-             sitk.sitkUInt16:  vtk.VTK_UNSIGNED_SHORT, sitk.sitkInt16:   vtk.VTK_SHORT,
-             sitk.sitkUInt32:  vtk.VTK_UNSIGNED_INT,   sitk.sitkInt32:   vtk.VTK_INT,
-             sitk.sitkUInt64:  vtk.VTK_UNSIGNED_LONG,  sitk.sitkInt64:   vtk.VTK_LONG,
-             sitk.sitkFloat32: vtk.VTK_FLOAT,          sitk.sitkFloat64: vtk.VTK_DOUBLE,
+pixelmap = {sitk.sitkUInt8:   vtk.VTK_UNSIGNED_CHAR,  sitk.sitkInt8:    vtk.VTK_CHAR,
+            sitk.sitkUInt16:  vtk.VTK_UNSIGNED_SHORT, sitk.sitkInt16:   vtk.VTK_SHORT,
+            sitk.sitkUInt32:  vtk.VTK_UNSIGNED_INT,   sitk.sitkInt32:   vtk.VTK_INT,
+            sitk.sitkUInt64:  vtk.VTK_UNSIGNED_LONG,  sitk.sitkInt64:   vtk.VTK_LONG,
+            sitk.sitkFloat32: vtk.VTK_FLOAT,          sitk.sitkFloat64: vtk.VTK_DOUBLE,
 
-             sitk.sitkVectorUInt8:   vtk.VTK_UNSIGNED_CHAR,  sitk.sitkVectorInt8:    vtk.VTK_CHAR,
-             sitk.sitkVectorUInt16:  vtk.VTK_UNSIGNED_SHORT, sitk.sitkVectorInt16:   vtk.VTK_SHORT,
-             sitk.sitkVectorUInt32:  vtk.VTK_UNSIGNED_INT,   sitk.sitkVectorInt32:   vtk.VTK_INT,
-             sitk.sitkVectorUInt64:  vtk.VTK_UNSIGNED_LONG,  sitk.sitkVectorInt64:   vtk.VTK_LONG,
-             sitk.sitkVectorFloat32: vtk.VTK_FLOAT,          sitk.sitkVectorFloat64: vtk.VTK_DOUBLE,
+            sitk.sitkVectorUInt8:   vtk.VTK_UNSIGNED_CHAR,  sitk.sitkVectorInt8:    vtk.VTK_CHAR,
+            sitk.sitkVectorUInt16:  vtk.VTK_UNSIGNED_SHORT, sitk.sitkVectorInt16:   vtk.VTK_SHORT,
+            sitk.sitkVectorUInt32:  vtk.VTK_UNSIGNED_INT,   sitk.sitkVectorInt32:   vtk.VTK_INT,
+            sitk.sitkVectorUInt64:  vtk.VTK_UNSIGNED_LONG,  sitk.sitkVectorInt64:   vtk.VTK_LONG,
+            sitk.sitkVectorFloat32: vtk.VTK_FLOAT,          sitk.sitkVectorFloat64: vtk.VTK_DOUBLE,
 
-             sitk.sitkLabelUInt8:  vtk.VTK_UNSIGNED_CHAR,
-             sitk.sitkLabelUInt16: vtk.VTK_UNSIGNED_SHORT,
-             sitk.sitkLabelUInt32: vtk.VTK_UNSIGNED_INT,
-             sitk.sitkLabelUInt64: vtk.VTK_UNSIGNED_LONG,
-             }
+            sitk.sitkLabelUInt8:  vtk.VTK_UNSIGNED_CHAR,
+            sitk.sitkLabelUInt16: vtk.VTK_UNSIGNED_SHORT,
+            sitk.sitkLabelUInt32: vtk.VTK_UNSIGNED_INT,
+            sitk.sitkLabelUInt64: vtk.VTK_UNSIGNED_LONG,
+            }
 
 
 # A function that converts a SimpleITK image to a VTK image, via numpy
 #
 def sitk2vtk(img, outVol=None, debugOn=False):
 
-    size     = list(img.GetSize())
-    origin   = list(img.GetOrigin())
-    spacing  = list(img.GetSpacing())
+    size = list(img.GetSize())
+    origin = list(img.GetOrigin())
+    spacing = list(img.GetSpacing())
     sitktype = img.GetPixelID()
-    vtktype  = pixelmap[sitktype]
-    ncomp    = img.GetNumberOfComponentsPerPixel()
+    vtktype = pixelmap[sitktype]
+    ncomp = img.GetNumberOfComponentsPerPixel()
 
     # there doesn't seem to be a way to specify the image orientation in VTK
 
@@ -56,12 +56,12 @@ def sitk2vtk(img, outVol=None, debugOn=False):
     i2 = sitk.GetArrayFromImage(img)
     i2_string = i2.tostring()
     if debugOn:
-        print ("data string address inside sitk2vtk", hex(id(i2_string)))
+        print("data string address inside sitk2vtk", hex(id(i2_string)))
 
     # send the numpy array to VTK with a vtkImageImport object
     dataImporter = vtk.vtkImageImport()
 
-    dataImporter.CopyImportVoidPointer( i2_string, len(i2_string) )
+    dataImporter.CopyImportVoidPointer(i2_string, len(i2_string))
 
     dataImporter.SetDataScalarType(vtktype)
 
@@ -79,7 +79,7 @@ def sitk2vtk(img, outVol=None, debugOn=False):
 
     # Set the new VTK image's parameters
     #
-    dataImporter.SetDataExtent (0, size[0]-1, 0, size[1]-1, 0, size[2]-1)
+    dataImporter.SetDataExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1)
     dataImporter.SetWholeExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1)
 
     dataImporter.SetDataOrigin(origin)
@@ -94,14 +94,14 @@ def sitk2vtk(img, outVol=None, debugOn=False):
         outVol.DeepCopy(vtk_image)
 
     if debugOn:
-        print ("Volume object inside sitk2vtk")
-        print (vtk_image)
-        print ("type = ", vtktype)
-        print ("num components = ", ncomp)
-        print (size)
-        print (origin)
-        print (spacing)
-        print (vtk_image.GetScalarComponentAsFloat(0,0,0,0))
+        print("Volume object inside sitk2vtk")
+        print(vtk_image)
+        print("type = ", vtktype)
+        print("num components = ", ncomp)
+        print(size)
+        print(origin)
+        print(spacing)
+        print(vtk_image.GetScalarComponentAsFloat(0, 0, 0, 0))
 
     return vtk_image
 
@@ -109,19 +109,18 @@ def sitk2vtk(img, outVol=None, debugOn=False):
 if __name__ == "__main__":
     import platform
 
-    print ("Testing")
-    print (len(i2_string))
-    img = sitk.GaussianSource(sitk.sitkUInt8, [102,102,102])
+    print("Testing")
+    print(len(i2_string))
+    img = sitk.GaussianSource(sitk.sitkUInt8, [102, 102, 102])
 
     if platform.system() == "Windows":
         invol = vtk.vtkImageData()
-        invol.SetDimensions(10,10,10)
+        invol.SetDimensions(10, 10, 10)
         vol = sitk2vtk(img, invol, True)
-        print ("Accessing VTK image")
-        print (invol.GetScalarComponentAsFloat(5,5,5,0))
+        print("Accessing VTK image")
+        print(invol.GetScalarComponentAsFloat(5, 5, 5, 0))
     else:
         vol = sitk2vtk(img, True)
-        print (len(i2_string))
-        print ("Accessing VTK image")
-        print (vol.GetScalarComponentAsFloat(5,5,5,0))
-
+        print(len(i2_string))
+        print("Accessing VTK image")
+        print(vol.GetScalarComponentAsFloat(5, 5, 5, 0))
