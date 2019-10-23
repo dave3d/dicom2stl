@@ -93,6 +93,7 @@ def usage():
     print("  --rotaxis int       Rotation axis (default=1, Y-axis)")
     print("  --rotangle float    Rotation angle (default=180 degrees)")
     print("  --smooth int        Smoothing iterations (default=25)")
+    print("  --reduce float      Polygon reduction factor (default=.9)")
     print("")
     print("  Enable/Disable various filtering options")
     print(
@@ -108,7 +109,8 @@ try:
     opts, args = getopt.getopt(sys.argv[1:], "vDhacli:s:t:d:o:m:T:",
                                ["verbose", "help", "debug", "anisotropic", "clean", "ct", "isovalue=", "search=", "type=",
                                 "double=", "disable=", "enable=", "largest", "metadata", "rotaxis=", "rotangle=", "smooth=",
-                                "temp="])
+
+                                "reduce=", "temp="])
 except getopt.GetoptError as err:
     print(str(err))
     usage()
@@ -158,6 +160,8 @@ for o, a in opts:
         rotAngle = float(a)
     elif o in ("--smooth"):
         smoothIterations = int(a)
+    elif o in ("--reduce"):
+        quad = float(a)
     elif o in ("--disable"):
         options.append("no"+a)
     elif o in ("--enable"):
