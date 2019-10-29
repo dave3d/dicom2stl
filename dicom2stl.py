@@ -1,18 +1,18 @@
 #! /usr/bin/env vtkpython
 
-#
-#  Script to take a Dicom series and generate an STL surface mesh.
-#
-#  Written by David T. Chen from the National Library of Medicine, dchen@mail.nih.gov.
-#  It is covered by the Apache License, Version 2.0:
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
+"""
+Script to take a Dicom series and generate an STL surface mesh.
 
-#  Note: if you run this script with the individual Dicom slices provided on the
-#  command line, they might not be ordered in the correct order.  You are better
-#  off providing a zip file or a directory.  Dicom slices are not necessarily
-#  ordered the same alphabetically as they are physically.
-#
+Written by David T. Chen from the National Institute of Allergy
+and Infectious Diseases, dchen@mail.nih.gov.
+It is covered by the Apache License, Version 2.0:
+http://www.apache.org/licenses/LICENSE-2.0
+
+Note: if you run this script with the individual Dicom slices provided on the
+command line, they might not be ordered in the correct order.  You are better
+off providing a zip file or a directory.  Dicom slices are not necessarily
+ordered the same alphabetically as they are physically.
+"""
 
 from __future__ import print_function
 import sys

@@ -1,12 +1,14 @@
 #! /usr/bin/env vtkpython
 
-#
-#  A collection of VTK functions for processing surfaces and volume.
-#
-#  Written by David T. Chen from the National Library of Medicine, dchen@mail.nih.gov.
-#  It is covered by the Apache License, Version 2.0:
-#  http://www.apache.org/licenses/LICENSE-2.0
-#
+
+"""
+A collection of VTK functions for processing surfaces and volume.
+
+Written by David T. Chen from the National Institute of Allergy and
+Infectious Diseases, dchen@mail.nih.gov.
+It is covered by the Apache License, Version 2.0:
+http://www.apache.org/licenses/LICENSE-2.0
+"""
 
 from __future__ import print_function
 import sys
@@ -35,6 +37,7 @@ def elapsedTime(start_time):
 
 
 def extractSurface(vol, isovalue=0.0):
+    """Extract an isosurface from a volume."""
     try:
         t = time.clock()
         iso = vtk.vtkContourFilter()
@@ -62,6 +65,7 @@ def extractSurface(vol, isovalue=0.0):
 #  Mesh filtering
 #
 def cleanMesh(mesh, connectivityFilter=False):
+    """Clean a mesh using VTKs CleanPolyData filter."""
     try:
         t = time.clock()
         connect = vtk.vtkPolyDataConnectivityFilter()
@@ -97,6 +101,7 @@ def cleanMesh(mesh, connectivityFilter=False):
 
 
 def smoothMesh(mesh, nIterations=10):
+    """Smooth a mesh using vtk's WindowedSincPolyData filter."""
     try:
         t = time.clock()
         smooth = vtk.vtkWindowedSincPolyDataFilter()
@@ -121,6 +126,7 @@ def smoothMesh(mesh, nIterations=10):
 
 
 def rotateMesh(mesh, axis=1, angle=0):
+    """Rotate a mesh about an arbitrary axis."""
     try:
         print("Rotating surface: axis=", axis, "angle=", angle)
         matrix = vtk.vtkTransform()
@@ -150,6 +156,7 @@ def rotateMesh(mesh, axis=1, angle=0):
 
 
 def reduceMesh(mymesh, reductionFactor):
+    """Reduce the number of triangles in a mesh using VTK's QuadricDecimation filter."""
     try:
         t = time.clock()
         deci = vtk.vtkQuadricDecimation()
@@ -179,6 +186,7 @@ def reduceMesh(mymesh, reductionFactor):
 
 
 def readMesh(name):
+    """Read a mesh. Uses suffix to determine specific file type reader."""
     if name.endswith(".vtk"):
         return readVTKMesh(name)
     if name.endswith(".ply"):
@@ -190,6 +198,7 @@ def readMesh(name):
 
 
 def readVTKMesh(name):
+    """Read a VTK mesh file."""
     try:
         reader = vtk.vtkPolyDataReader()
         reader.SetFileName(name)
@@ -208,6 +217,7 @@ def readVTKMesh(name):
 
 
 def readSTL(name):
+    """Read an STL mesh file."""
     try:
         reader = vtk.vtkSTLReader()
         reader.SetFileName(name)
@@ -226,6 +236,7 @@ def readSTL(name):
 
 
 def readPLY(name):
+    """Read a PLY mesh file."""
     try:
         reader = vtk.vtkPLYReader()
         reader.SetFileName(name)
@@ -244,6 +255,7 @@ def readPLY(name):
 
 
 def writeMesh(mesh, name):
+    """Write a mesh. Uses suffix to determine specific file type writer."""
     print("Writing", mesh.GetNumberOfPolys(), "polygons to", name)
     if name.endswith(".vtk"):
         writeVTKMesh(mesh, name)
@@ -257,7 +269,8 @@ def writeMesh(mesh, name):
     print("Unknown file type: ", name)
 
 
-def writeVTKMesh(mesh, name):
+def writereaderVTKMesh(mesh, name):
+    """Write a VTK mesh file."""
     try:
         writer = vtk.vtkPolyDataWriter()
         if vtk.vtkVersion.GetVTKMajorVersion() >= 6:
@@ -278,6 +291,7 @@ def writeVTKMesh(mesh, name):
 
 
 def writeSTL(mesh, name):
+    """Write an STL mesh file."""
     try:
         writer = vtk.vtkSTLWriter()
         if vtk.vtkVersion.GetVTKMajorVersion() >= 6:
@@ -300,6 +314,7 @@ def writeSTL(mesh, name):
 
 
 def writePLY(mesh, name):
+    """Read a PLY mesh file."""
     try:
         writer = vtk.vtkPLYWriter()
         if vtk.vtkVersion.GetVTKMajorVersion() >= 6:
@@ -324,6 +339,7 @@ def writePLY(mesh, name):
 
 
 def readVTKVolume(name):
+    """Read a VTK volume image file."""
     try:
         reader = vtk.vtkStructuredPointsReader()
         reader.SetFileName(name)

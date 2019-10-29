@@ -1,12 +1,13 @@
 #! /usr/bin/env vtkpython
 
-#
-#  Function to convert a SimpleITK image to a VTK image.
-#
-#  Written by David T. Chen from the National Library of Medicine, dchen@mail.nih.gov.
-#  It is covered by the Apache License, Version 2.0:
-#       http://www.apache.org/licenses/LICENSE-2.0
-#
+"""
+Function to convert a SimpleITK image to a VTK image.
+
+Written by David T. Chen from the National Institute of Allergy
+and Infectious Diseases, dchen@mail.nih.gov.
+It is covered by the Apache License, Version 2.0:
+http://www.apache.org/licenses/LICENSE-2.0
+"""
 
 from __future__ import print_function
 from copy import *
@@ -39,9 +40,8 @@ pixelmap = {sitk.sitkUInt8:   vtk.VTK_UNSIGNED_CHAR,  sitk.sitkInt8:    vtk.VTK_
             }
 
 
-# A function that converts a SimpleITK image to a VTK image, via numpy
-#
 def sitk2vtk(img, outVol=None, debugOn=False):
+    """Convert a SimpleITK image to a VTK image, via numpy."""
 
     size = list(img.GetSize())
     origin = list(img.GetOrigin())

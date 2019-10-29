@@ -1,16 +1,18 @@
 #! /usr/bin/env python
 
-#
-#  Function to load the largest Dicom series in a directory.
-#
-#  It scans the directory recursively search for files with the ".dcm"
-#  suffix.  Note that DICOM fails don't always have that suffix.  In
-#  that case this function will fail.
-#
-#  Written by David T. Chen from the National Library of Medicine, dchen@mail.nih.gov.
-#  It is covered by the Apache License, Version 2.0:
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
+"""
+Function to load the largest Dicom series in a directory.
+
+It scans the directory recursively search for files with the ".dcm"
+suffix.  Note that DICOM fails don't always have that suffix.  In
+that case this function will fail.
+
+Written by David T. Chen from the National Institute of Allergy
+and Infectious Diseases, dchen@mail.nih.gov.
+It is covered by the Apache License, Version 2.0:
+http://www.apache.org/licenses/LICENSE-2.0
+"""
+
 
 from __future__ import print_function
 import sys
@@ -33,6 +35,7 @@ def scanDirForDicom(dicomdir):
 
 
 def getAllSeries(dirs):
+    """Get all the Dicom series in a set of directories."""
     isr = sitk.ImageSeriesReader()
     seriessets = []
     for d in dirs:
@@ -45,6 +48,7 @@ def getAllSeries(dirs):
 
 
 def getModality(img):
+    """Get an image's modality, as stored in the Dicom meta data."""
     modality = ""
     if (sitk.Version.MinorVersion() > 8) or (sitk.Version.MajorVersion() > 0):
         try:
@@ -54,11 +58,15 @@ def getModality(img):
     return modality
 
 
-#   Load the largest Dicom series it finds in a recursive scan of
-#   a directory.  Largest means has the most slices.  It also returns
-#   the modality.
-#
 def loadLargestSeries(dicomdir):
+    """
+    Load the largest Dicom series it finds in a recursive scan of
+    a directory.
+
+    Largest means has the most slices.  It also returns the modality
+    of the series.
+    """
+
     files, dirs = scanDirForDicom(dicomdir)
     seriessets = getAllSeries(dirs)
     maxsize = 0
