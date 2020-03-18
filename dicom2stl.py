@@ -1,4 +1,4 @@
-#! /usr/bin/env vtkpython
+#! /usr/bin/env python
 
 """
 Script to take a Dicom series and generate an STL surface mesh.
@@ -15,15 +15,8 @@ ordered the same alphabetically as they are physically.
 """
 
 from __future__ import print_function
-import sys
-import os
-import zipfile
-import tempfile
-import getopt
-import math
-import time
-import gc
-import glob
+import sys, os, getopt, time, gc, glob, math
+import zipfile, tempfile
 
 
 # Global variables
@@ -249,7 +242,7 @@ img = sitk.Image(100, 100, 100, sitk.sitkUInt8)
 dcmnames = []
 metasrc = img
 
-import dicomutils
+from utils import dicomutils
 
 #  Unzip a zipfile of dicom images into a temp directory, then
 #  load the series that has the most slices
@@ -265,7 +258,7 @@ def loadZipDicom(name):
     except:
         print("Zip extract failed")
 
-    return dicomutils.loadLargestSeries(tempDir)
+    return loadLargestSeries(tempDir)
 
 
 #  Load our Dicom data
@@ -281,7 +274,7 @@ else:
     if dirFlag:
         if verbose:
             print("directory")
-        img, modality = dicomutils.loadLargestSeries(fname[0])
+        img, modality = loadLargestSeries(fname[0])
 
     else:
         # Case for a single volume image
@@ -419,7 +412,7 @@ if verbose:
 #sitk.WriteImage( img, vtkname )
 
 import platform
-import sitk2vtk
+from utils import sitk2vtk
 import vtk
 vtkimg = None
 
@@ -443,7 +436,7 @@ if debug:
     print("VTK: ", vtk, "\n")
 
 
-import vtkutils
+from utils import vtkutils
 
 if debug:
     print("Extracting surface")
