@@ -1,4 +1,4 @@
-#! /usr/bin/env vtkpython
+#! /usr/bin/env python
 
 
 """

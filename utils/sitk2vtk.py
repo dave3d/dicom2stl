@@ -1,4 +1,4 @@
-#! /usr/bin/env vtkpython
+#! /usr/bin/env python
 
 """
 Function to convert a SimpleITK image to a VTK image.
