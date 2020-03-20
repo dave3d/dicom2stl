@@ -21,7 +21,7 @@ SimpleITK can be installed via the following command:
 > pip SimpleITK
 
 The options for the script can be seen by running it:
-> vtkpython dicom2stl.py --help
+> python dicom2stl.py --help
 
 
 How it works
@@ -68,15 +68,15 @@ Examples
 ========
 
 To extract the bone from a zip of dicom images:
-> vtkpython dicom2stl.py -t bone -o bone.stl dicom.zip
+> python dicom2stl.py -t bone -o bone.stl dicom.zip
 
 To extract the skin from a NRRD volume:
-> vtkpython dicom2stl.py -t skin -o skin.stl volume.nrrd
+> python dicom2stl.py -t skin -o skin.stl volume.nrrd
 
 To extract a specific iso-value from a VTK volume:
-> vtkpython dicom2stl.py -i 128 -o iso.stl volume.vtk
+> python dicom2stl.py -i 128 -o iso.stl volume.vtk
 
 To extract soft tissue from a dicom series in directory and
 apply a 180 degree Y axis rotation:
-> vtkpython dicom2stl.py --enable rotation -t soft_tissue -o soft.stl dicom_dir
+> python dicom2stl.py --enable rotation -t soft_tissue -o soft.stl dicom_dir
 
