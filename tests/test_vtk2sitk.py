@@ -1,11 +1,10 @@
 #! /usr/bin/env python
 
 import unittest
+import math
 from utils import vtk2sitk
 import vtk
 import SimpleITK as sitk
-import math, sys
-from vtk.util.numpy_support import *
 
 
 def printStats(stats):
