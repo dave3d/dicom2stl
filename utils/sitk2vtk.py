@@ -106,21 +106,3 @@ def sitk2vtk(img, outVol=None, debugOn=False):
     return vtk_image
 
 
-if __name__ == "__main__":
-    import platform
-
-    print("Testing")
-    print(len(i2_string))
-    img = sitk.GaussianSource(sitk.sitkUInt8, [102, 102, 102])
-
-    if platform.system() == "Windows":
-        invol = vtk.vtkImageData()
-        invol.SetDimensions(10, 10, 10)
-        vol = sitk2vtk(img, invol, True)
-        print("Accessing VTK image")
-        print(invol.GetScalarComponentAsFloat(5, 5, 5, 0))
-    else:
-        vol = sitk2vtk(img, True)
-        print(len(i2_string))
-        print("Accessing VTK image")
-        print(vol.GetScalarComponentAsFloat(5, 5, 5, 0))
