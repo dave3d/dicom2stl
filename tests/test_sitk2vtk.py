@@ -10,7 +10,8 @@ class TestSITK2VTK(unittest.TestCase):
 
     def test_sitk2vtk(self):
         print("Testing sitk2vtk")
-        img = sitk.GaussianSource(sitk.sitkUInt8, [102, 102, 102])
+        dims = [102,102,102]
+        img = sitk.GaussianSource(sitk.sitkUInt8, dims)
 
         if platform.system() == "Windows":
             invol = vtk.vtkImageData()
@@ -20,8 +21,11 @@ class TestSITK2VTK(unittest.TestCase):
             print(invol.GetScalarComponentAsFloat(5, 5, 5, 0))
         else:
             vol = sitk2vtk.sitk2vtk(img, None, True)
+            self.assertTupleEqual(vol.GetDimensions(), tuple(dims))
             print("Accessing VTK image")
-            print(vol.GetScalarComponentAsFloat(5, 5, 5, 0))
+            val = vol.GetScalarComponentAsFloat(5, 5, 5, 0)
+            print(val)
+            self.assertAlmostEqual(val, 3.0)
 
 
 if __name__ == "__main__":
