@@ -9,10 +9,16 @@ jobs:
     steps:
       - checkout
       - python/load-cache
-      - python/install-deps
+
+      - run:
+          name: Python setup
+          command: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+
       - python/save-cache
       - run:
-          command: ./manage.py test
+          command: bash run_tests.sh
           name: Test
 
 workflows:
