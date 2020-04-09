@@ -6,6 +6,8 @@ orbs:
 jobs:
   build-and-test:
     executor: python/default
+    docker:
+      - image: circleci/python:3.7-stretch
     steps:
       - checkout
       - python/load-cache
