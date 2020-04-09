@@ -1,0 +1,29 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@0.2.1
+
+jobs:
+  build-and-test:
+    executor: python/default
+    docker:
+      - image: circleci/python:3.7-stretch
+    steps:
+      - checkout
+      - python/load-cache
+
+      - run:
+          name: Python setup
+          command: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+
+      - python/save-cache
+      - run:
+          command: bash run_tests.sh
+          name: Test
+
+workflows:
+  main:
+    jobs:
+      - build-and-test
