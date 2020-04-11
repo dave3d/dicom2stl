@@ -258,7 +258,7 @@ def loadZipDicom(name):
     except:
         print("Zip extract failed")
 
-    return loadLargestSeries(tempDir)
+    return dicomutils.loadLargestSeries(tempDir)
 
 
 #  Load our Dicom data
