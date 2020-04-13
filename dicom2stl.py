@@ -244,30 +244,13 @@ metasrc = img
 
 from utils import dicomutils
 
-#  Unzip a zipfile of dicom images into a temp directory, then
-#  load the series that has the most slices
-#
-
-
-def loadZipDicom(name):
-    print("Reading Dicom zip file:", name)
-    myzip = zipfile.ZipFile(name, 'r')
-
-    try:
-        myzip.extractall(tempDir)
-    except:
-        print("Zip extract failed")
-
-    return dicomutils.loadLargestSeries(tempDir)
-
-
 #  Load our Dicom data
 #
 if zipFlag:
     # Case for a zip file of images
     if verbose:
         print("zip")
-    img, modality = loadZipDicom(fname[0])
+    img, modality = dicomutils.loadZipDicom(fname[0])
 
 
 else:
