@@ -95,6 +95,22 @@ def loadLargestSeries(dicomdir):
     return img, modality
 
 
+def loadZipDicom(name, tempDir):
+    """ Unzip a zipfile of dicom images into a temp directory, then
+        load the series that has the most slices.
+    """
+
+    print("Reading Dicom zip file:", name)
+    myzip = zipfile.ZipFile(name, 'r')
+
+    try:
+        myzip.extractall(tempDir)
+    except:
+        print("Zip extract failed")
+
+    return loadLargestSeries(tempDir)
+
+
 #
 #   Main (test code)
 #
