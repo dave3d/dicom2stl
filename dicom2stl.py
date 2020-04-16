@@ -250,7 +250,7 @@ if zipFlag:
     # Case for a zip file of images
     if verbose:
         print("zip")
-    img, modality = dicomutils.loadZipDicom(fname[0])
+    img, modality = dicomutils.loadZipDicom(fname[0], tempDir)
 
 
 else:

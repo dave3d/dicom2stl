@@ -95,7 +95,7 @@ def loadLargestSeries(dicomdir):
     return img, modality
 
 
-def loadZipDicom(name):
+def loadZipDicom(name, tempDir):
     """ Unzip a zipfile of dicom images into a temp directory, then
         load the series that has the most slices.
     """
@@ -108,7 +108,7 @@ def loadZipDicom(name):
     except:
         print("Zip extract failed")
 
-    return dicomutils.loadLargestSeries(tempDir)
+    return loadLargestSeries(tempDir)
 
 
 #
