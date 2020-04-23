@@ -1,4 +1,4 @@
-name: dicom2vtk
+name: dicom2stl
 
 channels:
   - simpleitk
