@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+o! /usr/bin/env python
 
 
 """
@@ -126,7 +126,7 @@ def smoothMesh(mesh, nIterations=10):
 
 
 def rotateMesh(mesh, axis=1, angle=0):
-    """Rotate a mesh about an arbitrary axis."""
+    """Rotate a mesh about an arbitrary axis.  Angle is in degrees. """
     try:
         print("Rotating surface: axis=", axis, "angle=", angle)
         matrix = vtk.vtkTransform()
