@@ -28,7 +28,7 @@ def roundThousand(x):
 
 
 def elapsedTime(start_time):
-    dt = roundThousand(time.clock()-start_time)
+    dt = roundThousand(time.perf_counter()-start_time)
     print("    ", dt, "seconds")
 
 #
@@ -39,7 +39,7 @@ def elapsedTime(start_time):
 def extractSurface(vol, isovalue=0.0):
     """Extract an isosurface from a volume."""
     try:
-        t = time.clock()
+        t = time.perf_counter()
         iso = vtk.vtkContourFilter()
         if vtk.vtkVersion.GetVTKMajorVersion() >= 6:
             iso.SetInputData(vol)
@@ -67,7 +67,7 @@ def extractSurface(vol, isovalue=0.0):
 def cleanMesh(mesh, connectivityFilter=False):
     """Clean a mesh using VTKs CleanPolyData filter."""
     try:
-        t = time.clock()
+        t = time.perf_counter()
         connect = vtk.vtkPolyDataConnectivityFilter()
         clean = vtk.vtkCleanPolyData()
 
@@ -103,7 +103,7 @@ def cleanMesh(mesh, connectivityFilter=False):
 def smoothMesh(mesh, nIterations=10):
     """Smooth a mesh using vtk's WindowedSincPolyData filter."""
     try:
-        t = time.clock()
+        t = time.perf_counter()
         smooth = vtk.vtkWindowedSincPolyDataFilter()
         smooth.SetNumberOfIterations(nIterations)
         if vtk.vtkVersion.GetVTKMajorVersion() >= 6:
@@ -158,7 +158,7 @@ def rotateMesh(mesh, axis=1, angle=0):
 def reduceMesh(mymesh, reductionFactor):
     """Reduce the number of triangles in a mesh using VTK's QuadricDecimation filter."""
     try:
-        t = time.clock()
+        t = time.perf_counter()
         deci = vtk.vtkQuadricDecimation()
         deci.SetTargetReduction(reductionFactor)
         if vtk.vtkVersion.GetVTKMajorVersion() >= 6:
