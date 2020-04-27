@@ -269,7 +269,7 @@ def writeMesh(mesh, name):
     print("Unknown file type: ", name)
 
 
-def writereaderVTKMesh(mesh, name):
+def writeVTKMesh(mesh, name):
     """Write a VTK mesh file."""
     try:
         writer = vtk.vtkPolyDataWriter()
