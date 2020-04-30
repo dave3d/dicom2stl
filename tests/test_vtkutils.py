@@ -4,7 +4,7 @@ import unittest
 from utils import vtkutils
 import vtk
 import SimpleITK as sitk
-import platform
+import os
 
 class TestVTKUtils(unittest.TestCase):
 
@@ -12,6 +12,7 @@ class TestVTKUtils(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        print("Setting it up")
         sphere = vtk.vtkSphereSource()
         sphere.SetPhiResolution(16)
         sphere.SetThetaResolution(16)
@@ -25,6 +26,16 @@ class TestVTKUtils(unittest.TestCase):
         connect.Update()
         TestVTKUtils.BALL = connect.GetOutput()
         #print(TestVTKUtils.BALL)
+
+    @classmethod
+    def tearDownClass(cls):
+        print("Tearing it down")
+        try:
+            os.remove("ball.stl")
+            os.remove("ball.vtk")
+            os.remove("ball.ply")
+        except:
+            print("")
 
     def test_cleanMesh(self):
         print("Testing cleanMesh")
@@ -47,6 +58,28 @@ class TestVTKUtils(unittest.TestCase):
         print("Testing reduceMesh")
         result = vtkutils.reduceMesh(TestVTKUtils.BALL, .5)
         print(result.GetNumberOfPolys())
+
+    def test_meshIO(self):
+        print("Testing Mesh I/O")
+        try:
+            vtkutils.writeMesh(TestVTKUtils.BALL, "ball.stl")
+            vtkutils.writeMesh(TestVTKUtils.BALL, "ball.vtk")
+            vtkutils.writeMesh(TestVTKUtils.BALL, "ball.ply")
+        except:
+            print("Bad write")
+            self.fail("writeMesh failed")
+
+        try:
+            m = vtkutils.readMesh("ball.stl")
+            print("Read", m.GetNumberOfPolys(), "polygons")
+            m = vtkutils.readMesh("ball.vtk")
+            print("Read", m.GetNumberOfPolys(), "polygons")
+            m = vtkutils.readMesh("ball.ply")
+            print("Read", m.GetNumberOfPolys(), "polygons")
+        except:
+            print("Bad read")
+            self.fail("readMesh failed")
+
 
 if __name__ == "__main__":
     unittest.main()
