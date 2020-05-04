@@ -34,15 +34,6 @@ def make_cylinder(dim=64, pixel_type=sitk.sitkUInt8):
     vol = sitk.JoinSeries(series)
     return vol
 
-def vol2dicom(vol, root_name):
-    """ this kinda sucks.  doesn't do keep the UID tag properly. """
-    for z in range(vol.GetDepth()):
-       img = vol[:,:,z]
-       img.SetMetaData("0020|000e", "1.2.3.4.5.6.7.8")
-       name = "%s.%d.dcm" % (root_name, z)
-       print(name)
-       sitk.WriteImage(img, name)
-
 
 def usage():
     print()
