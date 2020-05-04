@@ -4,26 +4,23 @@ import sys
 import SimpleITK as sitk
 import getopt
 
+# vertices of a tetrahedron
+tverts = [ [0.732843, 0.45, 0.35],
+           [0.308579, 0.694949, 0.35],
+           [0.308579, 0.205051, 0.35],
+           [0.45, 0.45, 0.75]]
+
 def make_tetra(dim=128, pixel_type=sitk.sitkUInt8):
-    dim4 = dim>>2
-    dim2 = dim>>1
-    h = .86602540378443864676*dim2+dim4
-    size =[ dim,dim,dim ]
-    p1 = [dim4,dim4,dim4]
-    p2 = [dim2+dim4,dim4,dim4]
-    p3 = [dim2, h,dim4]
-    p4 = [dim2,dim2,h]
-    points = [p1,p2,p3,p4]
 
     sigma=[dim/6,dim/6,dim/6]
-    v1 = sitk.GaussianSource(pixel_type, size, sigma=sigma, mean=p1, scale=200)
-    v2 = sitk.GaussianSource(pixel_type, size, sigma=sigma, mean=p2, scale=200)
-    v3 = sitk.GaussianSource(pixel_type, size, sigma=sigma, mean=p3, scale=200)
-    v4 = sitk.GaussianSource(pixel_type, size, sigma=sigma, mean=p4, scale=200)
+    size=[dim,dim,dim]
 
-    vsum = v1+v2+v3+v4
+    vol = sitk.Image(size, sitk.sitkUInt8)
+    for v in tverts:
+        pt = [v[0]*dim, v[1]*dim, v[2]*dim]
+        vol = vol + sitk.GaussianSource(pixel_type, size, sigma=sigma, mean=pt, scale=200)
 
-    return vsum
+    return vol
 
 def make_cylinder(dim=64, pixel_type=sitk.sitkUInt8):
     mean=[dim/2,dim/2]
