@@ -5,6 +5,7 @@ from utils import vtkutils
 import vtk
 import SimpleITK as sitk
 import os
+import create_data
 
 class TestVTKUtils(unittest.TestCase):
 
@@ -80,6 +81,22 @@ class TestVTKUtils(unittest.TestCase):
             print("Bad read")
             self.fail("readMesh failed")
 
+
+    def test_readVTKVolume(self):
+        print("Testing readVTKVolume")
+        tetra = create_data.make_tetra(32)
+        sitk.WriteImage(tetra, "tetra.vtk")
+        try:
+            vtkvol = vtkutils.readVTKVolume("tetra.vtk")
+            print(type(vtkvol))
+            print(vtkvol.GetDimensions())
+        except:
+            sitk.fail("readVTKVolume failed")
+
+        try:
+            os.remove("tetra.vtk")
+        except:
+            print("remove tetra.vtk failed")
 
 if __name__ == "__main__":
     unittest.main()
