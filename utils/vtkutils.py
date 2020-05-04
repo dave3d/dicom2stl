@@ -65,7 +65,7 @@ def extractSurface(vol, isovalue=0.0):
 #  Mesh filtering
 #
 def cleanMesh(mesh, connectivityFilter=False):
-    """Clean a mesh using VTKs CleanPolyData filter."""
+    """Clean a mesh using VTK's CleanPolyData filter."""
     try:
         t = time.perf_counter()
         connect = vtk.vtkPolyDataConnectivityFilter()
@@ -101,7 +101,7 @@ def cleanMesh(mesh, connectivityFilter=False):
 
 
 def smoothMesh(mesh, nIterations=10):
-    """Smooth a mesh using vtk's WindowedSincPolyData filter."""
+    """Smooth a mesh using VTK's WindowedSincPolyData filter."""
     try:
         t = time.perf_counter()
         smooth = vtk.vtkWindowedSincPolyDataFilter()
@@ -339,7 +339,7 @@ def writePLY(mesh, name):
 
 
 def readVTKVolume(name):
-    """Read a VTK volume image file."""
+    """Read a VTK volume image file. Returns a vtkStructuredPoints object."""
     try:
         reader = vtk.vtkStructuredPointsReader()
         reader.SetFileName(name)
@@ -383,8 +383,13 @@ if __name__ == "__main__":
     print("VTK version:", vtk.vtkVersion.GetVTKVersion())
     print("VTK:", vtk)
 
-    mesh = readMesh("models/soft.stl")
-#    mesh = cleanMesh(mesh, False)
-#    mesh = smoothMesh(mesh)
-    mesh2 = reduceMesh(mesh, .50)
-    writeMesh(mesh2, "soft.ply")
+    try:
+        mesh = readMesh(sys.argv[1])
+#       mesh = readMesh("models/soft.stl")
+#       mesh = cleanMesh(mesh, False)
+#       mesh = smoothMesh(mesh)
+        mesh2 = reduceMesh(mesh, .50)
+#        writeMesh(mesh2, "soft.ply")
+        writeMesh(mesh2, sys.argv[2])
+    except:
+        print("Usage: vtkutils.py input_mesh output_mesh")
