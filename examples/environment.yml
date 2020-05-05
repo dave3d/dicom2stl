@@ -1,0 +1,11 @@
+name: dicom2stl
+channels:
+  - simpleitk
+  - defaults
+dependencies:
+  - numpy=1.18.1
+  - simpleitk=1.2.4
+  - vtk=8.2.0
+  - pip:
+    - itkwidgets==0.26.1
+
