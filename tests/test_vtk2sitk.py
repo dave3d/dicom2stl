@@ -6,6 +6,8 @@ from utils import vtk2sitk
 import vtk
 import SimpleITK as sitk
 
+from tests import compare_stats
+
 
 def printStats(stats):
     print("    Min:", stats[0])
@@ -64,49 +66,13 @@ class TestVTK2SITK(unittest.TestCase):
         self.assertTupleEqual(img2.GetDimensions(), sitkimg2.GetSize())
 
 
-        # Compute the VTK image histogram statistics
-        histo = vtk.vtkImageHistogramStatistics()
-        histo.SetInputData(img2)
-        histo.Update()
-
-        vtkstats = [
-            histo.GetMinimum(),
-            histo.GetMaximum(),
-            histo.GetMean(),
-            histo.GetStandardDeviation() ]
-
-        print("\nvtk median = ", histo.GetMedian())
-
-        print("\nVTK source image stats")
-        printStats(vtkstats)
-
-        # Compute the SimpleITK image statistics
-        stats = sitk.StatisticsImageFilter()
-        stats.Execute(sitkimg2)
-
-        sitkstats = [
-            stats.GetMinimum(),
-            stats.GetMaximum(),
-            stats.GetMean(),
-            stats.GetSigma() ]
-
-        print("\nSimpleITK image stats")
-        printStats(sitkstats)
-
-
         # compare the statistics of the VTK and SimpleITK images
-        ok = True
-        for v, s in zip(vtkstats, sitkstats):
-            self.assertAlmostEqual(v,s)
-            x = v-s
-            y = math.sqrt(x*x)
-            if (y>.0001):
-                print("Bad!", v, s)
-                ok=False
+        ok = compare_stats.compare_stats(sitkimg2, img2)
         if ok:
-            print("Success!")
+            print("Statistics comparison passed")
         else:
-            print("Fail!")
+            self.fail("Statistics comparison failed")
+
 
 if __name__ == "__main__":
     unittest.main()
