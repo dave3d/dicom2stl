@@ -47,8 +47,16 @@ def sitk2vtk(img, outVol=None, debugOn=False):
     origin = list(img.GetOrigin())
     spacing = list(img.GetSpacing())
     sitktype = img.GetPixelID()
-    vtktype = pixelmap[sitktype]
+    try:
+        vtktype = pixelmap[sitktype]
+    except:
+        print("Unsupported type: ", sitktype, ", ", img.GetPixelIDTypeAsString(), sep='')
+        return None
     ncomp = img.GetNumberOfComponentsPerPixel()
+
+    if len(size)>3:
+        print("Dimensions>3 not supported")
+        return None
 
     # there doesn't seem to be a way to specify the image orientation in VTK
 
