@@ -15,7 +15,7 @@ suffixes =  ['.png', '.nrrd', '.dcm', '.nii.gz', '.dcm']
 
 fnames = []
 if len(sys.argv) == 1:
-    img_dir = os.environ['HOME']+'/SimpleITK-build/SimpleITK-build/ExternalData/Testing/Data/'
+    img_dir = os.environ['HOME']+'/SimpleITK-build/SimpleITK-build/ExternalData/Testing/Data/Input'
 
     fnames = glob.glob(img_dir+'/*')
     fnames.extend( glob.glob(img_dir+'/**/*'))
