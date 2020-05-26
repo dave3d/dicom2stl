@@ -50,9 +50,13 @@ def compare_stats(sitkimg, vtkimg):
     ok = True
     for v, s in zip(vtkstats, sitkstats):
         x = v-s
-        y = math.sqrt(x*x)
+        if v != 0.0:
+            y = abs(x/v)
+        else:
+            y = abs(x)
+
         if (y>.0001):
-            print("Bad!", v, s)
+            print("Bad!", v, s, "\terror =", y)
             ok=False
     return ok
 
