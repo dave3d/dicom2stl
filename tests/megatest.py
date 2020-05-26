@@ -46,7 +46,12 @@ for n in img_names:
     print("\n", n)
 
     img = sitk.ReadImage(n)
-    vtkimg = sitk2vtk.sitk2vtk(img)
+    try:
+        vtkimg = sitk2vtk.sitk2vtk(img)
+    except:
+        print("File", n, "didn't convert")
+        continue
+
     if vtkimg == None:
         print("File", n, "didn't convert")
         continue
