@@ -5,6 +5,7 @@ dependencies:
   - python=3.6
   - numpy
   - itk
+  - vtk
   - simpleitk
   - pip
   - pip:
