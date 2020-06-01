@@ -17,7 +17,7 @@ ordered the same alphabetically as they are physically.
 from __future__ import print_function
 import sys, os, getopt, time, gc, glob, math
 import zipfile, tempfile
-
+from utils.dicomutils import *
 
 # Global variables
 #
@@ -300,7 +300,7 @@ def roundThousand(x):
 
 
 def elapsedTime(start_time):
-    dt = roundThousand(time.clock()-start_time)
+    dt = roundThousand(time.perf_counter() -start_time)
     print("    ", dt, "seconds")
 
 
@@ -332,7 +332,7 @@ if shrinkFlag:
 
     if sum > 3:
         # if sum==3, no shrink happens
-        t = time.clock()
+        t = time.perf_counter()
         print("Shrink factors: ", sfactor)
         img = sitk.Shrink(img, sfactor)
         newsize = img.GetSize()
@@ -347,7 +347,7 @@ gc.collect()
 #
 if anisotropicSmoothing:
     print("Anisotropic Smoothing")
-    t = time.clock()
+    t = time.process_time()
     pixelType = img.GetPixelID()
     img = sitk.Cast(img, sitk.sitkFloat32)
     img = sitk.CurvatureAnisotropicDiffusion(img, .03)
@@ -359,7 +359,7 @@ if anisotropicSmoothing:
 #
 if doubleThreshold:
     print("Double Threshold")
-    t = time.clock()
+    t = time.process_time()
     img = sitk.DoubleThreshold(
         img, thresholds[0], thresholds[1], thresholds[2], thresholds[3], 255, 0)
     isovalue = 64.0
@@ -370,7 +370,7 @@ if doubleThreshold:
 #
 if medianFilter:
     print("Median filter")
-    t = time.clock()
+    t = time.process_time()
     img = sitk.Median(img, [3, 3, 1])
     elapsedTime(t)
     gc.collect()
@@ -399,7 +399,7 @@ from utils import sitk2vtk
 import vtk
 vtkimg = None
 
-if platform.system() is "Windows":
+if platform.system() == "Windows":
     # hacky work-around to avoid a crash on Windows
     vtkimg = vtk.vtkImageData()
     vtkimg.SetDimensions(10, 10, 10)
