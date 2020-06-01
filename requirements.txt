@@ -1,11 +1,3 @@
-astroid==2.4.1
-isort==4.3.21
-lazy-object-proxy==1.4.3
-mccabe==0.6.1
 numpy==1.18.4
-pylint==2.5.2
 SimpleITK==1.2.4
-six==1.15.0
-toml==0.10.1
-vtk==9.0.0
-wrapt==1.12.1
+vtk==8.1.2
