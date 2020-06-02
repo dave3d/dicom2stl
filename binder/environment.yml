@@ -1,0 +1,19 @@
+name: itkwidgets
+channels:
+  - conda-forge
+dependencies:
+  - python=3.6
+  - numpy
+  - itk
+  - vtk
+  - simpleitk
+  - pip
+  - pip:
+    - ipywidgets>=7.1.2
+    - jupyterlab
+    - numpy
+    - six
+    - zstandard
+    - ipywebrtc
+    - bqplot
+    - plotly>=3.3.0
