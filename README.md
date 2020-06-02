@@ -2,6 +2,7 @@ dicom2stl
 =========
 
 [![CircleCI](https://circleci.com/gh/dave3d/dicom2stl.svg?style=svg)](https://circleci.com/gh/dave3d/dicom2stl)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dave3d/dicom2stl/master?filepath=examples%2FIsosurface.ipynb)
 
 dicom2stl.py is a script that takes a [Dicom](https://www.dicomstandard.org/about/)
 series and generates a STL surface mesh.
@@ -83,3 +84,4 @@ To extract soft tissue from a dicom series in directory and
 apply a 180 degree Y axis rotation:
 > python dicom2stl.py --enable rotation -t soft_tissue -o soft.stl dicom_dir
 
+You can try out an interactive Jupyter notebook via Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dave3d/dicom2stl/master?filepath=examples%2FIsosurface.ipynb)
