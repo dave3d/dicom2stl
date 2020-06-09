@@ -1,33 +1,37 @@
 #! /usr/bin/env python
 
-import sys, os
-import SimpleITK as sitk
-import glob
+from utils import sitk2vtk
 
+import glob
+import os
+import sys
+
+import SimpleITK as sitk
 import compare_stats
+
 thisdir = os.path.dirname(os.path.abspath(__file__))
 parentdir = os.path.dirname(thisdir)
 sys.path.append(os.path.abspath(parentdir))
 print(sys.path)
-from utils import sitk2vtk
 
-suffixes =  ['.png', '.nrrd', '.dcm', '.nii.gz', '.dcm']
+suffixes = ['.png', '.nrrd', '.dcm', '.nii.gz', '.dcm']
 
 fnames = []
 if len(sys.argv) == 1:
-    img_dir = os.environ['HOME']+'/SimpleITK-build/SimpleITK-build/ExternalData/Testing/Data/Input'
+    img_dir = os.environ['HOME']\
+              + '/SimpleITK-build/SimpleITK-build/'\
+              + 'ExternalData/Testing/Data/Input'
 
-    fnames = glob.glob(img_dir+'/*')
-    fnames.extend( glob.glob(img_dir+'/**/*'))
+    fnames = glob.glob(img_dir + '/*')
+    fnames.extend(glob.glob(img_dir + '/**/*'))
 
 else:
     for x in sys.argv[1:]:
         if os.path.isfile(x):
             fnames.append(x)
         if os.path.isdir(x):
-            fnames.extend(glob.glob(x+'/*'))
-            fnames.extend(glob.glob(x+'/**/*'))
-
+            fnames.extend(glob.glob(x + '/*'))
+            fnames.extend(glob.glob(x + '/**/*'))
 
 img_names = []
 for f in fnames:
@@ -48,19 +52,19 @@ for n in img_names:
     img = sitk.ReadImage(n)
     try:
         vtkimg = sitk2vtk.sitk2vtk(img)
-    except:
+    except BaseException:
         print("File", n, "didn't convert")
         continue
 
-    if vtkimg == None:
+    if vtkimg is None:
         print("File", n, "didn't convert")
         continue
     try:
         ok = compare_stats.compare_stats(img, vtkimg)
-    except:
+    except BaseException:
         print("exception: probably wrong image type")
         print("UNSUPPORTED")
-        unsupport_count = unsupport_count+1
+        unsupport_count = unsupport_count + 1
         unsupp.append(n)
         continue
 
@@ -69,7 +73,7 @@ for n in img_names:
         print("FAIL")
     else:
         print("PASS")
-        pass_count = pass_count+1
+        pass_count = pass_count + 1
 
 print("\n", bad)
 print(len(bad), "bad result")
