@@ -6,11 +6,12 @@ import vtk
 import SimpleITK as sitk
 import platform
 
+
 class TestSITK2VTK(unittest.TestCase):
 
     def test_sitk2vtk(self):
         print("Testing sitk2vtk")
-        dims = [102,102,102]
+        dims = [102, 102, 102]
         img = sitk.GaussianSource(sitk.sitkUInt8, dims)
 
         if platform.system() == "Windows":
@@ -30,4 +31,3 @@ class TestSITK2VTK(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

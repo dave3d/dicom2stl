@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 
-import math
-import vtk
 import SimpleITK as sitk
+import vtk
 
 
 def printStats(stats):
@@ -25,7 +24,7 @@ def compare_stats(sitkimg, vtkimg):
         histo.GetMinimum(),
         histo.GetMaximum(),
         histo.GetMean(),
-        histo.GetStandardDeviation() ]
+        histo.GetStandardDeviation()]
 
     print("\nvtk median = ", histo.GetMedian())
 
@@ -40,34 +39,33 @@ def compare_stats(sitkimg, vtkimg):
         stats.GetMinimum(),
         stats.GetMaximum(),
         stats.GetMean(),
-        stats.GetSigma() ]
+        stats.GetSigma()]
 
     print("\nSimpleITK image stats")
     printStats(sitkstats)
 
-
     # compare the statistics of the VTK and SimpleITK images
     ok = True
     for v, s in zip(vtkstats, sitkstats):
-        x = v-s
+        x = v - s
         if v != 0.0:
-            y = abs(x/v)
+            y = abs(x / v)
         else:
             y = abs(x)
 
-        if (y>.0001):
+        if (y > .0001):
             print("Bad!", v, s, "\terror =", y)
-            ok=False
+            ok = False
     return ok
 
 
 if __name__ == "__main__":
 
-    dims = [10,10,10]
+    dims = [10, 10, 10]
     val = 0
 
-    img = sitk.Image(dims,sitk.sitkUInt8)
-    img = img+val
+    img = sitk.Image(dims, sitk.sitkUInt8)
+    img = img + val
 
     img2 = vtk.vtkImageData()
     img2.SetDimensions(dims)
@@ -84,5 +82,3 @@ if __name__ == "__main__":
         print("PASS")
     else:
         print("FAIL")
-
-

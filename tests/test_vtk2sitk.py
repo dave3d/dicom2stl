@@ -1,12 +1,11 @@
 #! /usr/bin/env python
 
 import unittest
-import math
-from utils import vtk2sitk
-import vtk
-import SimpleITK as sitk
 
+import SimpleITK as sitk
+import vtk
 from tests import compare_stats
+from utils import vtk2sitk
 
 
 def printStats(stats):
@@ -64,7 +63,6 @@ class TestVTK2SITK(unittest.TestCase):
 
         self.assertIsInstance(sitkimg2, sitk.Image)
         self.assertTupleEqual(img2.GetDimensions(), sitkimg2.GetSize())
-
 
         # compare the statistics of the VTK and SimpleITK images
         ok = compare_stats.compare_stats(sitkimg2, img2)

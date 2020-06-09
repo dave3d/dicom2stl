@@ -1,14 +1,15 @@
 #! /usr/bin/env python
 
-import unittest
-from utils import vtkutils
-import vtk
-import SimpleITK as sitk
 import os
+import unittest
+
+import SimpleITK as sitk
 import create_data
+import vtk
+from utils import vtkutils
+
 
 class TestVTKUtils(unittest.TestCase):
-
     BALL = None
 
     @classmethod
@@ -26,7 +27,7 @@ class TestVTKUtils(unittest.TestCase):
         connect.SetExtractionModeToLargestRegion()
         connect.Update()
         TestVTKUtils.BALL = connect.GetOutput()
-        #print(TestVTKUtils.BALL)
+        # print(TestVTKUtils.BALL)
 
     @classmethod
     def tearDownClass(cls):
@@ -35,7 +36,7 @@ class TestVTKUtils(unittest.TestCase):
             os.remove("ball.stl")
             os.remove("ball.vtk")
             os.remove("ball.ply")
-        except:
+        except BaseException:
             print("")
 
     def test_cleanMesh(self):
@@ -66,7 +67,7 @@ class TestVTKUtils(unittest.TestCase):
             vtkutils.writeMesh(TestVTKUtils.BALL, "ball.stl")
             vtkutils.writeMesh(TestVTKUtils.BALL, "ball.vtk")
             vtkutils.writeMesh(TestVTKUtils.BALL, "ball.ply")
-        except:
+        except BaseException:
             print("Bad write")
             self.fail("writeMesh failed")
 
@@ -77,10 +78,9 @@ class TestVTKUtils(unittest.TestCase):
             print("Read", m.GetNumberOfPolys(), "polygons")
             m = vtkutils.readMesh("ball.ply")
             print("Read", m.GetNumberOfPolys(), "polygons")
-        except:
+        except BaseException:
             print("Bad read")
             self.fail("readMesh failed")
-
 
     def test_readVTKVolume(self):
         print("Testing readVTKVolume")
@@ -90,14 +90,14 @@ class TestVTKUtils(unittest.TestCase):
             vtkvol = vtkutils.readVTKVolume("tetra.vtk")
             print(type(vtkvol))
             print(vtkvol.GetDimensions())
-        except:
+        except BaseException:
             sitk.fail("readVTKVolume failed")
 
         try:
             os.remove("tetra.vtk")
-        except:
+        except BaseException:
             print("remove tetra.vtk failed")
+
 
 if __name__ == "__main__":
     unittest.main()
-

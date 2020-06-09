@@ -1,16 +1,17 @@
 #! /usr/bin/env python
 
+import os
+import shutil
 import unittest
-import os, shutil, zipfile
-import vtk
-import SimpleITK as sitk
+import zipfile
 
-from utils import dicomutils
+import SimpleITK as sitk
 from tests import create_data
 from tests import write_series
+from utils import dicomutils
+
 
 class TestDicomUtils(unittest.TestCase):
-
     TMPDIR = "testtmp"
     SIZE = 32
 
@@ -20,9 +21,9 @@ class TestDicomUtils(unittest.TestCase):
         cyl = create_data.make_cylinder(TestDicomUtils.SIZE, sitk.sitkUInt16)
         try:
             os.mkdir(TestDicomUtils.TMPDIR)
-        except:
+        except BaseException:
             print("Oopsie")
-        write_series.write_series( cyl, TestDicomUtils.TMPDIR )
+        write_series.write_series(cyl, TestDicomUtils.TMPDIR)
 
     @classmethod
     def tearDownClass(cls):
@@ -39,16 +40,16 @@ class TestDicomUtils(unittest.TestCase):
         print("\nTesting DicomUtils.getAllSeries")
         seriessets = dicomutils.getAllSeries([TestDicomUtils.TMPDIR])
         print(seriessets)
-        self.assertEqual(len(seriessets),1)
+        self.assertEqual(len(seriessets), 1)
         series_id = seriessets[0][0]
         if series_id.startswith('1.2.826.0.1.3680043'):
-           print("    Series looks good")
+            print("    Series looks good")
         else:
-           self.fail("    Bad series: "+series_id)
+            self.fail("    Bad series: " + series_id)
 
     def test_getModality(self):
         print("\nTesting DicomUtils.getModality")
-        img = sitk.Image(10,10,sitk.sitkUInt16)
+        img = sitk.Image(10, 10, sitk.sitkUInt16)
         m1 = dicomutils.getModality(img)
         self.assertEqual(m1, "")
         img.SetMetaData("0008|0060", "dude")
@@ -58,14 +59,16 @@ class TestDicomUtils(unittest.TestCase):
     def test_loadLargestSeries(self):
         print("\nTesting DicomUtils.loadLargestSeries")
         img, mod = dicomutils.loadLargestSeries(TestDicomUtils.TMPDIR)
-        self.assertEqual(img.GetSize(), (TestDicomUtils.SIZE,TestDicomUtils.SIZE,TestDicomUtils.SIZE))
+        self.assertEqual(img.GetSize(), (TestDicomUtils.SIZE,
+                                         TestDicomUtils.SIZE,
+                                         TestDicomUtils.SIZE))
         self.assertEqual(mod, "CT")
 
     def test_loadZipDicom(self):
         print("\nTesting DicomUtils.loadZipDicom")
         zf = zipfile.ZipFile('tests/testzip.zip', 'w')
         for z in range(TestDicomUtils.SIZE):
-            zf.write(TestDicomUtils.TMPDIR+'/'+str(z)+'.dcm')
+            zf.write(TestDicomUtils.TMPDIR + '/' + str(z) + '.dcm')
         zf.close()
         img, mod = dicomutils.loadZipDicom('tests/testzip.zip', 'tests/ziptmp')
         print(img.GetSize())
@@ -74,7 +77,5 @@ class TestDicomUtils(unittest.TestCase):
         shutil.rmtree('tests/ziptmp')
 
 
-
 if __name__ == "__main__":
     unittest.main()
-
