@@ -11,11 +11,14 @@ http://www.apache.org/licenses/LICENSE-2.0
 """
 
 from __future__ import print_function
+
+# import gc
 import sys
 import time
-import gc
 import traceback
+
 import vtk
+
 
 #
 #  timing knick knacks
@@ -23,13 +26,14 @@ import vtk
 
 
 def roundThousand(x):
-    y = int(1000.0*x+0.5)
+    y = int(1000.0 * x + 0.5)
     return str(float(y) * .001)
 
 
 def elapsedTime(start_time):
-    dt = roundThousand(time.perf_counter()-start_time)
+    dt = roundThousand(time.perf_counter() - start_time)
     print("    ", dt, "seconds")
+
 
 #
 #  Isosurface extraction
@@ -53,7 +57,7 @@ def extractSurface(vol, isovalue=0.0):
         elapsedTime(t)
         iso = None
         return mesh
-    except:
+    except BaseException:
         print("Iso-surface extraction failed")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(
@@ -92,7 +96,7 @@ def cleanMesh(mesh, connectivityFilter=False):
         clean = None
         connect = None
         return m2
-    except:
+    except BaseException:
         print("Surface cleaning failed")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(
@@ -117,7 +121,7 @@ def smoothMesh(mesh, nIterations=10):
         elapsedTime(t)
         smooth = None
         return m2
-    except:
+    except BaseException:
         print("Surface smoothing failed")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(
@@ -145,18 +149,20 @@ def rotateMesh(mesh, axis=1, angle=0):
         tfilter.Update()
         mesh2 = tfilter.GetOutput()
         return mesh2
-    except:
+    except BaseException:
         print("Surface rotating failed")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(
             exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
     return None
 
+
 # @profile
 
 
 def reduceMesh(mymesh, reductionFactor):
-    """Reduce the number of triangles in a mesh using VTK's QuadricDecimation filter."""
+    """Reduce the number of triangles in a mesh using VTK's QuadricDecimation
+    filter."""
     try:
         t = time.perf_counter()
         deci = vtk.vtkQuadricDecimation()
@@ -169,16 +175,17 @@ def reduceMesh(mymesh, reductionFactor):
         print("Surface reduced")
         m2 = deci.GetOutput()
         del deci
-        deci = None
+#        deci = None
         print("    ", m2.GetNumberOfPolys(), "polygons")
         elapsedTime(t)
         return m2
-    except:
+    except BaseException:
         print("Surface reduction failed")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(
             exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
     return None
+
 
 #
 #   Mesh I/O
@@ -206,9 +213,9 @@ def readVTKMesh(name):
         print("Input mesh:", name)
         mesh = reader.GetOutput()
         del reader
-        reader = None
+#        reader = None
         return mesh
-    except:
+    except BaseException:
         print("VTK mesh reader failed")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(
@@ -225,9 +232,9 @@ def readSTL(name):
         print("Input mesh:", name)
         mesh = reader.GetOutput()
         del reader
-        reader = None
+#        reader = None
         return mesh
-    except:
+    except BaseException:
         print("STL Mesh reader failed")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(
@@ -244,9 +251,9 @@ def readPLY(name):
         print("Input mesh:", name)
         mesh = reader.GetOutput()
         del reader
-        reader = None
+#        reader = None
         return mesh
-    except:
+    except BaseException:
         print("PLY Mesh reader failed")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(
@@ -282,7 +289,7 @@ def writeVTKMesh(mesh, name):
         writer.Write()
         print("Output mesh:", name)
         writer = None
-    except:
+    except BaseException:
         print("VTK mesh writer failed")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(
@@ -305,7 +312,7 @@ def writeSTL(mesh, name):
         writer.Write()
         print("Output mesh:", name)
         writer = None
-    except:
+    except BaseException:
         print("STL mesh writer failed")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(
@@ -326,12 +333,13 @@ def writePLY(mesh, name):
         writer.Write()
         print("Output mesh:", name)
         writer = None
-    except:
+    except BaseException:
         print("PLY mesh writer failed")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(
             exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
     return None
+
 
 #
 #  Volume I/O
@@ -348,12 +356,13 @@ def readVTKVolume(name):
         vol = reader.GetOutput()
         reader = None
         return vol
-    except:
+    except BaseException:
         print("VTK volume reader failed")
         exc_type, exc_value, exc_traceback = sys.exc_info()
         traceback.print_exception(
             exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
     return None
+
 
 # @profile
 
@@ -361,11 +370,13 @@ def readVTKVolume(name):
 def memquery1():
     print("Hiya 1")
 
+
 # @profile
 
 
 def memquery2():
     print("Hiya 2")
+
 
 # @profile
 
@@ -385,11 +396,11 @@ if __name__ == "__main__":
 
     try:
         mesh = readMesh(sys.argv[1])
-#       mesh = readMesh("models/soft.stl")
-#       mesh = cleanMesh(mesh, False)
-#       mesh = smoothMesh(mesh)
+        #       mesh = readMesh("models/soft.stl")
+        #       mesh = cleanMesh(mesh, False)
+        #       mesh = smoothMesh(mesh)
         mesh2 = reduceMesh(mesh, .50)
-#        writeMesh(mesh2, "soft.ply")
+        #        writeMesh(mesh2, "soft.ply")
         writeMesh(mesh2, sys.argv[2])
-    except:
+    except BaseException:
         print("Usage: vtkutils.py input_mesh output_mesh")

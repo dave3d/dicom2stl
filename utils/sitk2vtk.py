@@ -11,7 +11,6 @@ http://www.apache.org/licenses/LICENSE-2.0
 
 import SimpleITK as sitk
 import vtk
-from numpy import *
 from vtk.util import numpy_support
 
 
@@ -21,8 +20,6 @@ def sitk2vtk(img, debugOn=False):
     size = list(img.GetSize())
     origin = list(img.GetOrigin())
     spacing = list(img.GetSpacing())
-    sitktype = img.GetPixelID()
-    #vtktype = pixelmap[sitktype]
     ncomp = img.GetNumberOfComponentsPerPixel()
 
     # there doesn't seem to be a way to specify the image orientation in VTK
@@ -48,18 +45,19 @@ def sitk2vtk(img, debugOn=False):
     vtk_image.SetDimensions(size)
     vtk_image.SetSpacing(spacing)
     vtk_image.SetOrigin(origin)
-    vtk_image.SetExtent(0, size[0]-1, 0, size[1]-1, 0, size[2]-1)
-    #depth_array = numpy_support.numpy_to_vtk(i2.ravel(), deep=True, array_type = vtktype)
+    vtk_image.SetExtent(0, size[0] - 1, 0, size[1] - 1, 0, size[2] - 1)
+    # depth_array = numpy_support.numpy_to_vtk(i2.ravel(), deep=True,
+    #                                          array_type = vtktype)
     depth_array = numpy_support.numpy_to_vtk(i2.ravel())
     depth_array.SetNumberOfComponents(ncomp)
     vtk_image.GetPointData().SetScalars(depth_array)
 
     vtk_image.Modified()
-#
+    #
     if debugOn:
         print("Volume object inside sitk2vtk")
         print(vtk_image)
-#        print("type = ", vtktype)
+        #        print("type = ", vtktype)
         print("num components = ", ncomp)
         print(size)
         print(origin)
@@ -67,4 +65,3 @@ def sitk2vtk(img, debugOn=False):
         print(vtk_image.GetScalarComponentAsFloat(0, 0, 0, 0))
 
     return vtk_image
-

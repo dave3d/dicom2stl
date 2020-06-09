@@ -53,7 +53,7 @@ def getModality(img):
     if (sitk.Version.MinorVersion() > 8) or (sitk.Version.MajorVersion() > 0):
         try:
             modality = img.GetMetaData("0008|0060")
-        except:
+        except BaseException:
             modality = ""
     return modality
 
@@ -105,7 +105,7 @@ def loadZipDicom(name, tempDir):
 
     try:
         myzip.extractall(tempDir)
-    except:
+    except BaseException:
         print("Zip extract failed")
 
     return loadLargestSeries(tempDir)
