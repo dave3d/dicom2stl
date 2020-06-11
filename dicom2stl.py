@@ -397,16 +397,8 @@ if verbose:
 import platform
 from utils import sitk2vtk
 import vtk
-vtkimg = None
 
-if platform.system() == "Windows":
-    # hacky work-around to avoid a crash on Windows
-    vtkimg = vtk.vtkImageData()
-    vtkimg.SetDimensions(10, 10, 10)
-    vtkimg.AllocateScalars(vtk.VTK_CHAR, 1)
-    sitk2vtk.sitk2vtk(img, vtkimg, False)
-else:
-    vtkimg = sitk2vtk.sitk2vtk(img)
+vtkimg = sitk2vtk.sitk2vtk(img)
 
 img = None
 gc.collect()
