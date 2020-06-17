@@ -15,9 +15,22 @@ ordered the same alphabetically as they are physically.
 """
 
 from __future__ import print_function
-import sys, os, getopt, time, gc, glob, math
-import zipfile, tempfile
-from utils.dicomutils import *
+
+import gc
+import getopt
+import math
+import os
+import sys
+import tempfile
+import shutil
+import time
+import zipfile
+import vtk
+import SimpleITK as sitk
+
+from utils import sitk2vtk
+from utils import dicomutils
+from utils import vtkutils
 
 # Global variables
 #
@@ -76,10 +89,13 @@ def usage():
     print("")
     print("  Volume processing options")
     print(
-        "  -t string, --type string      CT Tissue type [skin, bone, soft_tissue, fat]")
-    print("  -a, --anisotropic             Apply anisotropic smoothing to the volume")
+        "  -t string, --type string      CT Tissue type",
+        "[skin, bone, soft_tissue, fat]")
+    print("  -a, --anisotropic            ",
+          "Apply anisotropic smoothing to the volume")
     print("  -i num, --isovalue num        Iso-surface value")
-    print("  -d string, --double string    Double threshold with 4 values in a string seperated by semicolons")
+    print("  -d string, --double string   ",
+          "Double threshold with 4 values in a string seperated by semicolons")
     print("")
     print("  Mesh options")
     print("  -l, --largest       Keep only the largest connected mesh")
@@ -90,9 +106,11 @@ def usage():
     print("")
     print("  Enable/Disable various filtering options")
     print(
-        "  --disable string    Disable an option [anisotropic, shrink, median, largest, rotation]")
+        "  --disable string   ",
+        "Disable an option [anisotropic, shrink, median, largest, rotation]")
     print(
-        "  --enable  string    Enable an option [anisotropic, shrink, median, largest, rotation]")
+        "  --enable  string   ",
+        "Enable an option [anisotropic, shrink, median, largest, rotation]")
 
 
 # Parse the command line arguments
@@ -100,15 +118,15 @@ def usage():
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "vDhacli:s:t:d:o:m:T:",
-                               ["verbose", "help", "debug", "anisotropic", "clean", "ct", "isovalue=", "search=", "type=",
-                                "double=", "disable=", "enable=", "largest", "metadata", "rotaxis=", "rotangle=", "smooth=",
-
+                               ["verbose", "help", "debug", "anisotropic",
+                                "clean", "ct", "isovalue=", "search=", "type=",
+                                "double=", "disable=", "enable=", "largest",
+                                "metadata", "rotaxis=", "rotangle=", "smooth=",
                                 "reduce=", "temp="])
 except getopt.GetoptError as err:
     print(str(err))
     usage()
     sys.exit(2)
-
 
 for o, a in opts:
     if o in ("-v", "--verbose"):
@@ -156,7 +174,7 @@ for o, a in opts:
     elif o in ("--reduce"):
         quad = float(a)
     elif o in ("--disable"):
-        options.append("no"+a)
+        options.append("no" + a)
     elif o in ("--enable"):
         options.append(a)
     else:
@@ -181,7 +199,6 @@ for x in options:
     if y.startswith("rotat"):
         rotFlag = val
 
-
 print("")
 if tempDir == "":
     tempDir = tempfile.mkdtemp()
@@ -201,7 +218,6 @@ if tissueType:
         thresholds = [-122., -112., -96., -70.]
         medianFilter = True
 
-
 if doubleThreshold:
     # check that there are 4 threshold values.
     print("Thresholds: ", thresholds)
@@ -210,7 +226,6 @@ if doubleThreshold:
         sys.exit(3)
 else:
     print("Isovalue = ", isovalue)
-
 
 fname = args
 
@@ -226,13 +241,12 @@ if os.path.isdir(fname[0]):
 
 
 else:
-    l = len(fname)
-    if l > 1:
-        print("File names: ", fname[0], fname[1], "...", fname[l-1], "\n")
+    if len(fname) > 1:
+        print("File names: ", fname[0], fname[1], "...",
+              fname[len(fname) - 1], "\n")
     else:
         print("File names: ", fname, "\n")
 
-import SimpleITK as sitk
 
 if debug:
     print("SimpleITK version: ", sitk.Version.VersionString())
@@ -242,7 +256,6 @@ img = sitk.Image(100, 100, 100, sitk.sitkUInt8)
 dcmnames = []
 metasrc = img
 
-from utils import dicomutils
 
 #  Load our Dicom data
 #
@@ -257,7 +270,7 @@ else:
     if dirFlag:
         if verbose:
             print("directory")
-        img, modality = loadLargestSeries(fname[0])
+        img, modality = dicomutils.loadLargestSeries(fname[0])
 
     else:
         # Case for a single volume image
@@ -273,34 +286,34 @@ else:
                 if verbose > 1:
                     print("Reading images: ", fname)
                 else:
-                    l = len(fname)
                     print("Reading images: ",
-                          fname[0], fname[1], "...", fname[l-1])
+                          fname[0], fname[1], "...", fname[len(fname) - 1])
             isr = sitk.ImageSeriesReader()
             isr.SetFileNames(fname)
             img = isr.Execute()
             firstslice = sitk.ReadImage(fname[0])
             modality = dicomutils.getModality(firstslice)
 
-if CTonly and ((sitk.Version.MinorVersion() > 8) or (sitk.Version.MajorVersion() > 0)):
+if CTonly and ((sitk.Version.MinorVersion() > 8)
+               or (sitk.Version.MajorVersion() > 0)):
     # Check the metadata for CT image type.  Note that this only works with
-    # SimpleITK version 0.8.0 or later.  For earlier versions there is no GetMetaDataKeys method
-
+    # SimpleITK version 0.8.0 or later.  For earlier versions there is no
+    # GetMetaDataKeys method
     if modality.find("CT") == -1:
         print("Imaging modality is not CT.  Exiting.")
         sys.exit(1)
 
 
-#vtkname =  tempDir+"/vol0.vtk"
-#sitk.WriteImage( img, vtkname )
+# vtkname =  tempDir+"/vol0.vtk"
+# sitk.WriteImage( img, vtkname )
 
 def roundThousand(x):
-    y = int(1000.0*x+0.5)
+    y = int(1000.0 * x + 0.5)
     return str(float(y) * .001)
 
 
 def elapsedTime(start_time):
-    dt = roundThousand(time.perf_counter() -start_time)
+    dt = roundThousand(time.perf_counter() - start_time)
     print("    ", dt, "seconds")
 
 
@@ -318,7 +331,6 @@ if len(metadataFile):
     FP.write('zspacing ' + roundThousand(spacing[2]) + '\n')
     FP.close()
 
-
 #
 # shrink the volume to 256 cubed
 if shrinkFlag:
@@ -326,7 +338,7 @@ if shrinkFlag:
     size = img.GetSize()
     sum = 0
     for s in size:
-        x = int(math.ceil(s/256.0))
+        x = int(math.ceil(s / 256.0))
         sfactor.append(x)
         sum = sum + x
 
@@ -340,7 +352,6 @@ if shrinkFlag:
         elapsedTime(t)
 
 gc.collect()
-
 
 # Apply anisotropic smoothing to the volume image.  That's a smoothing filter
 # that preserves edges.
@@ -361,12 +372,14 @@ if doubleThreshold:
     print("Double Threshold")
     t = time.process_time()
     img = sitk.DoubleThreshold(
-        img, thresholds[0], thresholds[1], thresholds[2], thresholds[3], 255, 0)
+        img, thresholds[0], thresholds[1], thresholds[2], thresholds[3],
+        255, 0)
     isovalue = 64.0
     elapsedTime(t)
     gc.collect()
 
-# Apply a 3x3x1 median filter.  I only use 1 in the Z direction so it's not so slow.
+# Apply a 3x3x1 median filter.  I only use 1 in the Z direction so it's not so
+# slow.
 #
 if medianFilter:
     print("Median filter")
@@ -391,27 +404,18 @@ if verbose:
         print(img)
     print("")
 
-#vtkname =  tempDir+"/vol.vtk"
-#sitk.WriteImage( img, vtkname )
+# vtkname =  tempDir+"/vol.vtk"
+# sitk.WriteImage( img, vtkname )
 
-import platform
-from utils import sitk2vtk
-import vtk
 
 vtkimg = sitk2vtk.sitk2vtk(img)
 
 img = None
 gc.collect()
 
-import traceback
-import vtk
-
 if debug:
     print("\nVTK version: ", vtk.vtkVersion.GetVTKVersion())
     print("VTK: ", vtk, "\n")
-
-
-from utils import vtkutils
 
 if debug:
     print("Extracting surface")
@@ -442,9 +446,7 @@ vtkutils.writeMesh(mesh5, outname)
 mesh4 = None
 gc.collect()
 
-
 # remove the temp directory
-import shutil
 if cleanUp:
     shutil.rmtree(tempDir)
 
