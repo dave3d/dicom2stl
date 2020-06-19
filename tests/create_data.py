@@ -1,18 +1,16 @@
 #! /usr/bin/env python
 
-import getopt
-import sys
+import argparse
 
 import SimpleITK as sitk
 
-# vertices of a tetrahedron
-tverts = [[0.732843, 0.45, 0.35],
-          [0.308579, 0.694949, 0.35],
-          [0.308579, 0.205051, 0.35],
-          [0.45, 0.45, 0.75]]
-
 
 def make_tetra(dim=128, pixel_type=sitk.sitkUInt8):
+    # vertices of a tetrahedron
+    tverts = [[0.732843, 0.45, 0.35],
+              [0.308579, 0.694949, 0.35],
+              [0.308579, 0.205051, 0.35],
+              [0.45, 0.45, 0.75]]
     sigma = [dim / 6, dim / 6, dim / 6]
     size = [dim, dim, dim]
 
@@ -39,63 +37,38 @@ def make_cylinder(dim=64, pixel_type=sitk.sitkUInt8):
     return vol
 
 
-def usage():
-    print()
-    print(" create_data.py [options] output_image")
-    print()
-    print(" -h, --help          This message")
-    print(" -d int, --dim int   Output image dimensions (default=32)")
-    print(" -c , --cylinder     Cylinder volume (default)")
-    print(" -t , --tetra        Tetrahedral volume")
-    print(" -p type , --pixel type        Pixel type by name (default=UInt8)")
-    print()
-
-
 if __name__ == "__main__":
 
-    dim = 32
-    vtype = "cylinder"
-    ptype = sitk.sitkUInt8
+    typemap = {"uint8": sitk.sitkUInt8, "uint16": sitk.sitkUInt16,
+               "int16": sitk.sitkInt16, "int32": sitk.sitkInt32,
+               "float32": sitk.sitkFloat32, "float64": sitk.sitkFloat64}
 
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hd:ctp:",
-                                   ["help", "dim", "cylinder", "tetra",
-                                    "pixel="])
-    except getopt.GetoptError as err:
-        print(str(err))
-        usage()
-        sys.exit(2)
+    parser = argparse.ArgumentParser()
 
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            usage()
-            sys.exit()
-        elif o in ("-d", "--dim"):
-            dim = int(a)
-        elif o in ("-c", "--cylinder"):
-            vtype = "cylinder"
-        elif o in ("-t", "--tetra"):
-            vtype = "tetra"
-        elif o in ("-p", "--pixel"):
-            if a.lower() == "uint16":
-                ptype = sitk.sitkUInt16
-            elif a.lower() == "int16":
-                ptype = sitk.sitkInt16
-            elif a.lower() == "int32":
-                ptype = sitk.sitkInt32
-            elif a.lower() == "float32":
-                ptype = sitk.sitkFloat32
-            elif a.lower() == "float64":
-                ptype = sitk.sitkFloat64
-        else:
-            assert False, "unhandled options"
+    parser.add_argument("output", help="Output file name")
 
-    if vtype == "tetra":
+    parser.add_argument('--dim', '-d', action='store', dest='dim', type=int,
+                        default=32, help='Image dimensions (default=32)')
+    parser.add_argument('--pixel', '-p', action='store', dest='pixeltype',
+                        default='uint8', help="Pixel type (default=\'uint8\')")
+
+    parser.add_argument('--tetra', '-t', action='store_true', default=True,
+                        dest='tetra_flag', help='Make a tetrahedral volume')
+
+    parser.add_argument('--cylinder', '-c', action='store_false', default=True,
+                        dest='tetra_flag', help='Make a cylindrical volume')
+
+    args = parser.parse_args()
+
+    print("args:", args)
+    ptype = typemap[args.pixeltype]
+    print(ptype)
+
+    if args.tetra_flag:
         print("Making tetra")
-        vol = make_tetra(dim, ptype)
+        vol = make_tetra(args.dim, ptype)
     else:
         print("Making cylinder")
-        vol = make_cylinder(dim, ptype)
-
-    print("Writing", args[0])
-    sitk.WriteImage(vol, args[0])
+        vol = make_cylinder(args.dim, ptype)
+    print("Writing", args.output)
+    sitk.WriteImage(vol, args.output)
