@@ -29,6 +29,8 @@ class enableLargest(argparse.Action):
 def parseargs():
     parser = argparse.ArgumentParser()
 
+    parser.add_argument('filenames', nargs='*')
+
     parser.add_argument('--verbose', '-v', action='store_true', default=False,
                         dest='verbose', help='Enable verbose messages')
 
