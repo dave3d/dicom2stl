@@ -2,29 +2,35 @@
 
 import argparse
 
+
 class disableFilter(argparse.Action):
     def __call__(self, parser, args, values, option_string=None):
-       print("action, baby!", self.dest, values)
-       print(args, type(args))
-       x = getattr(args, self.dest)
-       print("getattr:", x, type(x))
-       #setattr(args, self.dest, values)
-       noval = 'no'+values
-       x.append(noval)
+        print("action, baby!", self.dest, values)
+        print(args, type(args))
+        x = getattr(args, self.dest)
+        print("getattr:", x, type(x))
+        # setattr(args, self.dest, values)
+        noval = 'no'+values
+        x.append(noval)
+
 
 class enableAnisotropic(argparse.Action):
     def __init__(self, nargs=0, **kw):
         super().__init__(nargs=nargs, **kw)
+
     def __call__(self, parser, args, values, option_string=None):
         x = getattr(args, 'filters')
         x.append('anisotropic')
 
+
 class enableLargest(argparse.Action):
     def __init__(self, nargs=0, **kw):
         super().__init__(nargs=nargs, **kw)
+
     def __call__(self, parser, args, values, option_string=None):
         x = getattr(args, 'filters')
         x.append('largest')
+
 
 def parseargs():
     parser = argparse.ArgumentParser()
@@ -103,7 +109,8 @@ def parseargs():
                               choices=['anisotropic', 'shrink',
                                        'median', 'largest', 'rotation'],
                               help='Enable filtering options')
-    filter_group.add_argument('--disable', action=disableFilter, dest='filters',
+    filter_group.add_argument('--disable', action=disableFilter,
+                              dest='filters',
                               choices=['anisotropic', 'shrink', 'median',
                                        'largest', 'rotation'],
                               help='Disable filtering options')
