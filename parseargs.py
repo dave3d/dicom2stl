@@ -5,13 +5,13 @@ import argparse
 
 class disableFilter(argparse.Action):
     def __call__(self, parser, args, values, option_string=None):
-        print("action, baby!", self.dest, values)
-        print(args, type(args))
-        x = getattr(args, self.dest)
-        print("getattr:", x, type(x))
-        # setattr(args, self.dest, values)
+        # print("action, baby!", self.dest, values)
+        # print(args, type(args))
         noval = 'no'+values
-        x.append(noval)
+        if isinstance(args.filters, type(None)):
+            args.filters = [noval]
+        else:
+            args.filters.append(noval)
 
 
 class enableAnisotropic(argparse.Action):
@@ -19,8 +19,10 @@ class enableAnisotropic(argparse.Action):
         super().__init__(nargs=nargs, **kw)
 
     def __call__(self, parser, args, values, option_string=None):
-        x = getattr(args, 'filters')
-        x.append('anisotropic')
+        # x = getattr(args, 'filters')
+        if isinstance(args.filters, type(None)):
+            args.filters = ['anisotropic']
+        # args.filters.append('anisotropic')
 
 
 class enableLargest(argparse.Action):
@@ -67,7 +69,7 @@ def parseargs():
     # Options that apply to the volumetric portion of the pipeline
     vol_group = parser.add_argument_group('Volume options')
 
-    vol_group.add_argument('--type', '-t', action='store', dest='type',
+    vol_group.add_argument('--type', '-t', action='store', dest='tissue',
                            choices=['skin', 'bone', 'soft_tissue', 'fat'],
                            help='CT tissue type')
 
@@ -91,7 +93,7 @@ def parseargs():
                             default='Y', choices=['X', 'Y', 'Z'],
                             help='Rotation axis (default=Y)')
 
-    mesh_group.add_argument('--rotangle', action='store', dest='rotaxis',
+    mesh_group.add_argument('--rotangle', action='store', dest='rotangle',
                             type=float, default=0.0,
                             help='Rotation angle in degrees (default=180)')
 
