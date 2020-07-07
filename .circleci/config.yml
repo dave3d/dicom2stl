@@ -20,7 +20,10 @@ jobs:
 
       - python/save-cache
       - run:
-          command: cd dicom2stl; bash run_tests.sh
+          command: |
+              ls
+              echo $PWD
+              bash run_tests.sh
           name: Test
 
 workflows:
