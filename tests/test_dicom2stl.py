@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 import unittest
 import subprocess
 import os
@@ -25,6 +23,7 @@ class TestDicom2STL(unittest.TestCase):
 
     def test_dicom2stl(self):
         print("Dicom2stl test")
+        print(os.getcwd())
         runresult = subprocess.run(['dicom2stl.py', '-i', '100', '-o',
                                     'testout.stl', 'tetra-test.nii.gz'])
         print(runresult.returncode)
