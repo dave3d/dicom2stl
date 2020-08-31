@@ -10,4 +10,4 @@ jupyter nbextension install --py --sys-prefix itkwidgets
 jupyter nbextension enable --py --sys-prefix itkwidgets
 cd /tmp/
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
-NODE_OPTIONS=--max_old_space_size=4096 jupyter labextension install jupyter-matplotlib jupyterlab-datawidgets jupyter-webrtc itkwidgets
+jupyter labextension install --minimize=False jupyter-matplotlib jupyterlab-datawidgets jupyter-webrtc itkwidgets
