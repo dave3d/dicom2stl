@@ -20,10 +20,7 @@ jobs:
 
       - python/save-cache
       - run:
-          command: |
-              ls
-              echo $PWD
-              bash run_tests.sh
+          command: bash run_tests.sh
           name: Test
 
 workflows:
