@@ -2,9 +2,10 @@
 mkdir $HOME/.jupyter
 echo "c.NotebookApp.iopub_data_rate_limit=1e22" >> $HOME/.jupyter/jupyter_notebook_config.py
 # install the package
-git clone https://github.com/InsightSoftwareConsortium/itkwidgets.git
-cd itkwidgets
-pip install .
+#git clone https://github.com/InsightSoftwareConsortium/itkwidgets.git
+#cd itkwidgets
+#pip install .
+pip install itkwidgets
 # add itkwidgets
 jupyter nbextension install --py --sys-prefix itkwidgets
 jupyter nbextension enable --py --sys-prefix itkwidgets
