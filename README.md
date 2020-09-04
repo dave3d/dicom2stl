@@ -5,6 +5,8 @@ dicom2stl
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dave3d/dicom2stl/main?filepath=examples%2FIsosurface.ipynb)
 ![Python application](https://github.com/dave3d/dicom2stl/workflows/Python%20application/badge.svg)
 
+Tutorial: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dave3d/dicom2stl/main?filepath=examples%2FTutorial.ipynb)
+
 dicom2stl.py is a script that takes a [Dicom](https://www.dicomstandard.org/about/)
 series and generates a STL surface mesh.
 
