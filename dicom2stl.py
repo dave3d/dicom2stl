@@ -29,6 +29,8 @@ import SimpleITK as sitk
 
 import parseargs
 
+from glob import glob
+
 from utils import sitk2vtk
 from utils import dicomutils
 from utils import vtkutils
@@ -111,13 +113,14 @@ if len(fname) == 0:
     print("Error: no input given.")
     sys.exit(4)
 
+# Parse wildcards
+fname = glob(fname[0])
+
 if zipfile.is_zipfile(fname[0]):
     zipFlag = True
 
 if os.path.isdir(fname[0]):
     dirFlag = True
-
-
 else:
     if len(fname) > 1:
         print("File names: ", fname[0], fname[1], "...",
