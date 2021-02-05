@@ -161,11 +161,12 @@ def rotateMesh(mesh, axis=1, angle=0):
 
 
 def reduceMesh(mymesh, reductionFactor):
-    """Reduce the number of triangles in a mesh using VTK's QuadricDecimation
+    """Reduce the number of triangles in a mesh using VTK's vtkDecimatePro
     filter."""
     try:
         t = time.perf_counter()
-        deci = vtk.vtkQuadricDecimation()
+        # deci = vtk.vtkQuadricDecimation()
+        deci = vtk.vtkDecimatePro()
         deci.SetTargetReduction(reductionFactor)
         if vtk.vtkVersion.GetVTKMajorVersion() >= 6:
             deci.SetInputData(mymesh)
