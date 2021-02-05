@@ -114,7 +114,8 @@ if len(fname) == 0:
     sys.exit(4)
 
 # Parse wildcards
-fname = glob(fname[0])
+# sum() flatten nested list
+fname = sum([glob(f) for f in fname], [])
 
 if zipfile.is_zipfile(fname[0]):
     zipFlag = True
