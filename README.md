@@ -25,7 +25,7 @@ Alternatively, on some Linux distributions it can be installed with the followin
 > sudo apt-get install vtk
 
 SimpleITK can be installed via the following command:
-> pip SimpleITK
+> pip install SimpleITK
 
 The options for the script can be seen by running it:
 > python dicom2stl.py --help
