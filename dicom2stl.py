@@ -25,6 +25,7 @@ import shutil
 import time
 import zipfile
 import vtk
+import re
 import SimpleITK as sitk
 
 import parseargs
@@ -77,7 +78,7 @@ print("")
 tempDir = args.temp
 if tempDir == "":
     tempDir = tempfile.mkdtemp()
-print("Temp dir: ", tempDir)
+    print("Temp dir: ", tempDir)
 
 tissueType = args.tissue
 if tissueType:
@@ -145,7 +146,7 @@ if zipFlag:
     # Case for a zip file of images
     if args.verbose:
         print("zip")
-    img, modality = dicomutils.loadZipDicom(fname[0], tempDir)
+        img, modality = dicomutils.loadZipDicom(fname[0], tempDir)
 
 
 else:
@@ -163,7 +164,16 @@ else:
             modality = dicomutils.getModality(img)
 
         else:
-            # Case for a series of image files
+            # Case for a series of image files 
+            # For files named like IM1, IM2, .. IM10
+            # They would be ordered by default as IM1, IM10, IM2, ...
+            # sort the fname list in correct serial number order
+            RE_NUMBERS = re.compile(r"\d+")
+            def extract_int(file_path):
+                file_name = os.path.basename(file_path)
+                return int(RE_NUMBERS.findall(file_name)[0])
+            fname = sorted(fname, key=extract_int)
+            
             if args.verbose:
                 if args.verbose > 1:
                     print("Reading images: ", fname)
@@ -332,6 +342,8 @@ gc.collect()
 
 # remove the temp directory
 if args.clean:
-    shutil.rmtree(tempDir)
+    # shutil.rmtree(tempDir)
+    # with context manager the temp dir would be deleted any way
+    pass
 
 print("")
