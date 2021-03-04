@@ -21,13 +21,29 @@ import fnmatch
 import zipfile
 import SimpleITK as sitk
 
+from pydicom.filereader import read_file_meta_info
+from pydicom.errors import InvalidDicomError
+
+
+
+def testDicomFile(file_path):
+    """Test if given file is in DICOM format."""
+    try:
+        read_file_meta_info(file_path)
+        return True
+    except InvalidDicomError:
+        return False
+
 
 def scanDirForDicom(dicomdir):
     matches = []
     dirs = []
     for root, dirnames, filenames in os.walk(dicomdir):
-        for filename in fnmatch.filter(filenames, '*.dcm'):
-            matches.append(os.path.join(root, filename))
+        for filename in filenames:
+            abs_file_path = os.path.join(root, filename)
+            if not testDicomFile(abs_file_path):
+                continue
+            matches.append(abs_file_path)
             if root not in dirs:
                 dirs.append(root)
 

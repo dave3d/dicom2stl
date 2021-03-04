@@ -19,7 +19,7 @@ Required packages
 The script is written in Python and uses 2 external packages, [VTK](https://vtk.org) and [SimpleITK](https://simpleitk.readthedocs.io/en/master/).
 
 The dependencies can be simply installed by `pip`:
-> pip install SimpleITK vtk
+> pip install SimpleITK vtk pydicom
 
 Alternatively, vtk can be downloaded and built from the following repository:
 > https://github.com/Kitware/VTK
