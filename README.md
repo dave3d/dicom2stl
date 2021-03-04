@@ -27,6 +27,14 @@ Alternatively, vtk can be downloaded and built from the following repository:
 Or on some Linux distributions it can be installed with the following command:
 > sudo apt-get install vtk
 
+
+SimpleITK can be installed via the following command:
+> pip install SimpleITK
+
+The options for the script can be seen by running it:
+> python dicom2stl.py --help
+
+
 How it works
 ============
 First the script reads in a series of 2-d images or a simple 3-d image.  It can read
