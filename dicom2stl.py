@@ -76,8 +76,9 @@ if args.filters:
 
 print("")
 tempDir = args.temp
-if tempDir == "":
-    tempDir = tempfile.mkdtemp()
+if not tempDir:
+    print("Temp dir: Not specified, a temp dir will be created at current path")
+else:
     print("Temp dir: ", tempDir)
 
 tissueType = args.tissue
@@ -146,6 +147,10 @@ if zipFlag:
     # Case for a zip file of images
     if args.verbose:
         print("zip")
+    if not tempDir:
+        with tempfile.TemporaryDirectory() as defaultTempDir:
+            img, modality = dicomutils.loadZipDicom(fname[0], defaultTempDir)
+    else:
         img, modality = dicomutils.loadZipDicom(fname[0], tempDir)
 
 
