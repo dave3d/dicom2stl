@@ -233,14 +233,14 @@ if args.meta:
 if shrinkFlag:
     sfactor = []
     size = img.GetSize()
-    sum = 0
+    total = 0
     for s in size:
         x = int(math.ceil(s / 256.0))
         sfactor.append(x)
-        sum = sum + x
+        total = total + x
 
-    if sum > 3:
-        # if sum==3, no shrink happens
+    if total > 3:
+        # if total==3, no shrink happens
         t = time.perf_counter()
         print("Shrink factors: ", sfactor)
         img = sitk.Shrink(img, sfactor)
