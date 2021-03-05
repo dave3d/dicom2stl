@@ -285,10 +285,17 @@ if medianFilter:
     elapsedTime(t)
     gc.collect()
 
+#
+# Get the minimum image intensity for padding the image
+#
+stats = sitk.StatisticsImageFilter()
+stats.Execute(img)
+minVal = stats.GetMinimum()
+
 # Pad black to the boundaries of the image
 #
 pad = [5, 5, 5]
-img = sitk.ConstantPad(img, pad, pad)
+img = sitk.ConstantPad(img, pad, pad, minVal)
 gc.collect()
 
 if args.verbose:

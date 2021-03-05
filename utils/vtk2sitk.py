@@ -27,4 +27,5 @@ def vtk2sitk(vtkimg, debug=False):
         print("new shape:", npdata.shape)
     sitkimg = sitk.GetImageFromArray(npdata)
     sitkimg.SetSpacing(spacing)
+    sitkimg.SetOrigin(origin)
     return sitkimg
