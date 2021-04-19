@@ -18,14 +18,18 @@ Required packages
 =================
 The script is written in Python and uses 2 external packages, [VTK](https://vtk.org) and [SimpleITK](https://simpleitk.readthedocs.io/en/master/).
 
-vtk can be downloaded and built from the following repository:
+The dependencies can be simply installed by `pip`:
+> pip install SimpleITK vtk pydicom
+
+Alternatively, vtk can be downloaded and built from the following repository:
 > https://github.com/Kitware/VTK
 
-Alternatively, on some Linux distributions it can be installed with the following command:
+Or on some Linux distributions it can be installed with the following command:
 > sudo apt-get install vtk
 
+
 SimpleITK can be installed via the following command:
-> pip SimpleITK
+> pip install SimpleITK
 
 The options for the script can be seen by running it:
 > python dicom2stl.py --help
@@ -86,5 +90,8 @@ To extract a specific iso-value from a VTK volume:
 To extract soft tissue from a dicom series in directory and
 apply a 180 degree Y axis rotation:
 > python dicom2stl.py --enable rotation -t soft_tissue -o soft.stl dicom_dir
+
+The options for the script can be seen by running it:
+> python dicom2stl.py --help
 
 You can try out an interactive Jupyter notebook via Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dave3d/dicom2stl/master?filepath=examples%2FIsosurface.ipynb)
