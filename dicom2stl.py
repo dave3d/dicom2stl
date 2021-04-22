@@ -77,7 +77,7 @@ if args.filters:
 print("")
 tempDir = args.temp
 if not tempDir:
-    print("Temp dir: Not specified, a temp dir will be created at current path")
+    print("Temp dir: Not specified, will use system temporary directory")
 else:
     print("Temp dir: ", tempDir)
 
