@@ -111,13 +111,13 @@ else:
 
 fname = args.filenames
 
-if len(fname) == 0:
-    print("Error: no input given.")
-    sys.exit(4)
-
 # Parse wildcards
 # sum() flatten nested list
 fname = sum([glob(f) for f in fname], [])
+
+if len(fname) == 0:
+    print("Error: no valid input given.")
+    sys.exit(4)
 
 if zipfile.is_zipfile(fname[0]):
     zipFlag = True
