@@ -326,16 +326,25 @@ if args.debug:
 mesh = vtkutils.extractSurface(vtkimg, isovalue)
 vtkimg = None
 gc.collect()
+
 if args.debug:
     print("Cleaning mesh")
 mesh2 = vtkutils.cleanMesh(mesh, connectivityFilter)
 mesh = None
 gc.collect()
+
 if args.debug:
-    print("Smoothing mesh", args.smooth, "iterations")
-mesh3 = vtkutils.smoothMesh(mesh2, args.smooth)
+    print(f"Cleaning small parts ratio{args.small}")
+mesh_cleaned_parts =  vtkutils.removeSmallObjects(mesh2, args.small)
 mesh2 = None
 gc.collect()
+
+if args.debug:
+    print("Smoothing mesh", args.smooth, "iterations")
+mesh3 = vtkutils.smoothMesh(mesh_cleaned_parts, args.smooth)
+mesh_cleaned_parts = None
+gc.collect()
+
 if args.debug:
     print("Simplifying mesh")
 mesh4 = vtkutils.reduceMesh(mesh3, args.reduce)
