@@ -186,6 +186,54 @@ def reduceMesh(mymesh, reductionFactor):
         traceback.print_exception(
             exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
     return None
+    
+
+# from https://github.com/AOT-AG/DicomToMesh/blob/master/lib/src/meshRoutines.cpp#L109
+# MIT License
+def removeSmallObjects(mesh, ratio):
+    """
+    Remove small parts which are not of interest
+    @param ratio A floating-point value between 0.0 and 1.0, the higher the stronger effect
+    """
+
+    # do nothing if ratio is 0
+    if ratio == 0:
+        return mesh
+
+    try:
+        t = time.perf_counter()
+        conn_filter = vtk.vtkPolyDataConnectivityFilter()
+        conn_filter.SetInputData(mesh)
+        conn_filter.SetExtractionModeToAllRegions()
+        conn_filter.Update()
+
+        # remove objects consisting of less than ratio vertexes of the biggest object
+        region_sizes = conn_filter.GetRegionSizes()
+
+        # find object with most vertices
+        max_size = 0
+        for i in range(conn_filter.GetNumberOfExtractedRegions()):
+            if region_sizes.GetValue(i) > max_size:
+                max_size = region_sizes.GetValue(i)
+
+        # append regions of sizes over the threshold
+        conn_filter.SetExtractionModeToSpecifiedRegions()
+        for i in range(conn_filter.GetNumberOfExtractedRegions()):
+            if region_sizes.GetValue(i) > max_size * ratio:
+                conn_filter.AddSpecifiedRegion(i)
+
+        conn_filter.Update()
+        processed_mesh = conn_filter.GetOutput()
+        print("Small parts cleaned")
+        print("    ", processed_mesh.GetNumberOfPolys(), "polygons")
+        elapsedTime(t)
+        return processed_mesh
+
+    except BaseException:
+        print("Remove small objects failed")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(
+            exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
 
 #

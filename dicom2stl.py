@@ -77,7 +77,7 @@ if args.filters:
 print("")
 tempDir = args.temp
 if not tempDir:
-    print("Temp dir: Not specified, a temp dir will be created at current path")
+    print("Temp dir: Not specified, will use system temporary directory")
 else:
     print("Temp dir: ", tempDir)
 
@@ -111,13 +111,13 @@ else:
 
 fname = args.filenames
 
-if len(fname) == 0:
-    print("Error: no input given.")
-    sys.exit(4)
-
 # Parse wildcards
 # sum() flatten nested list
 fname = sum([glob(f) for f in fname], [])
+
+if len(fname) == 0:
+    print("Error: no valid input given.")
+    sys.exit(4)
 
 if zipfile.is_zipfile(fname[0]):
     zipFlag = True
@@ -326,16 +326,25 @@ if args.debug:
 mesh = vtkutils.extractSurface(vtkimg, isovalue)
 vtkimg = None
 gc.collect()
+
 if args.debug:
     print("Cleaning mesh")
 mesh2 = vtkutils.cleanMesh(mesh, connectivityFilter)
 mesh = None
 gc.collect()
+
 if args.debug:
-    print("Smoothing mesh", args.smooth, "iterations")
-mesh3 = vtkutils.smoothMesh(mesh2, args.smooth)
+    print(f"Cleaning small parts ratio{args.small}")
+mesh_cleaned_parts =  vtkutils.removeSmallObjects(mesh2, args.small)
 mesh2 = None
 gc.collect()
+
+if args.debug:
+    print("Smoothing mesh", args.smooth, "iterations")
+mesh3 = vtkutils.smoothMesh(mesh_cleaned_parts, args.smooth)
+mesh_cleaned_parts = None
+gc.collect()
+
 if args.debug:
     print("Simplifying mesh")
 mesh4 = vtkutils.reduceMesh(mesh3, args.reduce)

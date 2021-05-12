@@ -67,6 +67,7 @@ After all the image processing is finished, the volume is converted to a VTK ima
 Then the following VTK pipeline is executed:
 * [Extract a surface mesh](https://vtk.org/doc/nightly/html/classvtkContourFilter.html) from the VTK image
 * Apply the [clean mesh filter](https://vtk.org/doc/nightly/html/classvtkCleanPolyData.html)
+* [Remove small parts](https://vtk.org/doc/nightly/html/classvtkPolyDataConnectivityFilter.html) which connect to little other parts
 * Apply the [smooth mesh filter](https://vtk.org/doc/nightly/html/classvtkSmoothPolyDataFilter.html)
 * Apply the [reduce mesh filter](https://vtk.org/doc/nightly/html/classvtkQuadricDecimation.html)
 * [Write out an STL file](https://vtk.org/doc/nightly/html/classvtkSTLWriter.html)
