@@ -186,7 +186,7 @@ def reduceMesh(mymesh, reductionFactor):
         traceback.print_exception(
             exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
     return None
-    
+
 
 # from https://github.com/AOT-AG/DicomToMesh/blob/master/lib/src/meshRoutines.cpp#L109
 # MIT License
@@ -411,6 +411,52 @@ def readVTKVolume(name):
         traceback.print_exception(
             exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
     return None
+
+def writeVTKVolume(vtkimg, name):
+    """ Write the old VTK Image file format
+    """
+    try:
+        writer = vtk.vtkStructuredPointsWriter()
+        writer.SetFileName(name)
+        writer.SetInputData(vtkimg)
+        writer.SetFileTypeToBinary()
+        writer.Update()
+    except BaseException:
+        print("VTK volume writer failed")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(
+            exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+
+def readVTIVolume(name):
+    """Read a VTK XML volume image file. Returns a vtkStructuredPoints object."""
+    try:
+        reader = vtk.vtkXMLImageDataReader()
+        reader.SetFileName(name)
+        reader.Update()
+        print("Input volume:", name)
+        vol = reader.GetOutput()
+        reader = None
+        return vol
+    except BaseException:
+        print("VTK XML volume reader failed")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(
+            exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
+    return None
+
+def writeVTIVolume(vtkimg, name):
+    """ Write the new XML VTK Image file format
+    """
+    try:
+        writer = vtk.vtkXMLImageDataWriter()
+        writer.SetFileName(name)
+        writer.SetInputData(vtkimg)
+        writer.Update()
+    except BaseException:
+        print("VTK volume writer failed")
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        traceback.print_exception(
+            exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout)
 
 
 # @profile
