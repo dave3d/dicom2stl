@@ -38,14 +38,15 @@ def testDicomFile(file_path):
 def scanDirForDicom(dicomdir):
     matches = []
     dirs = []
-    for root, dirnames, filenames in os.walk(dicomdir):
-        for filename in filenames:
-            abs_file_path = os.path.join(root, filename)
-            if not testDicomFile(abs_file_path):
-                continue
-            matches.append(abs_file_path)
-            if root not in dirs:
-                dirs.append(root)
+    try:
+        for root, dirnames, filenames in os.walk(dicomdir):
+            for filename in fnmatch.filter(filenames, '*.dcm'):
+                matches.append(os.path.join(root, filename))
+                if root not in dirs:
+                    dirs.append(root)
+    except BaseException as e:
+        print("Error in scanDirForDicom: ", e)
+        print("dicomdir = ", dicomdir)
 
     return (matches, dirs)
 
@@ -84,6 +85,11 @@ def loadLargestSeries(dicomdir):
     """
 
     files, dirs = scanDirForDicom(dicomdir)
+
+    if (len(files) == 0) or (len(dirs)==0):
+        print("Error in loadLargestSeries.  No files found.")
+        print("dicomdir = ", dicomdir)
+        return None
     seriessets = getAllSeries(dirs)
     maxsize = 0
     maxindex = -1
@@ -117,6 +123,7 @@ def loadZipDicom(name, tempDir):
     """
 
     print("Reading Dicom zip file:", name)
+    print("tempDir = ", tempDir)
     myzip = zipfile.ZipFile(name, 'r')
 
     try:

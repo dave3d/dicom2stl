@@ -43,7 +43,7 @@ zipFlag = False
 dirFlag = False
 
 shrinkFlag = True
-thesholds = []
+thresholds = []
 shrinkFlag = True
 connectivityFilter = False
 anisotropicSmoothing = False
@@ -76,10 +76,9 @@ if args.filters:
 
 print("")
 tempDir = args.temp
-if not tempDir:
-    print("Temp dir: Not specified, will use system temporary directory")
-else:
-    print("Temp dir: ", tempDir)
+if tempDir == None:
+    tempDir = tempfile.mkdtemp()
+print("Temp dir: ", tempDir)
 
 tissueType = args.tissue
 if tissueType:
@@ -169,7 +168,7 @@ else:
             modality = dicomutils.getModality(img)
 
         else:
-            # Case for a series of image files 
+            # Case for a series of image files
             # For files named like IM1, IM2, .. IM10
             # They would be ordered by default as IM1, IM10, IM2, ...
             # sort the fname list in correct serial number order
@@ -178,7 +177,7 @@ else:
                 file_name = os.path.basename(file_path)
                 return int(RE_NUMBERS.findall(file_name)[0])
             fname = sorted(fname, key=extract_int)
-            
+
             if args.verbose:
                 if args.verbose > 1:
                     print("Reading images: ", fname)
@@ -255,7 +254,7 @@ gc.collect()
 #
 if anisotropicSmoothing:
     print("Anisotropic Smoothing")
-    t = time.process_time()
+    t = time.perf_counter()
     pixelType = img.GetPixelID()
     img = sitk.Cast(img, sitk.sitkFloat32)
     img = sitk.CurvatureAnisotropicDiffusion(img, .03)
@@ -265,9 +264,9 @@ if anisotropicSmoothing:
 
 # Apply the double threshold filter to the volume
 #
-if args.double_threshold:
-    print("Double Threshold")
-    t = time.process_time()
+if len(thresholds) == 4:
+    print("Double Threshold: ", thresholds)
+    t = time.perf_counter()
     img = sitk.DoubleThreshold(
         img, thresholds[0], thresholds[1], thresholds[2], thresholds[3],
         255, 0)
@@ -280,7 +279,7 @@ if args.double_threshold:
 #
 if medianFilter:
     print("Median filter")
-    t = time.process_time()
+    t = time.perf_counter()
     img = sitk.Median(img, [3, 3, 1])
     elapsedTime(t)
     gc.collect()
