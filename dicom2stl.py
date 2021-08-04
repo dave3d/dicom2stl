@@ -73,7 +73,7 @@ if args.filters:
 
 print("")
 tempDir = args.temp
-if tempDir == "":
+if tempDir == None:
     tempDir = tempfile.mkdtemp()
 print("Temp dir: ", tempDir)
 
@@ -236,7 +236,7 @@ gc.collect()
 #
 if anisotropicSmoothing:
     print("Anisotropic Smoothing")
-    t = time.process_time()
+    t = time.perf_counter()
     pixelType = img.GetPixelID()
     img = sitk.Cast(img, sitk.sitkFloat32)
     img = sitk.CurvatureAnisotropicDiffusion(img, .03)
@@ -246,9 +246,9 @@ if anisotropicSmoothing:
 
 # Apply the double threshold filter to the volume
 #
-if args.double_threshold:
-    print("Double Threshold")
-    t = time.process_time()
+if len(thresholds) == 4:
+    print("Double Threshold:", thresholds)
+    t = time.perf_counter()
     img = sitk.DoubleThreshold(
         img, thresholds[0], thresholds[1], thresholds[2], thresholds[3],
         255, 0)
@@ -261,7 +261,7 @@ if args.double_threshold:
 #
 if medianFilter:
     print("Median filter")
-    t = time.process_time()
+    t = time.perf_counter()
     img = sitk.Median(img, [3, 3, 1])
     elapsedTime(t)
     gc.collect()
