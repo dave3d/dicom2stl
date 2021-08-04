@@ -105,6 +105,10 @@ def parseargs():
                             type=float, default=.9,
                             help='Mesh reduction factor (default=.9)')
 
+    mesh_group.add_argument('--clean-small', '-x', action='store', dest='small',
+                            type=float, default=.05,
+                            help='Clean small parts factor (default=.05)')
+
     # Filtering options
     filter_group = parser.add_argument_group('Filtering options')
     filter_group.add_argument('--enable', action='append', dest='filters',

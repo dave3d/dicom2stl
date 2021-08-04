@@ -28,6 +28,10 @@ class TestVTK2SITK(unittest.TestCase):
         print(img.GetScalarTypeAsString())
         print(img.GetDimensions())
 
+        if vtk.vtkVersion.GetVTKMajorVersion()>=9:
+            img.SetDirectionMatrix(0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0)
+            print(img.GetDirectionMatrix())
+
         print("\nConverting VTK to SimpleITK")
         sitkimg = vtk2sitk.vtk2sitk(img, True)
 
@@ -35,6 +39,7 @@ class TestVTK2SITK(unittest.TestCase):
         print(type(sitkimg))
         print(sitkimg.GetPixelIDTypeAsString())
         print(sitkimg.GetSize())
+        print(sitkimg.GetDirection())
 
         self.assertIsInstance(sitkimg, sitk.Image)
         self.assertTupleEqual(img.GetDimensions(), sitkimg.GetSize())

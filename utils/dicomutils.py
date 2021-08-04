@@ -21,6 +21,19 @@ import fnmatch
 import zipfile
 import SimpleITK as sitk
 
+from pydicom.filereader import read_file_meta_info
+from pydicom.errors import InvalidDicomError
+
+
+
+def testDicomFile(file_path):
+    """Test if given file is in DICOM format."""
+    try:
+        read_file_meta_info(file_path)
+        return True
+    except InvalidDicomError:
+        return False
+
 
 def scanDirForDicom(dicomdir):
     matches = []
@@ -34,6 +47,7 @@ def scanDirForDicom(dicomdir):
     except BaseException as e:
         print("Error in scanDirForDicom: ", e)
         print("dicomdir = ", dicomdir)
+
 
     return (matches, dirs)
 

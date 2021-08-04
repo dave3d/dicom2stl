@@ -25,9 +25,12 @@ import shutil
 import time
 import zipfile
 import vtk
+import re
 import SimpleITK as sitk
 
 import parseargs
+
+from glob import glob
 
 from utils import sitk2vtk
 from utils import dicomutils
@@ -77,6 +80,7 @@ if tempDir == None:
     tempDir = tempfile.mkdtemp()
 print("Temp dir: ", tempDir)
 
+
 tissueType = args.tissue
 if tissueType:
     # Convert tissue type name to threshold values
@@ -107,8 +111,12 @@ else:
 
 fname = args.filenames
 
+# Parse wildcards
+# sum() flatten nested list
+fname = sum([glob(f) for f in fname], [])
+
 if len(fname) == 0:
-    print("Error: no input given.")
+    print("Error: no valid input given.")
     sys.exit(4)
 
 if zipfile.is_zipfile(fname[0]):
@@ -116,8 +124,6 @@ if zipfile.is_zipfile(fname[0]):
 
 if os.path.isdir(fname[0]):
     dirFlag = True
-
-
 else:
     if len(fname) > 1:
         print("File names: ", fname[0], fname[1], "...",
@@ -141,7 +147,11 @@ if zipFlag:
     # Case for a zip file of images
     if args.verbose:
         print("zip")
-    img, modality = dicomutils.loadZipDicom(fname[0], tempDir)
+    if not tempDir:
+        with tempfile.TemporaryDirectory() as defaultTempDir:
+            img, modality = dicomutils.loadZipDicom(fname[0], defaultTempDir)
+    else:
+        img, modality = dicomutils.loadZipDicom(fname[0], tempDir)
 
 
 else:
@@ -159,7 +169,16 @@ else:
             modality = dicomutils.getModality(img)
 
         else:
-            # Case for a series of image files
+            # Case for a series of image files 
+            # For files named like IM1, IM2, .. IM10
+            # They would be ordered by default as IM1, IM10, IM2, ...
+            # sort the fname list in correct serial number order
+            RE_NUMBERS = re.compile(r"\d+")
+            def extract_int(file_path):
+                file_name = os.path.basename(file_path)
+                return int(RE_NUMBERS.findall(file_name)[0])
+            fname = sorted(fname, key=extract_int)
+            
             if args.verbose:
                 if args.verbose > 1:
                     print("Reading images: ", fname)
@@ -214,14 +233,14 @@ if args.meta:
 if shrinkFlag:
     sfactor = []
     size = img.GetSize()
-    sum = 0
+    total = 0
     for s in size:
         x = int(math.ceil(s / 256.0))
         sfactor.append(x)
-        sum = sum + x
+        total = total + x
 
-    if sum > 3:
-        # if sum==3, no shrink happens
+    if total > 3:
+        # if total==3, no shrink happens
         t = time.perf_counter()
         print("Shrink factors: ", sfactor)
         img = sitk.Shrink(img, sfactor)
@@ -266,10 +285,17 @@ if medianFilter:
     elapsedTime(t)
     gc.collect()
 
+#
+# Get the minimum image intensity for padding the image
+#
+stats = sitk.StatisticsImageFilter()
+stats.Execute(img)
+minVal = stats.GetMinimum()
+
 # Pad black to the boundaries of the image
 #
 pad = [5, 5, 5]
-img = sitk.ConstantPad(img, pad, pad)
+img = sitk.ConstantPad(img, pad, pad, minVal)
 gc.collect()
 
 if args.verbose:
@@ -300,16 +326,25 @@ if args.debug:
 mesh = vtkutils.extractSurface(vtkimg, isovalue)
 vtkimg = None
 gc.collect()
+
 if args.debug:
     print("Cleaning mesh")
 mesh2 = vtkutils.cleanMesh(mesh, connectivityFilter)
 mesh = None
 gc.collect()
+
 if args.debug:
-    print("Smoothing mesh", args.smooth, "iterations")
-mesh3 = vtkutils.smoothMesh(mesh2, args.smooth)
+    print(f"Cleaning small parts ratio{args.small}")
+mesh_cleaned_parts =  vtkutils.removeSmallObjects(mesh2, args.small)
 mesh2 = None
 gc.collect()
+
+if args.debug:
+    print("Smoothing mesh", args.smooth, "iterations")
+mesh3 = vtkutils.smoothMesh(mesh_cleaned_parts, args.smooth)
+mesh_cleaned_parts = None
+gc.collect()
+
 if args.debug:
     print("Simplifying mesh")
 mesh4 = vtkutils.reduceMesh(mesh3, args.reduce)
@@ -328,6 +363,8 @@ gc.collect()
 
 # remove the temp directory
 if args.clean:
-    shutil.rmtree(tempDir)
+    # shutil.rmtree(tempDir)
+    # with context manager the temp dir would be deleted any way
+    pass
 
 print("")
