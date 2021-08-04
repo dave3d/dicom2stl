@@ -13,20 +13,22 @@ class TestSITK2VTK(unittest.TestCase):
         print("Testing sitk2vtk")
         dims = [102, 102, 102]
         img = sitk.GaussianSource(sitk.sitkUInt8, dims)
+        direction = [0.0, 1.0, 0.0,  1.0, 0.0, 0.0,  0.0, 0.0, -1.0]
+        img.SetDirection(direction)
 
-        if platform.system() == "Windows":
-            invol = vtk.vtkImageData()
-            invol.SetDimensions(10, 10, 10)
-            vol = sitk2vtk.sitk2vtk(img, invol, True)
-            print("Accessing VTK image")
-            print(invol.GetScalarComponentAsFloat(5, 5, 5, 0))
+        vol = sitk2vtk.sitk2vtk(img, True)
+        self.assertTupleEqual(vol.GetDimensions(), tuple(dims))
+        print("\nAccessing VTK image")
+        val = vol.GetScalarComponentAsFloat(5, 5, 5, 0)
+        print(val)
+        self.assertAlmostEqual(val, 3.0)
+
+        if vtk.vtkVersion.GetVTKMajorVersion()>=9:
+            print("\nDirection matrix")
+            print(vol.GetDirectionMatrix())
         else:
-            vol = sitk2vtk.sitk2vtk(img, True)
-            self.assertTupleEqual(vol.GetDimensions(), tuple(dims))
-            print("Accessing VTK image")
-            val = vol.GetScalarComponentAsFloat(5, 5, 5, 0)
-            print(val)
-            self.assertAlmostEqual(val, 3.0)
+            print("VTK version < 9.  No direction matrix")
+
 
 
 if __name__ == "__main__":

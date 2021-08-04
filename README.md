@@ -2,8 +2,10 @@ dicom2stl
 =========
 
 [![CircleCI](https://circleci.com/gh/dave3d/dicom2stl.svg?style=svg)](https://circleci.com/gh/dave3d/dicom2stl)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dave3d/dicom2stl/master?filepath=examples%2FIsosurface.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dave3d/dicom2stl/main?filepath=examples%2FIsosurface.ipynb)
 ![Python application](https://github.com/dave3d/dicom2stl/workflows/Python%20application/badge.svg)
+
+Tutorial: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dave3d/dicom2stl/main?filepath=examples%2FTutorial.ipynb)
 
 dicom2stl.py is a script that takes a [Dicom](https://www.dicomstandard.org/about/)
 series and generates a STL surface mesh.
@@ -16,14 +18,18 @@ Required packages
 =================
 The script is written in Python and uses 2 external packages, [VTK](https://vtk.org) and [SimpleITK](https://simpleitk.readthedocs.io/en/master/).
 
-vtk can be downloaded and built from the following repository:
+The dependencies can be simply installed by `pip`:
+> pip install SimpleITK vtk pydicom
+
+Alternatively, vtk can be downloaded and built from the following repository:
 > https://github.com/Kitware/VTK
 
-Alternatively, on some Linux distributions it can be installed with the following command:
+Or on some Linux distributions it can be installed with the following command:
 > sudo apt-get install vtk
 
+
 SimpleITK can be installed via the following command:
-> pip SimpleITK
+> pip install SimpleITK
 
 The options for the script can be seen by running it:
 > python dicom2stl.py --help
@@ -61,6 +67,7 @@ After all the image processing is finished, the volume is converted to a VTK ima
 Then the following VTK pipeline is executed:
 * [Extract a surface mesh](https://vtk.org/doc/nightly/html/classvtkContourFilter.html) from the VTK image
 * Apply the [clean mesh filter](https://vtk.org/doc/nightly/html/classvtkCleanPolyData.html)
+* [Remove small parts](https://vtk.org/doc/nightly/html/classvtkPolyDataConnectivityFilter.html) which connect to little other parts
 * Apply the [smooth mesh filter](https://vtk.org/doc/nightly/html/classvtkSmoothPolyDataFilter.html)
 * Apply the [reduce mesh filter](https://vtk.org/doc/nightly/html/classvtkQuadricDecimation.html)
 * [Write out an STL file](https://vtk.org/doc/nightly/html/classvtkSTLWriter.html)
@@ -84,5 +91,8 @@ To extract a specific iso-value from a VTK volume:
 To extract soft tissue from a dicom series in directory and
 apply a 180 degree Y axis rotation:
 > python dicom2stl.py --enable rotation -t soft_tissue -o soft.stl dicom_dir
+
+The options for the script can be seen by running it:
+> python dicom2stl.py --help
 
 You can try out an interactive Jupyter notebook via Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dave3d/dicom2stl/master?filepath=examples%2FIsosurface.ipynb)
