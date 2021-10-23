@@ -95,4 +95,4 @@ apply a 180 degree Y axis rotation:
 The options for the script can be seen by running it:
 > python dicom2stl.py --help
 
-You can try out an interactive Jupyter notebook via Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dave3d/dicom2stl/master?filepath=examples%2FIsosurface.ipynb)
+You can try out an interactive Jupyter notebook via Binder: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dave3d/dicom2stl/main?filepath=examples%2FIsosurface.ipynb)
