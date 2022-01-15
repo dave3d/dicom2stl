@@ -84,6 +84,9 @@ def parseargs():
                            help="""Double threshold with 4 semicolon separated floats
                                 """)
 
+    vol_group.add_argument('--regularize', action='store_true', dest='regularizeVol',
+                           help='Regularize volume, i.e. make direction matrix be identity and voxels be cubic')
+
     # Options that apply to the mesh processing portion of the pipeline
     mesh_group = parser.add_argument_group('Mesh options')
     mesh_group.add_argument('--largest', '-l', action=enableLargest,
@@ -104,6 +107,10 @@ def parseargs():
     mesh_group.add_argument('--reduce', action='store', dest='reduce',
                             type=float, default=.9,
                             help='Mesh reduction factor (default=.9)')
+
+    mesh_group.add_argument('--clean-small', '-x', action='store', dest='small',
+                            type=float, default=.05,
+                            help='Clean small parts factor (default=.05)')
 
     # Filtering options
     filter_group = parser.add_argument_group('Filtering options')
