@@ -7,7 +7,7 @@ jobs:
   build-and-test:
     executor: python/default
     docker:
-      - image: circleci/python:3.7-stretch
+      - image: circleci/python:3.9-bullseye
     steps:
       - checkout
       - python/load-cache
