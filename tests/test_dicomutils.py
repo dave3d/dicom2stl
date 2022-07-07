@@ -17,7 +17,7 @@ class TestDicomUtils(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print("\nBuildin\' it up!")
+        print("\nBuildin' it up!")
         cyl = create_data.make_cylinder(TestDicomUtils.SIZE, sitk.sitkUInt16)
         try:
             os.mkdir(TestDicomUtils.TMPDIR)
@@ -27,7 +27,7 @@ class TestDicomUtils(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        print("\nTearin\' it down!")
+        print("\nTearin' it down!")
         shutil.rmtree(TestDicomUtils.TMPDIR)
 
     def test_scanDirForDicom(self):
@@ -42,7 +42,7 @@ class TestDicomUtils(unittest.TestCase):
         print(seriessets)
         self.assertEqual(len(seriessets), 1)
         series_id = seriessets[0][0]
-        if series_id.startswith('1.2.826.0.1.3680043'):
+        if series_id.startswith("1.2.826.0.1.3680043"):
             print("    Series looks good")
         else:
             self.fail("    Bad series: " + series_id)
@@ -59,22 +59,23 @@ class TestDicomUtils(unittest.TestCase):
     def test_loadLargestSeries(self):
         print("\nTesting DicomUtils.loadLargestSeries")
         img, mod = dicomutils.loadLargestSeries(TestDicomUtils.TMPDIR)
-        self.assertEqual(img.GetSize(), (TestDicomUtils.SIZE,
-                                         TestDicomUtils.SIZE,
-                                         TestDicomUtils.SIZE))
+        self.assertEqual(
+            img.GetSize(),
+            (TestDicomUtils.SIZE, TestDicomUtils.SIZE, TestDicomUtils.SIZE),
+        )
         self.assertEqual(mod, "CT")
 
     def test_loadZipDicom(self):
         print("\nTesting DicomUtils.loadZipDicom")
-        zf = zipfile.ZipFile('tests/testzip.zip', 'w')
+        zf = zipfile.ZipFile("tests/testzip.zip", "w")
         for z in range(TestDicomUtils.SIZE):
-            zf.write(TestDicomUtils.TMPDIR + '/' + str(z) + '.dcm')
+            zf.write(TestDicomUtils.TMPDIR + "/" + str(z) + ".dcm")
         zf.close()
-        img, mod = dicomutils.loadZipDicom('tests/testzip.zip', 'tests/ziptmp')
+        img, mod = dicomutils.loadZipDicom("tests/testzip.zip", "tests/ziptmp")
         print(img.GetSize())
         print(mod)
-        os.unlink('tests/testzip.zip')
-        shutil.rmtree('tests/ziptmp')
+        os.unlink("tests/testzip.zip")
+        shutil.rmtree("tests/ziptmp")
 
 
 if __name__ == "__main__":

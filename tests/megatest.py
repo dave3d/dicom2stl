@@ -14,24 +14,26 @@ parentdir = os.path.dirname(thisdir)
 sys.path.append(os.path.abspath(parentdir))
 print(sys.path)
 
-suffixes = ['.png', '.nrrd', '.dcm', '.nii.gz', '.dcm']
+suffixes = [".png", ".nrrd", ".dcm", ".nii.gz", ".dcm"]
 
 fnames = []
 if len(sys.argv) == 1:
-    img_dir = os.environ['HOME']\
-              + '/SimpleITK-build/SimpleITK-build/'\
-              + 'ExternalData/Testing/Data/Input'
+    img_dir = (
+        os.environ["HOME"]
+        + "/SimpleITK-build/SimpleITK-build/"
+        + "ExternalData/Testing/Data/Input"
+    )
 
-    fnames = glob.glob(img_dir + '/*')
-    fnames.extend(glob.glob(img_dir + '/**/*'))
+    fnames = glob.glob(img_dir + "/*")
+    fnames.extend(glob.glob(img_dir + "/**/*"))
 
 else:
     for x in sys.argv[1:]:
         if os.path.isfile(x):
             fnames.append(x)
         if os.path.isdir(x):
-            fnames.extend(glob.glob(x + '/*'))
-            fnames.extend(glob.glob(x + '/**/*'))
+            fnames.extend(glob.glob(x + "/*"))
+            fnames.extend(glob.glob(x + "/**/*"))
 
 img_names = []
 for f in fnames:

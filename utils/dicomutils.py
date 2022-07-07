@@ -25,7 +25,6 @@ from pydicom.filereader import read_file_meta_info
 from pydicom.errors import InvalidDicomError
 
 
-
 def testDicomFile(file_path):
     """Test if given file is in DICOM format."""
     try:
@@ -40,7 +39,7 @@ def scanDirForDicom(dicomdir):
     dirs = []
     try:
         for root, dirnames, filenames in os.walk(dicomdir):
-            for filename in fnmatch.filter(filenames, '*.dcm'):
+            for filename in fnmatch.filter(filenames, "*.dcm"):
                 matches.append(os.path.join(root, filename))
                 if root not in dirs:
                     dirs.append(root)
@@ -86,7 +85,7 @@ def loadLargestSeries(dicomdir):
 
     files, dirs = scanDirForDicom(dicomdir)
 
-    if (len(files) == 0) or (len(dirs)==0):
+    if (len(files) == 0) or (len(dirs) == 0):
         print("Error in loadLargestSeries.  No files found.")
         print("dicomdir = ", dicomdir)
         return None
@@ -118,13 +117,13 @@ def loadLargestSeries(dicomdir):
 
 
 def loadZipDicom(name, tempDir):
-    """ Unzip a zipfile of dicom images into a temp directory, then
-        load the series that has the most slices.
+    """Unzip a zipfile of dicom images into a temp directory, then
+    load the series that has the most slices.
     """
 
     print("Reading Dicom zip file:", name)
     print("tempDir = ", tempDir)
-    myzip = zipfile.ZipFile(name, 'r')
+    myzip = zipfile.ZipFile(name, "r")
 
     try:
         myzip.extractall(tempDir)
@@ -143,9 +142,9 @@ if __name__ == "__main__":
     print("dicomutils.py")
     print(sys.argv[1])
 
-#    img = loadLargestSeries(sys.argv[1])
-#    print (img)
-#    sys.exit(0)
+    #    img = loadLargestSeries(sys.argv[1])
+    #    print (img)
+    #    sys.exit(0)
 
     files, dirs = scanDirForDicom(sys.argv[1])
     print("")

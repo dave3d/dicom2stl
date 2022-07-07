@@ -16,7 +16,6 @@ def printStats(stats):
 
 
 class TestVTK2SITK(unittest.TestCase):
-
     def test_vtk2sitk(self):
 
         source = vtk.vtkImageSinusoidSource()
@@ -28,8 +27,10 @@ class TestVTK2SITK(unittest.TestCase):
         print(img.GetScalarTypeAsString())
         print(img.GetDimensions())
 
-        if vtk.vtkVersion.GetVTKMajorVersion()>=9:
-            img.SetDirectionMatrix(0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0)
+        if vtk.vtkVersion.GetVTKMajorVersion() >= 9:
+            img.SetDirectionMatrix(
+                0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0
+            )
             print(img.GetDirectionMatrix())
 
         print("\nConverting VTK to SimpleITK")

@@ -85,18 +85,18 @@ if tissueType:
     # Convert tissue type name to threshold values
     print("Tissue type: ", tissueType)
     if tissueType.find("bone") > -1:
-        thresholds = [200., 800., 1300., 1500.]
+        thresholds = [200.0, 800.0, 1300.0, 1500.0]
     elif tissueType.find("skin") > -1:
-        thresholds = [-200., 0., 500., 1500.]
+        thresholds = [-200.0, 0.0, 500.0, 1500.0]
     elif tissueType.find("soft") > -1:
-        thresholds = [-15., 30., 58., 100.]
+        thresholds = [-15.0, 30.0, 58.0, 100.0]
         medianFilter = True
     elif tissueType.find("fat") > -1:
-        thresholds = [-122., -112., -96., -70.]
+        thresholds = [-122.0, -112.0, -96.0, -70.0]
         medianFilter = True
 
 if args.double_threshold:
-    words = args.double_threshold.split(';')
+    words = args.double_threshold.split(";")
     thresholds = []
     for x in words:
         thresholds.append(float(x))
@@ -125,8 +125,14 @@ if os.path.isdir(fname[0]):
     dirFlag = True
 else:
     if len(fname) > 1:
-        print("File names: ", fname[0], fname[1], "...",
-              fname[len(fname) - 1], "\n")
+        print(
+            "File names: ",
+            fname[0],
+            fname[1],
+            "...",
+            fname[len(fname) - 1],
+            "\n",
+        )
     else:
         print("File names: ", fname, "\n")
 
@@ -173,25 +179,33 @@ else:
             # They would be ordered by default as IM1, IM10, IM2, ...
             # sort the fname list in correct serial number order
             RE_NUMBERS = re.compile(r"\d+")
+
             def extract_int(file_path):
                 file_name = os.path.basename(file_path)
                 return int(RE_NUMBERS.findall(file_name)[0])
+
             fname = sorted(fname, key=extract_int)
 
             if args.verbose:
                 if args.verbose > 1:
                     print("Reading images: ", fname)
                 else:
-                    print("Reading images: ",
-                          fname[0], fname[1], "...", fname[len(fname) - 1])
+                    print(
+                        "Reading images: ",
+                        fname[0],
+                        fname[1],
+                        "...",
+                        fname[len(fname) - 1],
+                    )
             isr = sitk.ImageSeriesReader()
             isr.SetFileNames(fname)
             img = isr.Execute()
             firstslice = sitk.ReadImage(fname[0])
             modality = dicomutils.getModality(firstslice)
 
-if args.ctonly and ((sitk.Version.MinorVersion() > 8)
-                    or (sitk.Version.MajorVersion() > 0)):
+if args.ctonly and (
+    (sitk.Version.MinorVersion() > 8) or (sitk.Version.MajorVersion() > 0)
+):
     # Check the metadata for CT image type.  Note that this only works with
     # SimpleITK version 0.8.0 or later.  For earlier versions there is no
     # GetMetaDataKeys method
@@ -203,9 +217,10 @@ if args.ctonly and ((sitk.Version.MinorVersion() > 8)
 # vtkname =  tempDir+"/vol0.vtk"
 # sitk.WriteImage( img, vtkname )
 
+
 def roundThousand(x):
     y = int(1000.0 * x + 0.5)
-    return str(float(y) * .001)
+    return str(float(y) * 0.001)
 
 
 def elapsedTime(start_time):
@@ -219,12 +234,12 @@ if args.meta:
     FP = open(args.meta, "w")
     size = img.GetSize()
     spacing = img.GetSpacing()
-    FP.write('xdimension ' + str(size[0]) + '\n')
-    FP.write('ydimension ' + str(size[1]) + '\n')
-    FP.write('zdimension ' + str(size[2]) + '\n')
-    FP.write('xspacing ' + roundThousand(spacing[0]) + '\n')
-    FP.write('yspacing ' + roundThousand(spacing[1]) + '\n')
-    FP.write('zspacing ' + roundThousand(spacing[2]) + '\n')
+    FP.write("xdimension " + str(size[0]) + "\n")
+    FP.write("ydimension " + str(size[1]) + "\n")
+    FP.write("zdimension " + str(size[2]) + "\n")
+    FP.write("xspacing " + roundThousand(spacing[0]) + "\n")
+    FP.write("yspacing " + roundThousand(spacing[1]) + "\n")
+    FP.write("zspacing " + roundThousand(spacing[2]) + "\n")
     FP.close()
 
 #
@@ -257,7 +272,7 @@ if anisotropicSmoothing:
     t = time.perf_counter()
     pixelType = img.GetPixelID()
     img = sitk.Cast(img, sitk.sitkFloat32)
-    img = sitk.CurvatureAnisotropicDiffusion(img, .03)
+    img = sitk.CurvatureAnisotropicDiffusion(img, 0.03)
     img = sitk.Cast(img, pixelType)
     elapsedTime(t)
     gc.collect()
@@ -268,8 +283,8 @@ if len(thresholds) == 4:
     print("Double Threshold: ", thresholds)
     t = time.perf_counter()
     img = sitk.DoubleThreshold(
-        img, thresholds[0], thresholds[1], thresholds[2], thresholds[3],
-        255, 0)
+        img, thresholds[0], thresholds[1], thresholds[2], thresholds[3], 255, 0
+    )
     isovalue = 64.0
     elapsedTime(t)
     gc.collect()
@@ -334,7 +349,7 @@ gc.collect()
 
 if args.debug:
     print(f"Cleaning small parts ratio{args.small}")
-mesh_cleaned_parts =  vtkutils.removeSmallObjects(mesh2, args.small)
+mesh_cleaned_parts = vtkutils.removeSmallObjects(mesh2, args.small)
 mesh2 = None
 gc.collect()
 
@@ -350,7 +365,7 @@ mesh4 = vtkutils.reduceMesh(mesh3, args.reduce)
 mesh3 = None
 gc.collect()
 
-axis_map = {'X': 0, 'Y': 1, 'Z': 2}
+axis_map = {"X": 0, "Y": 1, "Z": 2}
 rotAxis = axis_map[args.rotaxis]
 if args.rotangle != 0.0:
     mesh5 = vtkutils.rotateMesh(mesh4, rotAxis, args.rotangle)

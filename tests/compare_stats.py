@@ -12,7 +12,7 @@ def printStats(stats):
 
 
 def compare_stats(sitkimg, vtkimg):
-    """ Compare the statistics of a SimpleITK image and a VTK image. """
+    """Compare the statistics of a SimpleITK image and a VTK image."""
 
     # Compute the VTK image histogram statistics
     histo = vtk.vtkImageHistogramStatistics()
@@ -24,7 +24,8 @@ def compare_stats(sitkimg, vtkimg):
         histo.GetMinimum(),
         histo.GetMaximum(),
         histo.GetMean(),
-        histo.GetStandardDeviation()]
+        histo.GetStandardDeviation(),
+    ]
 
     print("\nvtk median = ", histo.GetMedian())
 
@@ -39,7 +40,8 @@ def compare_stats(sitkimg, vtkimg):
         stats.GetMinimum(),
         stats.GetMaximum(),
         stats.GetMean(),
-        stats.GetSigma()]
+        stats.GetSigma(),
+    ]
 
     print("\nSimpleITK image stats")
     printStats(sitkstats)
@@ -53,7 +55,7 @@ def compare_stats(sitkimg, vtkimg):
         else:
             y = abs(x)
 
-        if (y > .0001):
+        if y > 0.0001:
             print("Bad!", v, s, "\terror =", y)
             ok = False
     return ok

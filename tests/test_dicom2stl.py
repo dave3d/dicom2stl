@@ -8,7 +8,6 @@ from tests import create_data
 
 
 class TestDicom2STL(unittest.TestCase):
-
     @classmethod
     def setUpClass(self):
         print("Setting up dicom2stl tests")
@@ -24,8 +23,17 @@ class TestDicom2STL(unittest.TestCase):
     def test_dicom2stl(self):
         print("Dicom2stl test")
         print(os.getcwd())
-        runresult = subprocess.run(['python', 'dicom2stl.py', '-i', '100', '-o',
-                                    'testout.stl', 'tetra-test.nii.gz'])
+        runresult = subprocess.run(
+            [
+                "python",
+                "dicom2stl.py",
+                "-i",
+                "100",
+                "-o",
+                "testout.stl",
+                "tetra-test.nii.gz",
+            ]
+        )
         print(runresult.returncode)
         if runresult.returncode:
             self.fail("dicom2stl process returned bad code")

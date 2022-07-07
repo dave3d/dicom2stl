@@ -44,17 +44,24 @@ def sitk2vtk(img, debugOn=False):
         spacing.append(spacing[0])
 
     if len(direction) == 4:
-        direction = [ direction[0], direction[1], 0.0,
-                      direction[2], direction[3], 0.0,
-                               0.0,          0.0, 1.0 ]
-
+        direction = [
+            direction[0],
+            direction[1],
+            0.0,
+            direction[2],
+            direction[3],
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+        ]
 
     vtk_image.SetDimensions(size)
     vtk_image.SetSpacing(spacing)
     vtk_image.SetOrigin(origin)
     vtk_image.SetExtent(0, size[0] - 1, 0, size[1] - 1, 0, size[2] - 1)
 
-    if vtk.vtkVersion.GetVTKMajorVersion()<9:
+    if vtk.vtkVersion.GetVTKMajorVersion() < 9:
         print("Warning: VTK version <9.  No direction matrix.")
     else:
         vtk_image.SetDirectionMatrix(direction)

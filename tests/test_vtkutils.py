@@ -58,7 +58,7 @@ class TestVTKUtils(unittest.TestCase):
 
     def test_reduceMesh(self):
         print("Testing reduceMesh")
-        result = vtkutils.reduceMesh(TestVTKUtils.BALL, .5)
+        result = vtkutils.reduceMesh(TestVTKUtils.BALL, 0.5)
         print(result.GetNumberOfPolys())
 
     def test_meshIO(self):
