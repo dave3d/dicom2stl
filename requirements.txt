@@ -2,4 +2,4 @@ numpy>=1.24.0
 SimpleITK>=2.2
 vtk>=9.2.0
 pydicom>=2.3
-SimpleITKUtilities @ git+ssh://git@github.com/SimpleITK/SimpleITKUtilities.git@main
+SimpleITKUtilities @ git+https://github.com/SimpleITK/SimpleITKUtilities.git@main
