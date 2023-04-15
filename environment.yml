@@ -12,3 +12,4 @@ dependencies:
   - pip:
     - pydicom
     - vtk
+    - -e git+https://github.com/SimpleITK/SimpleITKUtilities.git#egg=SimpleITKUtilities
