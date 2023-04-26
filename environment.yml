@@ -9,7 +9,8 @@ channels:
 dependencies:
   - simpleitk
   - numpy
+  - pip
   - pip:
     - pydicom
     - vtk
-    - -e git+https://github.com/SimpleITK/SimpleITKUtilities.git#egg=SimpleITKUtilities
+    - git+https://github.com/SimpleITK/SimpleITKUtilities.git@main

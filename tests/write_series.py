@@ -26,7 +26,7 @@ def writeSlices(series_tag_values, new_img, out_dir, writer, i):
     # Slice specific tags.
     #   Instance Creation Date
     image_slice.SetMetaData("0008|0012", time.strftime("%Y%m%d"))
-    #   Instace Creation Time
+    #   Instance Creation Time
     image_slice.SetMetaData("0008|0013", time.strftime("%H%M%S"))
 
     # Setting the type to CT preserves the slice location.

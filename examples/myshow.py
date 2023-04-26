@@ -34,7 +34,7 @@ def myshow(img, title=None, margin=0.05, dpi=80):
         ysize = nda.shape[0]
         xsize = nda.shape[1]
 
-    # Make a figure big enough to accomodate an axis of xpixels by ypixels
+    # Make a figure big enough to accommodate an axis of xpixels by ypixels
     # as well as the ticklabels, etc...
     figsize = (1 + margin) * ysize / dpi, (1 + margin) * xsize / dpi
 
