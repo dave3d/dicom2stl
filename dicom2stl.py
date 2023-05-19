@@ -32,7 +32,7 @@ import parseargs
 
 from glob import glob
 
-from utils import sitk2vtk
+from SimpleITK.utilities import sitk2vtk
 from utils import dicomutils
 from utils import vtkutils
 
@@ -326,7 +326,7 @@ if args.verbose:
 # sitk.WriteImage( img, vtkname )
 
 
-vtkimg = sitk2vtk.sitk2vtk(img)
+vtkimg = sitk2vtk(img)
 
 img = None
 gc.collect()
