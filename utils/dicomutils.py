@@ -20,6 +20,7 @@ import os
 import fnmatch
 import zipfile
 import SimpleITK as sitk
+import tempfile
 
 from pydicom.filereader import read_file_meta_info
 from pydicom.errors import InvalidDicomError
@@ -50,16 +51,25 @@ def scanDirForDicom(dicomdir):
     return (matches, dirs)
 
 
-def getAllSeries(dirs):
-    """Get all the Dicom series in a set of directories."""
+def findAllSeries(dir):
+    """Recursively find all the Dicom series in a directory."""
+
+    # Get all the directories
+    dirs_found = []
+    for dirpath, dirs, files in os.walk(dir):
+        dirs_found.append(dirpath)
+
     isr = sitk.ImageSeriesReader()
     seriessets = []
-    for d in dirs:
-        series = isr.GetGDCMSeriesIDs(d)
-        for s in series:
-            files = isr.GetGDCMSeriesFileNames(d, s)
-            print(s, d, len(files))
-            seriessets.append([s, d, files])
+    for d in dirs_found:
+        try:
+            series = isr.GetGDCMSeriesIDs(d)
+            for s in series:
+                files = isr.GetGDCMSeriesFileNames(d, s)
+                #print(s, d, len(files))
+                seriessets.append([s, d, files])
+        except BaseException:
+            print("no series in", d)
     return seriessets
 
 
@@ -83,13 +93,7 @@ def loadLargestSeries(dicomdir):
     of the series.
     """
 
-    files, dirs = scanDirForDicom(dicomdir)
-
-    if (len(files) == 0) or (len(dirs) == 0):
-        print("Error in loadLargestSeries.  No files found.")
-        print("dicomdir = ", dicomdir)
-        return None
-    seriessets = getAllSeries(dirs)
+    seriessets = findAllSeries(dicomdir)
     maxsize = 0
     maxindex = -1
 
@@ -107,7 +111,7 @@ def loadLargestSeries(dicomdir):
     ss = seriessets[maxindex]
     files = ss[2]
     isr.SetFileNames(files)
-    print("\nLoading series", ss[0], "in directory", ss[1])
+    print("\nLoading series", ss[0], len(files), "in directory", ss[1])
     img = isr.Execute()
 
     firstslice = sitk.ReadImage(files[0])
@@ -140,23 +144,29 @@ def loadZipDicom(name, tempDir):
 if __name__ == "__main__":
     print("")
     print("dicomutils.py")
-    print(sys.argv[1])
 
-    #    img = loadLargestSeries(sys.argv[1])
-    #    print (img)
-    #    sys.exit(0)
 
-    files, dirs = scanDirForDicom(sys.argv[1])
-    print("")
-    print("files")
-    print(files)
-    print("")
-    print("dirs")
-    print(dirs)
+    if len(sys.argv) > 1:
+        target = sys.argv[1]
+    else:
+        target = "."
 
-    print("series")
-    seriessets = getAllSeries(dirs)
-    for ss in seriessets:
-        print(ss[0], " ", ss[1])
-        print(len(ss[2]))
-        print("")
+    print("target:", target)
+
+    if target.endswith(".zip"):
+        print("Load Zip file")
+        with tempfile.TemporaryDirectory() as defaultTempDir:
+            img, modality = loadZipDicom(target, defaultTempDir)
+    else:
+        print("Scanning directory for DICOM")
+
+        seriessets = findAllSeries(target)
+        print("results")
+        for ss in seriessets:
+            print(ss[0], " ", ss[1])
+            print(len(ss[2]))
+            print("")
+
+        img, modality = loadLargestSeries(target)
+
+    print(img)
