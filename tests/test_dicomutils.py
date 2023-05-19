@@ -36,9 +36,9 @@ class TestDicomUtils(unittest.TestCase):
         print(matches, dirs)
         self.assertEqual(len(matches), TestDicomUtils.SIZE)
 
-    def test_getAllSeries(self):
+    def test_findAllSeries(self):
         print("\nTesting DicomUtils.getAllSeries")
-        seriessets = dicomutils.getAllSeries([TestDicomUtils.TMPDIR])
+        seriessets = dicomutils.findAllSeries(TestDicomUtils.TMPDIR)
         print(seriessets)
         self.assertEqual(len(seriessets), 1)
         series_id = seriessets[0][0]
