@@ -5,7 +5,7 @@ import unittest
 import SimpleITK as sitk
 import vtk
 from tests import compare_stats
-from utils import vtk2sitk
+from SimpleITK.utilities import vtk2sitk
 
 
 def printStats(stats):
@@ -34,7 +34,7 @@ class TestVTK2SITK(unittest.TestCase):
             print(img.GetDirectionMatrix())
 
         print("\nConverting VTK to SimpleITK")
-        sitkimg = vtk2sitk.vtk2sitk(img, True)
+        sitkimg = vtk2sitk(img)
 
         print("\nResulting SimpleITK Image")
         print(type(sitkimg))
@@ -61,7 +61,7 @@ class TestVTK2SITK(unittest.TestCase):
 
         # Convert the short image to SimpleITK
         print("\nConverting short VTK to SimpleITK")
-        sitkimg2 = vtk2sitk.vtk2sitk(img2, True)
+        sitkimg2 = vtk2sitk(img2)
         print("\nSimpleITK short image")
         print(type(sitkimg2))
         print(sitkimg2.GetPixelIDTypeAsString())
