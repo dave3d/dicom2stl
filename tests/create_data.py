@@ -5,7 +5,7 @@ import argparse
 import SimpleITK as sitk
 
 
-def make_tetra(dim=128, pixel_type=sitk.sitkUInt8):
+def make_tetra(dim=128, scale=200.0, pixel_type=sitk.sitkUInt8):
     # vertices of a tetrahedron
     tverts = [
         [0.732843, 0.45, 0.35],
@@ -16,21 +16,21 @@ def make_tetra(dim=128, pixel_type=sitk.sitkUInt8):
     sigma = [dim / 6, dim / 6, dim / 6]
     size = [dim, dim, dim]
 
-    vol = sitk.Image(size, sitk.sitkUInt8)
+    vol = sitk.Image(size, pixel_type)
     for v in tverts:
         pt = [v[0] * dim, v[1] * dim, v[2] * dim]
         vol = vol + sitk.GaussianSource(
-            pixel_type, size, sigma=sigma, mean=pt, scale=200
+            pixel_type, size, sigma=sigma, mean=pt, scale=scale
         )
 
     return vol
 
 
-def make_cylinder(dim=64, pixel_type=sitk.sitkUInt8):
+def make_cylinder(dim=64, scale=200.0, pixel_type=sitk.sitkUInt8):
     mean = [dim / 2, dim / 2]
     sigma = [dim / 4, dim / 4]
     img = sitk.GaussianSource(
-        pixel_type, [dim, dim], sigma=sigma, mean=mean, scale=200
+        pixel_type, [dim, dim], sigma=sigma, mean=mean, scale=scale
     )
 
     series = []
@@ -73,6 +73,15 @@ if __name__ == "__main__":
         default="uint8",
         help="Pixel type (default='uint8')",
     )
+    parser.add_argument(
+        "--scale",
+        "-s",
+        action="store",
+        dest="scale",
+        type=float,
+        default=200.0,
+        help="Intensity scale (default=200.0)",
+    )
 
     parser.add_argument(
         "--tetra",
@@ -100,9 +109,9 @@ if __name__ == "__main__":
 
     if args.tetra_flag:
         print("Making tetra")
-        vol = make_tetra(args.dim, ptype)
+        vol = make_tetra(args.dim, args.scale, ptype)
     else:
         print("Making cylinder")
-        vol = make_cylinder(args.dim, ptype)
+        vol = make_cylinder(args.dim, args.scale, ptype)
     print("Writing", args.output)
     sitk.WriteImage(vol, args.output)
