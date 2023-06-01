@@ -16,9 +16,7 @@ def writeSlices(series_tag_values, new_img, out_dir, writer, i):
     # Tags shared by the series.
     list(
         map(
-            lambda tag_value: image_slice.SetMetaData(
-                tag_value[0], tag_value[1]
-            ),
+            lambda tag_value: image_slice.SetMetaData(tag_value[0], tag_value[1]),
             series_tag_values,
         )
     )
@@ -210,9 +208,7 @@ if __name__ == "__main__":
             new_img = sitk.Cast(new_img, sitk.sitkInt16)
 
     else:
-        new_arr = np.random.uniform(-10, 10, size=(3, 4, 5)).astype(
-            pixel_dtype
-        )
+        new_arr = np.random.uniform(-10, 10, size=(3, 4, 5)).astype(pixel_dtype)
         new_img = sitk.GetImageFromArray(new_arr)
         new_img.SetSpacing([2.5, 3.5, 4.5])
 

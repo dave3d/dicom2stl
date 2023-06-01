@@ -28,9 +28,7 @@ class TestVTK2SITK(unittest.TestCase):
         print(img.GetDimensions())
 
         if vtk.vtkVersion.GetVTKMajorVersion() >= 9:
-            img.SetDirectionMatrix(
-                0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0
-            )
+            img.SetDirectionMatrix(0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0)
             print(img.GetDirectionMatrix())
 
         print("\nConverting VTK to SimpleITK")
