@@ -37,6 +37,11 @@ from utils import dicomutils
 from utils import vtkutils
 
 
+def roundThousand(x):
+    y = int(1000.0 * x + 0.5)
+    return str(float(y) * 0.001)
+
+
 def elapsedTime(start_time):
     dt = time.perf_counter() - start_time
     print("    %4.3f seconds", dt)

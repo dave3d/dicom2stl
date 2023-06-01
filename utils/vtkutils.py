@@ -20,26 +20,14 @@ import traceback
 import vtk
 
 
-#
-#  timing knick knacks
-#
-
-
-def roundThousand(x):
-    y = int(1000.0 * x + 0.5)
-    return str(float(y) * 0.001)
-
-
 def elapsedTime(start_time):
-    dt = roundThousand(time.perf_counter() - start_time)
-    print("    ", dt, "seconds")
+    dt = time.perf_counter() - start_time
+    print("    %4.3f seconds", dt)
 
 
 #
 #  Isosurface extraction
 #
-
-
 def extractSurface(vol, isovalue=0.0):
     """Extract an isosurface from a volume."""
     try:
