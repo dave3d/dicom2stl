@@ -34,7 +34,7 @@ class enableLargest(argparse.Action):
         x.append("largest")
 
 
-def parseargs():
+def createParser():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("filenames", nargs="*")
@@ -213,5 +213,11 @@ def parseargs():
         choices=["anisotropic", "shrink", "median", "largest", "rotation"],
         help="Disable filtering options",
     )
+
+    return parser
+
+
+def parseargs():
+    parser = createParser()
     args = parser.parse_args()
     return args
