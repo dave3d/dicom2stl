@@ -1,8 +1,9 @@
 import unittest
-import subprocess
 import os
 
 import SimpleITK as sitk
+import parseargs
+import dicom2stl
 
 from tests import create_data
 
@@ -21,22 +22,22 @@ class TestDicom2STL(unittest.TestCase):
         os.remove("testout.stl")
 
     def test_dicom2stl(self):
-        print("Dicom2stl test")
-        print(os.getcwd())
-        runresult = subprocess.run(
-            [
-                "python",
-                "dicom2stl.py",
-                "-i",
-                "100",
-                "-o",
-                "testout.stl",
-                "tetra-test.nii.gz",
-            ]
+        print("\nDicom2stl test")
+        print("cwd:", os.getcwd())
+
+        parser = parseargs.createParser()
+        args = parser.parse_args(
+            ["-i", "100", "-o", "testout.stl", "tetra-test.nii.gz"]
         )
-        print(runresult.returncode)
-        if runresult.returncode:
-            self.fail("dicom2stl process returned bad code")
+
+        print("\ndicom2stl arguments")
+        print(args)
+
+        try:
+            dicom2stl.dicom2stl(args)
+        except BaseException:
+            self.fail("dicom2stl: exception thrown")
+
         if not os.path.exists("testout.stl"):
             self.fail("dicom2stl: no output file")
 
