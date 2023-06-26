@@ -1,9 +1,9 @@
 #! /usr/bin/env python
 
 import unittest
-from utils import sitk2vtk
 import vtk
 import SimpleITK as sitk
+import SimpleITK.utilities as sitkutils
 import platform
 
 
@@ -15,7 +15,7 @@ class TestSITK2VTK(unittest.TestCase):
         direction = [0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0]
         img.SetDirection(direction)
 
-        vol = sitk2vtk.sitk2vtk(img, True)
+        vol = sitkutils.sitk2vtk(img)
         self.assertTupleEqual(vol.GetDimensions(), tuple(dims))
         print("\nAccessing VTK image")
         val = vol.GetScalarComponentAsFloat(5, 5, 5, 0)

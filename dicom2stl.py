@@ -28,11 +28,12 @@ import vtk
 import re
 import SimpleITK as sitk
 
+import SimpleITK.utilities as sitkutils
+
 import parseargs
 
 from glob import glob
 
-from utils import sitk2vtk
 from utils import dicomutils
 from utils import vtkutils
 
@@ -48,7 +49,6 @@ def elapsedTime(start_time):
 
 
 def loadVolume(fname, tempDir=None, verbose=False):
-
     modality = None
     zipFlag = False
     dirFlag = False
@@ -237,7 +237,6 @@ def meshProcessingPipeline(
     rotation=["X", 0.0],
     debug=False,
 ):
-
     if debug:
         print("Cleaning mesh")
     mesh2 = vtkutils.cleanMesh(mesh, connectivityFilter)
@@ -299,7 +298,6 @@ def getTissueThresholds(tissueType):
 
 
 def dicom2stl(args):
-
     # Global variables
     #
     thresholds = []
@@ -387,7 +385,7 @@ def dicom2stl(args):
         print("")
 
     # Convert the SimpleITK image to a VTK image
-    vtkimg = sitk2vtk.sitk2vtk(img)
+    vtkimg = sitkutils.sitk2vtk(img)
 
     # Delete the SimpleITK image, free its memory
     img = None
