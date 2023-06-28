@@ -45,7 +45,7 @@ def roundThousand(x):
 
 def elapsedTime(start_time):
     dt = time.perf_counter() - start_time
-    print("    %4.3f seconds", dt)
+    print("    %4.3f seconds" % dt)
 
 
 def loadVolume(fname, tempDir=None, verbose=False):
