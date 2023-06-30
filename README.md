@@ -1,7 +1,6 @@
 dicom2stl
 =========
 
-[![CircleCI](https://circleci.com/gh/dave3d/dicom2stl.svg?style=svg)](https://circleci.com/gh/dave3d/dicom2stl)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dave3d/dicom2stl/main?filepath=examples%2FIsosurface.ipynb)
 ![Python application](https://github.com/dave3d/dicom2stl/workflows/Python%20application/badge.svg)
 
@@ -16,10 +15,10 @@ dchen@mail.nih.gov It is covered by the Apache License, Version 2.0:
 
 Getting Started
 ===============
-The script is written in Python and uses 3 external packages, [SimpleITK](https://simpleitk.readthedocs.io/en/master/), [VTK](https://vtk.org), and [pydicom](https://pydicom.github.io/).
+The script is written in Python and uses 4 external packages, [SimpleITK](https://simpleitk.readthedocs.io/en/master/), [SimpleITKUtilities](https://github.com/SimpleITK/SimpleITKUtilities), [VTK](https://vtk.org), and [pydicom](https://pydicom.github.io/).
 
 The dependencies can be installed using `pip`:
-> pip install SimpleITK vtk pydicom
+> pip install -r requirements.txt
 
 The options for the main script, **dicom2stl.py**, can be seen by running it:
 > python dicom2stl.py --help
