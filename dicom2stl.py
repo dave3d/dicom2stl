@@ -28,7 +28,7 @@ import vtk
 import re
 import SimpleITK as sitk
 
-import SimpleITK.utilities as sitkutils
+from SimpleITK.utilities.vtk import sitk2vtk
 
 import parseargs
 
@@ -385,7 +385,7 @@ def dicom2stl(args):
         print("")
 
     # Convert the SimpleITK image to a VTK image
-    vtkimg = sitkutils.sitk2vtk(img)
+    vtkimg = sitk2vtk(img)
 
     # Delete the SimpleITK image, free its memory
     img = None
