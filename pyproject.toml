@@ -25,7 +25,7 @@ dynamic = ["dependencies", "version"]
 dependencies = {file = ["requirements.txt"]}
 
 [project.scripts]
-comment_spell_check = "dicom2stl:main"
+dicom2stl = "dicom2stl:main"
 
 [tool.setuptools_scm]
 local_scheme = "dirty-tag"
