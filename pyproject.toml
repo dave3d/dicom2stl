@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools_scm[toml]>=7.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dicom2stl"
+authors = [
+  { name="David Chen", email="dchen@mail.nih.gov" },
+]
+description = "A script to extract an STL surface mesh from a DICOM volume image."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dynamic = ["dependencies", "version"]
+
+[project.urls]
+"Homepage" = "https://github.com/dave3d/dicom2stl"
+"Bug Tracker" = "https://github.com/dave3d/dicom2stl"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[project.scripts]
+comment_spell_check = "dicom2stl:main"
+
+[tool.setuptools_scm]
+local_scheme = "dirty-tag"
+
+[tool.flake8]
+max-line-length = 88
+ignore = ['E203', 'W503']
+max_complexity = 25
