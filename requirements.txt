@@ -1,5 +1,5 @@
 numpy>=1.24.0
-SimpleITK>=2.2
+SimpleITK>=2.2.1
 vtk>=9.2.0
 pydicom>=2.3
-simpleitkutilities>=0.2.2
+simpleitkutilities>=0.3.0
