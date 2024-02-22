@@ -427,6 +427,9 @@ def dicom2stl(args):
     print("")
 
 
-if __name__ == "__main__":
+def main():
     args = parseargs.parseargs()
     dicom2stl(args)
+
+if __name__ == "__main__":
+    main()
