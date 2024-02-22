@@ -48,7 +48,7 @@ def elapsedTime(start_time):
     print("    %4.3f seconds" % dt)
 
 
-def loadVolume(fname, tempDir=None, verbose=False):
+def loadVolume(fname, tempDir=None, verbose=0):
     modality = None
     zipFlag = False
     dirFlag = False
@@ -85,7 +85,7 @@ def loadVolume(fname, tempDir=None, verbose=False):
     #
     if zipFlag:
         # Case for a zip file of images
-        if args.verbose:
+        if verbose:
             print("zip")
         if not tempDir:
             with tempfile.TemporaryDirectory() as defaultTempDir:
@@ -120,8 +120,8 @@ def loadVolume(fname, tempDir=None, verbose=False):
 
                 fname = sorted(fname, key=extract_int)
 
-                if args.verbose:
-                    if args.verbose > 1:
+                if verbose:
+                    if verbose > 1:
                         print("Reading images: ", fname)
                     else:
                         print(
