@@ -7,7 +7,7 @@ name = "dicom2stl"
 authors = [
   { name="David Chen", email="dchen@mail.nih.gov" },
 ]
-description = "A script to extract an STL surface mesh from a DICOM volume image."
+description = "A script to extract an iso-surface from a DICOM series to produce an STL mesh."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
