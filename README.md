@@ -17,12 +17,24 @@ Getting Started
 ===============
 The script is written in Python and uses 4 external packages, [SimpleITK](https://simpleitk.readthedocs.io/en/master/), [SimpleITKUtilities](https://github.com/SimpleITK/SimpleITKUtilities), [VTK](https://vtk.org), and [pydicom](https://pydicom.github.io/).
 
-The dependencies can be installed using `pip`:
+Clone the repository to your local machine:
+
+> git clone https://github.com/dave3d/dicom2stl.git
+
+Then navigate into it:
+
+> cd dicom2stl
+
+Now install the dependencies using `pip` (ensure terminal has administrator privileges):
 > pip install -r requirements.txt
 
 The options for the main script, **dicom2stl.py**, can be seen by running it:
 > python dicom2stl.py --help
 
+Once you have a DICOM image series zip you can run your first script (Ensure that the ".zip" file is in the dicom2stl directory):
+> python dicom2stl.py -t tissue -o output.stl dicom.zip
+
+This will create a .stl file named "output.stl" that extracted tissue from the DICOM image series.
 
 How dicom2stl.py works
 ======================
@@ -77,17 +89,29 @@ The amount of smoothing and mesh reduction can be adjusted via command line
 options.  By default 25 iterations of smoothing is applied and the number of
 vertices is reduced by 90%.
 
+Basic Usage & Options
+========
+```
+usage: dicom2stl.py [-h] [--verbose] [--debug] [--output OUTPUT] [--meta META] [--ct] [--clean] [--temp TEMP] [--search SEARCH]
+                    [--type {skin,bone,soft_tissue,fat}] [--anisotropic] [--isovalue ISOVALUE] [--double DOUBLE_THRESHOLD] [--largest]
+                    [--rotaxis {X,Y,Z}] [--rotangle ROTANGLE] [--smooth SMOOTH] [--reduce REDUCE] [--clean-small SMALL]
+                    [--enable {anisotropic,shrink,median,largest,rotation}] [--disable {anisotropic,shrink,median,largest,rotation}]
+                    [filenames ...]
+```
+For a definitive list of options, run:
+> python dicom2stl.py --help
+
 
 Examples
 ========
 
-To extract the bone from a zip of dicom images:
+To extract the type "bone" from a zip of dicom images to an output file "bone.stl":
 > python dicom2stl.py -t bone -o bone.stl dicom.zip
 
 To extract the skin from a NRRD volume:
 > python dicom2stl.py -t skin -o skin.stl volume.nrrd
 
-To extract a specific iso-value from a VTK volume:
+To extract a specific iso-value (128) from a VTK volume:
 > python dicom2stl.py -i 128 -o iso.stl volume.vtk
 
 To extract soft tissue from a dicom series in directory and
