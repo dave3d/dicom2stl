@@ -2,7 +2,7 @@ name: itkwidgets
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
+  - python=3.10
   - numpy
   - itk
   - vtk
@@ -17,3 +17,5 @@ dependencies:
     - ipywebrtc
     - bqplot
     - plotly>=3.3.0
+    - simpleitkutilities
+    - pydicom

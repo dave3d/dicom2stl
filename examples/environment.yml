@@ -8,4 +8,5 @@ dependencies:
   - vtk=8.2.0
   - pip:
     - itkwidgets==0.26.1
-
+    - simpleitkutilities
+    - pydicom
