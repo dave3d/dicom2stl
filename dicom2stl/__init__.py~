@@ -1,0 +1,7 @@
+import dicom2stl.utils.parseargs
+import dicom2stl.dicom2stl_func
+def main():
+    """Entry point for the application script"""
+    print("Call your main application code here")
+    args = parseargs.parseargs()
+    dicom2stl_func.dicom2stl_func(args)

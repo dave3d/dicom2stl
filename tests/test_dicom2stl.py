@@ -2,8 +2,8 @@ import unittest
 import os
 
 import SimpleITK as sitk
-import parseargs
-import dicom2stl
+from dicom2stl.utils import parseargs
+from dicom2stl.Dicom2STL import Dicom2STL
 
 from tests import create_data
 
@@ -34,7 +34,7 @@ class TestDicom2STL(unittest.TestCase):
         print(args)
 
         try:
-            dicom2stl.dicom2stl(args)
+            Dicom2STL(args)
         except BaseException:
             self.fail("dicom2stl: exception thrown")
 

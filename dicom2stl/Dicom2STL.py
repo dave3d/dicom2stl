@@ -30,12 +30,12 @@ import SimpleITK as sitk
 
 from SimpleITK.utilities.vtk import sitk2vtk
 
-import parseargs
+import dicom2stl
 
 from glob import glob
 
-from utils import dicomutils
-from utils import vtkutils
+from dicom2stl.utils import dicomutils
+from dicom2stl.utils import vtkutils
 
 
 def roundThousand(x):
@@ -297,7 +297,7 @@ def getTissueThresholds(tissueType):
     return thresholds, medianFilter
 
 
-def dicom2stl(args):
+def Dicom2STL(args):
     # Global variables
     #
     thresholds = []
@@ -428,8 +428,8 @@ def dicom2stl(args):
 
 
 def main():
-    args = parseargs.parseargs()
-    dicom2stl(args)
+    args = dicom2stl.utils.parseargs.parseargs()
+    Dicom2STL(args)
 
 if __name__ == "__main__":
     main()
