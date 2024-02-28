@@ -25,10 +25,10 @@ dynamic = ["dependencies", "version"]
 dependencies = {file = ["requirements.txt"]}
 
 [tool.setuptools.packages.find]
-exclude = ["docs*", "tests*", "binder*", "utils*", "examples*"]
+exclude = ["docs*", "tests*", "binder*", "utils*", "examples*", "tmp*"]
 
 [project.scripts]
-dicom2stl = "Dicom2STL:main"
+dicom2stl = "dicom2stl.Dicom2STL:main"
 
 [tool.setuptools_scm]
 local_scheme = "dirty-tag"
