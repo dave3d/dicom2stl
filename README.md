@@ -17,22 +17,15 @@ Getting Started
 ===============
 The script is written in Python and uses 4 external packages, [SimpleITK](https://simpleitk.readthedocs.io/en/master/), [SimpleITKUtilities](https://github.com/SimpleITK/SimpleITKUtilities), [VTK](https://vtk.org), and [pydicom](https://pydicom.github.io/).
 
-Clone the repository to your local machine:
+dicom2stl and its dependencies can be installed using pip:
 
-> git clone https://github.com/dave3d/dicom2stl.git
+> pip install dicom2stl
 
-Then navigate into it:
-
-> cd dicom2stl
-
-Now install the dependencies using `pip` (ensure terminal has administrator privileges):
-> pip install -r requirements.txt
-
-The options for the main script, **dicom2stl.py**, can be seen by running it:
-> python dicom2stl.py --help
+The options for the main script, **dicom2stl**, can be seen by running it:
+> dicom2stl --help
 
 Once you have a DICOM image series zip you can run your first script (Ensure that the ".zip" file is in the dicom2stl directory):
-> python dicom2stl.py -t tissue -o output.stl dicom.zip
+> dicom2stl -t tissue -o output.stl dicom.zip
 
 This will create a .stl file named "output.stl" that extracted tissue from the DICOM image series.
 
@@ -73,7 +66,7 @@ few DICOM test sets, so the values might not work as well on other images.
 The volume is shrunk to 256 cubed or less for speed and polygon count reasons.
 
 After all the image processing is finished, the volume is converted to a VTK
-image using sitk2vtk.py.
+image using sitk2vtk from SimpleITKUtilities.
 
 Then the following VTK pipeline is executed:
 * [Extract a surface mesh](https://vtk.org/doc/nightly/html/classvtkContourFilter.html)
@@ -92,34 +85,34 @@ vertices is reduced by 90%.
 Basic Usage & Options
 ========
 ```
-usage: dicom2stl.py [-h] [--verbose] [--debug] [--output OUTPUT] [--meta META] [--ct] [--clean] [--temp TEMP] [--search SEARCH]
+usage: dicom2stl [-h] [--verbose] [--debug] [--output OUTPUT] [--meta META] [--ct] [--clean] [--temp TEMP] [--search SEARCH]
                     [--type {skin,bone,soft_tissue,fat}] [--anisotropic] [--isovalue ISOVALUE] [--double DOUBLE_THRESHOLD] [--largest]
                     [--rotaxis {X,Y,Z}] [--rotangle ROTANGLE] [--smooth SMOOTH] [--reduce REDUCE] [--clean-small SMALL]
                     [--enable {anisotropic,shrink,median,largest,rotation}] [--disable {anisotropic,shrink,median,largest,rotation}]
                     [filenames ...]
 ```
 For a definitive list of options, run:
-> python dicom2stl.py --help
+> dicom2stl --help
 
 
 Examples
 ========
 
 To extract the type "bone" from a zip of dicom images to an output file "bone.stl":
-> python dicom2stl.py -t bone -o bone.stl dicom.zip
+> dicom2stl -t bone -o bone.stl dicom.zip
 
 To extract the skin from a NRRD volume:
-> python dicom2stl.py -t skin -o skin.stl volume.nrrd
+> dicom2stl -t skin -o skin.stl volume.nrrd
 
 To extract a specific iso-value (128) from a VTK volume:
-> python dicom2stl.py -i 128 -o iso.stl volume.vtk
+> dicom2stl -i 128 -o iso.stl volume.vtk
 
 To extract soft tissue from a dicom series in directory and
 apply a 180 degree Y axis rotation:
-> python dicom2stl.py --enable rotation -t soft_tissue -o soft.stl dicom_dir
+> dicom2stl --enable rotation -t soft_tissue -o soft.stl dicom_dir
 
 The options for the script can be seen by running it:
-> python dicom2stl.py --help
+> dicom2stl --help
 
 You can try out an interactive Jupyter notebook via Binder:
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dave3d/dicom2stl/main?filepath=examples%2FIsosurface.ipynb)
