@@ -6,7 +6,7 @@ import unittest
 import SimpleITK as sitk
 import create_data
 import vtk
-from utils import vtkutils
+from dicom2stl.utils import vtkutils
 
 
 class TestVTKUtils(unittest.TestCase):

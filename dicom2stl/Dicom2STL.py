@@ -21,7 +21,6 @@ import math
 import os
 import sys
 import tempfile
-import shutil
 import time
 import zipfile
 import vtk
@@ -30,12 +29,12 @@ import SimpleITK as sitk
 
 from SimpleITK.utilities.vtk import sitk2vtk
 
-import parseargs
+import dicom2stl
 
 from glob import glob
 
-from utils import dicomutils
-from utils import vtkutils
+from dicom2stl.utils import dicomutils
+from dicom2stl.utils import vtkutils
 
 
 def roundThousand(x):
@@ -89,7 +88,8 @@ def loadVolume(fname, tempDir=None, verbose=0):
             print("zip")
         if not tempDir:
             with tempfile.TemporaryDirectory() as defaultTempDir:
-                img, modality = dicomutils.loadZipDicom(fname[0], defaultTempDir)
+                img, modality = dicomutils.loadZipDicom(fname[0],
+                                                        defaultTempDir)
         else:
             img, modality = dicomutils.loadZipDicom(fname[0], tempDir)
 
@@ -154,7 +154,8 @@ def writeMetadataFile(img, metaName):
 
 
 def volumeProcessingPipeline(
-    img, shrinkFlag=True, anisotropicSmoothing=False, thresholds=[], medianFilter=False
+    img, shrinkFlag=True, anisotropicSmoothing=False, thresholds=[],
+    medianFilter=False
 ):
     #
     # shrink the volume to 256 cubed
@@ -178,8 +179,8 @@ def volumeProcessingPipeline(
 
     gc.collect()
 
-    # Apply anisotropic smoothing to the volume image.  That's a smoothing filter
-    # that preserves edges.
+    # Apply anisotropic smoothing to the volume image.  That's a smoothing
+    # filter that preserves edges.
     #
     if anisotropicSmoothing:
         print("Anisotropic Smoothing")
@@ -197,13 +198,14 @@ def volumeProcessingPipeline(
         print("Double Threshold: ", thresholds)
         t = time.perf_counter()
         img = sitk.DoubleThreshold(
-            img, thresholds[0], thresholds[1], thresholds[2], thresholds[3], 255, 0
+            img, thresholds[0], thresholds[1], thresholds[2], thresholds[3],
+            255, 0
         )
         elapsedTime(t)
         gc.collect()
 
-    # Apply a 3x3x1 median filter.  I only use 1 in the Z direction so it's not so
-    # slow.
+    # Apply a 3x3x1 median filter.  I only use 1 in the Z direction so it's
+    # not so slow.
     #
     if medianFilter:
         print("Median filter")
@@ -297,7 +299,7 @@ def getTissueThresholds(tissueType):
     return thresholds, medianFilter
 
 
-def dicom2stl(args):
+def Dicom2STL(args):
     # Global variables
     #
     thresholds = []
@@ -328,7 +330,7 @@ def dicom2stl(args):
                 rotFlag = val
 
     print("")
-    if args.temp == None:
+    if args.temp is None:
         args.temp = tempfile.mkdtemp()
     print("Temp dir: ", args.temp)
 
@@ -428,8 +430,9 @@ def dicom2stl(args):
 
 
 def main():
-    args = parseargs.parseargs()
-    dicom2stl(args)
+    args = dicom2stl.utils.parseargs.parseargs()
+    Dicom2STL(args)
+
 
 if __name__ == "__main__":
     main()

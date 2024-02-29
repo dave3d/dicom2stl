@@ -2,6 +2,16 @@
 
 import argparse
 
+from importlib.metadata import version, PackageNotFoundError
+
+__version__ = "unknown"
+
+try:
+    __version__ = version("dicom2stl")
+except PackageNotFoundError:
+    # package is not installed
+    pass
+
 
 class disableFilter(argparse.Action):
     def __call__(self, parser, args, values, option_string=None):
@@ -103,6 +113,9 @@ def createParser():
         dest="search",
         help="Dicom series search string",
     )
+
+    parser.add_argument("--version", action="version", version=f"{__version__}")
+
 
     # Options that apply to the volumetric portion of the pipeline
     vol_group = parser.add_argument_group("Volume options")

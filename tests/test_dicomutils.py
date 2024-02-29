@@ -8,7 +8,7 @@ import zipfile
 import SimpleITK as sitk
 from tests import create_data
 from tests import write_series
-from utils import dicomutils
+from dicom2stl.utils import dicomutils
 
 
 class TestDicomUtils(unittest.TestCase):
