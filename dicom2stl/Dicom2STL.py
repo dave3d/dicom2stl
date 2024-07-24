@@ -23,31 +23,35 @@ import sys
 import tempfile
 import time
 import zipfile
-import vtk
 import re
+from glob import glob
+import vtk
 import SimpleITK as sitk
 
 from SimpleITK.utilities.vtk import sitk2vtk
 
 import dicom2stl
 
-from glob import glob
 
 from dicom2stl.utils import dicomutils
 from dicom2stl.utils import vtkutils
 
 
 def roundThousand(x):
+    """Round to the nearest thousandth"""
     y = int(1000.0 * x + 0.5)
     return str(float(y) * 0.001)
 
 
 def elapsedTime(start_time):
+    """Print the elapsed time"""
     dt = time.perf_counter() - start_time
-    print("    %4.3f seconds" % dt)
+    print(f"    {dt:4.3f} seconds")
 
 
 def loadVolume(fname, tempDir=None, verbose=0):
+    """Load the volume image from a zip file, a directory of Dicom files,
+       or a single volume image.  Return the SimpleITK image and the modality."""
     modality = None
     zipFlag = False
     dirFlag = False
@@ -141,7 +145,8 @@ def loadVolume(fname, tempDir=None, verbose=0):
 
 
 def writeMetadataFile(img, metaName):
-    FP = open(metaName, "w")
+    """Write out the metadata to a text file"""
+    FP = open(metaName, "wb")
     size = img.GetSize()
     spacing = img.GetSpacing()
     FP.write("xdimension " + str(size[0]) + "\n")
@@ -157,6 +162,7 @@ def volumeProcessingPipeline(
     img, shrinkFlag=True, anisotropicSmoothing=False, thresholds=[],
     medianFilter=False
 ):
+    """Apply a series of filters to the volume image"""
     #
     # shrink the volume to 256 cubed
     if shrinkFlag:
@@ -239,6 +245,7 @@ def meshProcessingPipeline(
     rotation=["X", 0.0],
     debug=False,
 ):
+    """Apply a series of filters to the mesh"""
     if debug:
         print("Cleaning mesh")
     mesh2 = vtkutils.cleanMesh(mesh, connectivityFilter)
@@ -280,6 +287,7 @@ def meshProcessingPipeline(
 
 
 def getTissueThresholds(tissueType):
+    """Get the double threshold values for a given tissue type."""
     thresholds = []
     medianFilter = False
 
@@ -300,6 +308,7 @@ def getTissueThresholds(tissueType):
 
 
 def Dicom2STL(args):
+    """ The primary dicom2stl function """
     # Global variables
     #
     thresholds = []
@@ -307,7 +316,6 @@ def Dicom2STL(args):
     connectivityFilter = False
     anisotropicSmoothing = False
     medianFilter = False
-    rotFlag = False
 
     # Handle enable/disable filters
 
@@ -326,8 +334,6 @@ def Dicom2STL(args):
                 medianFilter = val
             if y.startswith("large"):
                 connectivityFilter = val
-            if y.startswith("rotat"):
-                rotFlag = val
 
     print("")
     if args.temp is None:
@@ -430,6 +436,7 @@ def Dicom2STL(args):
 
 
 def main():
+    """ Main function """
     args = dicom2stl.utils.parseargs.parseargs()
     Dicom2STL(args)
 
