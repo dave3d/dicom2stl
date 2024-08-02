@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+""" function for converting a VTK image to a SimpleITK image """
+
 import SimpleITK as sitk
 import vtk
 import vtk.util.numpy_support as vtknp
