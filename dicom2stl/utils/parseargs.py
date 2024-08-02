@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+""" Command line argument parsing for dicom2stl """
 import argparse
 
 from importlib.metadata import version, PackageNotFoundError
@@ -14,6 +15,7 @@ except PackageNotFoundError:
 
 
 class disableFilter(argparse.Action):
+    """Disable a filter"""
     def __call__(self, parser, args, values, option_string=None):
         # print("action, baby!", self.dest, values)
         # print(args, type(args))
@@ -25,6 +27,7 @@ class disableFilter(argparse.Action):
 
 
 class enableAnisotropic(argparse.Action):
+    """ Enable anisotropic filtering """
     def __init__(self, nargs=0, **kw):
         super().__init__(nargs=nargs, **kw)
 
@@ -36,6 +39,7 @@ class enableAnisotropic(argparse.Action):
 
 
 class enableLargest(argparse.Action):
+    """ Enable filtering for large objects """
     def __init__(self, nargs=0, **kw):
         super().__init__(nargs=nargs, **kw)
 
@@ -45,6 +49,7 @@ class enableLargest(argparse.Action):
 
 
 def createParser():
+    """ Create the command line argument parser """
     parser = argparse.ArgumentParser()
 
     parser.add_argument("filenames", nargs="*")
@@ -231,6 +236,7 @@ def createParser():
 
 
 def parseargs():
+    """ Parse the command line arguments """
     parser = createParser()
     args = parser.parse_args()
     return args
