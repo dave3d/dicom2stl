@@ -21,8 +21,9 @@ import vtk
 
 
 def elapsedTime(start_time):
+    """ time elapsed """
     dt = time.perf_counter() - start_time
-    print("    %4.3f seconds" % dt)
+    print(f"    {dt:4.3f} hseconds")
 
 
 #
@@ -206,8 +207,7 @@ def removeSmallObjects(mesh, ratio):
         # find object with most vertices
         max_size = 0
         for i in range(conn_filter.GetNumberOfExtractedRegions()):
-            if region_sizes.GetValue(i) > max_size:
-                max_size = region_sizes.GetValue(i)
+            max_size = max(max_size, region_sizes.GetValue(i))
 
         # append regions of sizes over the threshold
         conn_filter.SetExtractionModeToSpecifiedRegions()
@@ -228,6 +228,7 @@ def removeSmallObjects(mesh, ratio):
         traceback.print_exception(
             exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout
         )
+    return None
 
 
 #
@@ -341,7 +342,6 @@ def writeVTKMesh(mesh, name):
         traceback.print_exception(
             exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout
         )
-    return None
 
 
 def writeSTL(mesh, name):
@@ -365,7 +365,6 @@ def writeSTL(mesh, name):
         traceback.print_exception(
             exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout
         )
-    return None
 
 
 def writePLY(mesh, name):
@@ -387,7 +386,6 @@ def writePLY(mesh, name):
         traceback.print_exception(
             exc_type, exc_value, exc_traceback, limit=2, file=sys.stdout
         )
-    return None
 
 
 #
@@ -468,6 +466,7 @@ def writeVTIVolume(vtkimg, name):
 
 
 def memquery1():
+    """ memory query 1 """
     print("Hiya 1")
 
 
@@ -475,6 +474,7 @@ def memquery1():
 
 
 def memquery2():
+    """ memory query 2 """
     print("Hiya 2")
 
 
@@ -482,6 +482,7 @@ def memquery2():
 
 
 def memquery3():
+    """ memory query 3 """
     print("Hiya 3")
 
 
@@ -495,12 +496,8 @@ if __name__ == "__main__":
     print("VTK:", vtk)
 
     try:
-        mesh = readMesh(sys.argv[1])
-        #       mesh = readMesh("models/soft.stl")
-        #       mesh = cleanMesh(mesh, False)
-        #       mesh = smoothMesh(mesh)
-        mesh2 = reduceMesh(mesh, 0.50)
-        #        writeMesh(mesh2, "soft.ply")
-        writeMesh(mesh2, sys.argv[2])
+        inmesh = readMesh(sys.argv[1])
+        inmesh2 = reduceMesh(inmesh, 0.50)
+        writeMesh(inmesh2, sys.argv[2])
     except BaseException:
         print("Usage: vtkutils.py input_mesh output_mesh")
