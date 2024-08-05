@@ -35,32 +35,35 @@ def testDicomFile(file_path):
 
 
 def scanDirForDicom(dicomdir):
+    """ Scan directory for dicom series."""
     matches = []
-    dirs = []
+    found_dirs = []
     try:
-        for root, dirnames, filenames in os.walk(dicomdir):
+        for walk_output in os.walk(dicomdir):
+            root = walk_output[0]
+            filenames = walk_output[2]
             for filename in fnmatch.filter(filenames, "*.dcm"):
                 matches.append(os.path.join(root, filename))
-                if root not in dirs:
-                    dirs.append(root)
-    except BaseException as e:
+                if root not in found_dirs:
+                    found_dirs.append(root)
+    except IOError as e:
         print("Error in scanDirForDicom: ", e)
         print("dicomdir = ", dicomdir)
 
-    return (matches, dirs)
+    return (matches, found_dirs)
 
 
-def getAllSeries(dirs):
+def getAllSeries(target_dirs):
     """Get all the Dicom series in a set of directories."""
     isr = sitk.ImageSeriesReader()
-    seriessets = []
-    for d in dirs:
+    found_series = []
+    for d in target_dirs:
         series = isr.GetGDCMSeriesIDs(d)
         for s in series:
-            files = isr.GetGDCMSeriesFileNames(d, s)
-            print(s, d, len(files))
-            seriessets.append([s, d, files])
-    return seriessets
+            found_files = isr.GetGDCMSeriesFileNames(d, s)
+            print(s, d, len(found_files))
+            found_series.append([s, d, found_files])
+    return found_series
 
 
 def getModality(img):
@@ -69,7 +72,7 @@ def getModality(img):
     if (sitk.Version.MinorVersion() > 8) or (sitk.Version.MajorVersion() > 0):
         try:
             modality = img.GetMetaData("0008|0060")
-        except BaseException:
+        except RuntimeError:
             modality = ""
     return modality
 
@@ -123,12 +126,12 @@ def loadZipDicom(name, tempDir):
 
     print("Reading Dicom zip file:", name)
     print("tempDir = ", tempDir)
-    myzip = zipfile.ZipFile(name, "r")
+    with zipfile.ZipFile(name, "r") as myzip:
 
-    try:
-        myzip.extractall(tempDir)
-    except BaseException:
-        print("Zip extract failed")
+        try:
+            myzip.extractall(tempDir)
+        except RuntimeError:
+            print("Zip extract failed")
 
     return loadLargestSeries(tempDir)
 
@@ -146,17 +149,17 @@ if __name__ == "__main__":
     #    print (img)
     #    sys.exit(0)
 
-    files, dirs = scanDirForDicom(sys.argv[1])
+    dcm_files, dcm_dirs = scanDirForDicom(sys.argv[1])
     print("")
     print("files")
-    print(files)
+    print(dcm_files)
     print("")
     print("dirs")
-    print(dirs)
+    print(dcm_dirs)
 
     print("series")
-    seriessets = getAllSeries(dirs)
-    for ss in seriessets:
-        print(ss[0], " ", ss[1])
-        print(len(ss[2]))
+    series_found = getAllSeries(dcm_dirs)
+    for sf in series_found:
+        print(sf[0], " ", sf[1])
+        print(len(sf[2]))
         print("")
