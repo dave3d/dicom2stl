@@ -35,7 +35,7 @@ def testDicomFile(file_path):
 
 
 def scanDirForDicom(dicomdir):
-    """ Scan directory for dicom series."""
+    """Scan directory for dicom series."""
     matches = []
     found_dirs = []
     try:

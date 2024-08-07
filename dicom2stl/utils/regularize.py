@@ -10,8 +10,8 @@ import SimpleITK as sitk
 
 
 def regularize(img, maxdim=-1, verbose=False):
-    """ Regularize a volume.  I.e. resample it so that the voxels are cubic and the
-    orientation matrix is identity. """
+    """Regularize a volume.  I.e. resample it so that the voxels are cubic and the
+    orientation matrix is identity."""
     dims = img.GetSize()
 
     if verbose:
@@ -89,7 +89,7 @@ def regularize(img, maxdim=-1, verbose=False):
 
 
 def usage():
-    """ Usage info for the command line script """
+    """Usage info for the command line script"""
     print("")
     print("regularize.py [options] input_volume output_volume")
     print("")

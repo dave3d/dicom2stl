@@ -21,7 +21,7 @@ import vtk
 
 
 def elapsedTime(start_time):
-    """ time elapsed """
+    """time elapsed"""
     dt = time.perf_counter() - start_time
     print(f"    {dt:4.3f} hseconds")
 
@@ -466,7 +466,7 @@ def writeVTIVolume(vtkimg, name):
 
 
 def memquery1():
-    """ memory query 1 """
+    """memory query 1"""
     print("Hiya 1")
 
 
@@ -474,7 +474,7 @@ def memquery1():
 
 
 def memquery2():
-    """ memory query 2 """
+    """memory query 2"""
     print("Hiya 2")
 
 
@@ -482,7 +482,7 @@ def memquery2():
 
 
 def memquery3():
-    """ memory query 3 """
+    """memory query 3"""
     print("Hiya 3")
 
 

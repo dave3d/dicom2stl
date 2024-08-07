@@ -51,7 +51,7 @@ def elapsedTime(start_time):
 
 def loadVolume(fname, tempDir=None, verbose=0):
     """Load the volume image from a zip file, a directory of Dicom files,
-       or a single volume image.  Return the SimpleITK image and the modality."""
+    or a single volume image.  Return the SimpleITK image and the modality."""
     modality = None
     zipFlag = False
     dirFlag = False
@@ -92,8 +92,7 @@ def loadVolume(fname, tempDir=None, verbose=0):
             print("zip")
         if not tempDir:
             with tempfile.TemporaryDirectory() as defaultTempDir:
-                img, modality = dicomutils.loadZipDicom(fname[0],
-                                                        defaultTempDir)
+                img, modality = dicomutils.loadZipDicom(fname[0], defaultTempDir)
         else:
             img, modality = dicomutils.loadZipDicom(fname[0], tempDir)
 
@@ -159,8 +158,7 @@ def writeMetadataFile(img, metaName):
 
 
 def volumeProcessingPipeline(
-    img, shrinkFlag=True, anisotropicSmoothing=False, thresholds=[],
-    medianFilter=False
+    img, shrinkFlag=True, anisotropicSmoothing=False, thresholds=[], medianFilter=False
 ):
     """Apply a series of filters to the volume image"""
     #
@@ -204,8 +202,7 @@ def volumeProcessingPipeline(
         print("Double Threshold: ", thresholds)
         t = time.perf_counter()
         img = sitk.DoubleThreshold(
-            img, thresholds[0], thresholds[1], thresholds[2], thresholds[3],
-            255, 0
+            img, thresholds[0], thresholds[1], thresholds[2], thresholds[3], 255, 0
         )
         elapsedTime(t)
         gc.collect()
@@ -308,7 +305,7 @@ def getTissueThresholds(tissueType):
 
 
 def Dicom2STL(args):
-    """ The primary dicom2stl function """
+    """The primary dicom2stl function"""
     # Global variables
     #
     thresholds = []
@@ -436,7 +433,7 @@ def Dicom2STL(args):
 
 
 def main():
-    """ Main function """
+    """Main function"""
     args = dicom2stl.utils.parseargs.parseargs()
     Dicom2STL(args)
 
