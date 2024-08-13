@@ -10,7 +10,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  linux:
 
     runs-on: ubuntu-latest
 
@@ -33,4 +33,21 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --statistics
     - name: Run tests
       run: |
-        sh run_tests.sh
+        python -m unittest tests/test_glbutils.py tests/test_glb2mesh.py tests/test_mesh2glb.py
+  macos:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.9
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Run tests
+      run: |
+        python -m unittest tests/test_glbthumb.py
