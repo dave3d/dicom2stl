@@ -33,7 +33,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --statistics
     - name: Run tests
       run: |
-        python -m unittest tests/test_glbutils.py tests/test_glb2mesh.py tests/test_mesh2glb.py
+        sh run_tests.sh
   macos:
 
     runs-on: macos-latest
@@ -50,4 +50,4 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Run tests
       run: |
-        python -m unittest tests/test_glbthumb.py
+        sh run_tests.sh
