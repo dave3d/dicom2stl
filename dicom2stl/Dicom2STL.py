@@ -30,11 +30,10 @@ import SimpleITK as sitk
 
 from SimpleITK.utilities.vtk import sitk2vtk
 
-import dicom2stl
-
 
 from dicom2stl.utils import dicomutils
 from dicom2stl.utils import vtkutils
+from dicom2stl.utils import parseargs
 
 
 def roundThousand(x):
@@ -64,23 +63,9 @@ def loadVolume(fname, tempDir=None, verbose=0):
         print("Error: no valid input given.")
         sys.exit(4)
 
-    if zipfile.is_zipfile(fname[0]):
-        zipFlag = True
+    zipFlag = zipfile.is_zipfile(fname[0])
 
-    if os.path.isdir(fname[0]):
-        dirFlag = True
-    else:
-        if len(fname) > 1:
-            print(
-                "File names: ",
-                fname[0],
-                fname[1],
-                "...",
-                fname[len(fname) - 1],
-                "\n",
-            )
-        else:
-            print("File names: ", fname, "\n")
+    dirFlag = os.path.isdir(fname[0])
 
     img = sitk.Image(100, 100, 100, sitk.sitkUInt8)
 
@@ -88,8 +73,6 @@ def loadVolume(fname, tempDir=None, verbose=0):
     #
     if zipFlag:
         # Case for a zip file of images
-        if verbose:
-            print("zip")
         if not tempDir:
             with tempfile.TemporaryDirectory() as defaultTempDir:
                 img, modality = dicomutils.loadZipDicom(fname[0], defaultTempDir)
@@ -98,8 +81,6 @@ def loadVolume(fname, tempDir=None, verbose=0):
 
     else:
         if dirFlag:
-            if verbose:
-                print("directory")
             img, modality = dicomutils.loadLargestSeries(fname[0])
 
         else:
@@ -145,41 +126,47 @@ def loadVolume(fname, tempDir=None, verbose=0):
 
 def writeMetadataFile(img, metaName):
     """Write out the metadata to a text file"""
-    FP = open(metaName, "wb")
-    size = img.GetSize()
-    spacing = img.GetSpacing()
-    FP.write("xdimension " + str(size[0]) + "\n")
-    FP.write("ydimension " + str(size[1]) + "\n")
-    FP.write("zdimension " + str(size[2]) + "\n")
-    FP.write("xspacing " + roundThousand(spacing[0]) + "\n")
-    FP.write("yspacing " + roundThousand(spacing[1]) + "\n")
-    FP.write("zspacing " + roundThousand(spacing[2]) + "\n")
-    FP.close()
+    with open(metaName, "wb") as fp:
+        size = img.GetSize()
+        spacing = img.GetSpacing()
+        fp.write(b"xdimension " + str(size[0]).encode() + b"\n")
+        fp.write(b"ydimension " + str(size[1]).encode() + b"\n")
+        fp.write(b"zdimension " + str(size[2]).encode() + b"\n")
+        fp.write(b"xspacing " + roundThousand(spacing[0]).encode() + b"\n")
+        fp.write(b"yspacing " + roundThousand(spacing[1]).encode() + b"\n")
+        fp.write(b"zspacing " + roundThousand(spacing[2]).encode() + b"\n")
 
+
+def shrinkVolume(input_image, newsize):
+    """Shrink the volume to a new size"""
+    size = input_image.GetSize()
+    total = 0
+    sfactor = []
+    for s in size:
+        x = int(math.ceil(s / float(newsize)))
+        sfactor.append(x)
+        total = total + x
+
+    if total > 3:
+        # if total==3, no shrink happens
+        t = time.perf_counter()
+        print("Shrink factors: ", sfactor)
+        img = sitk.Shrink(input_image, sfactor)
+        newsize = img.GetSize()
+        print(size, "->", newsize)
+        elapsedTime(t)
+        return img
+
+    return input_image
 
 def volumeProcessingPipeline(
-    img, shrinkFlag=True, anisotropicSmoothing=False, thresholds=[], medianFilter=False
+    img, shrinkFlag=True, anisotropicSmoothing=False, thresholds=None, medianFilter=False
 ):
     """Apply a series of filters to the volume image"""
     #
     # shrink the volume to 256 cubed
     if shrinkFlag:
-        sfactor = []
-        size = img.GetSize()
-        total = 0
-        for s in size:
-            x = int(math.ceil(s / 256.0))
-            sfactor.append(x)
-            total = total + x
-
-        if total > 3:
-            # if total==3, no shrink happens
-            t = time.perf_counter()
-            print("Shrink factors: ", sfactor)
-            img = sitk.Shrink(img, sfactor)
-            newsize = img.GetSize()
-            print(size, "->", newsize)
-            elapsedTime(t)
+        shrinkVolume(img, 256)
 
     gc.collect()
 
@@ -198,7 +185,7 @@ def volumeProcessingPipeline(
 
     # Apply the double threshold filter to the volume
     #
-    if len(thresholds) == 4:
+    if isinstance(thresholds, list) and len(thresholds)==4:
         print("Double Threshold: ", thresholds)
         t = time.perf_counter()
         img = sitk.DoubleThreshold(
@@ -275,7 +262,7 @@ def meshProcessingPipeline(
             mesh5 = vtkutils.rotateMesh(mesh4, rotAxis, rotation[1])
         else:
             mesh5 = mesh4
-    except BaseException:
+    except RuntimeError:
         mesh5 = mesh4
     mesh4 = None
     gc.collect()
@@ -300,6 +287,8 @@ def getTissueThresholds(tissueType):
     elif tissueType.find("fat") > -1:
         thresholds = [-122.0, -112.0, -96.0, -70.0]
         medianFilter = True
+    else:
+        thresholds = None
 
     return thresholds, medianFilter
 
@@ -308,7 +297,7 @@ def Dicom2STL(args):
     """The primary dicom2stl function"""
     # Global variables
     #
-    thresholds = []
+    thresholds = None
     shrinkFlag = True
     connectivityFilter = False
     anisotropicSmoothing = False
@@ -376,7 +365,7 @@ def Dicom2STL(args):
         img, shrinkFlag, anisotropicSmoothing, thresholds, medianFilter
     )
 
-    if len(thresholds) == 4:
+    if isinstance(thresholds, list) and len(thresholds) == 4:
         args.isovalue = 64.0
 
     if args.verbose:
@@ -434,7 +423,7 @@ def Dicom2STL(args):
 
 def main():
     """Main function"""
-    args = dicom2stl.utils.parseargs.parseargs()
+    args = parseargs.parseargs()
     Dicom2STL(args)
 
 
