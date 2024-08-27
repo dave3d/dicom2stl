@@ -39,14 +39,12 @@ def scanDirForDicom(dicomdir):
     matches = []
     found_dirs = []
     try:
-        for walk_output in os.walk(dicomdir):
-            root = walk_output[0]
-            filenames = walk_output[2]
+        for root, _, filenames in os.walk(dicomdir):
             for filename in fnmatch.filter(filenames, "*.dcm"):
                 matches.append(os.path.join(root, filename))
                 if root not in found_dirs:
                     found_dirs.append(root)
-    except IOError as e:
+    except OSError as e:
         print("Error in scanDirForDicom: ", e)
         print("dicomdir = ", dicomdir)
 
