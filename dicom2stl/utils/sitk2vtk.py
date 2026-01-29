@@ -14,8 +14,27 @@ import vtk
 from vtk.util import numpy_support
 
 
-def sitk2vtk(img, debugOn=False):
-    """Convert a SimpleITK image to a VTK image, via numpy."""
+def sitk2vtk(img: sitk.Image, debugOn: bool = False) -> vtk.vtkImageData:
+    """Convert a SimpleITK image to a VTK image, via numpy.
+    
+    This function handles the coordinate system differences between SimpleITK and VTK:
+    - SimpleITK uses ITK conventions with physical space coordinates (mm, etc.)
+    - When converted to numpy, arrays use ZYX ordering (axis 0 = Z, axis 1 = Y, axis 2 = X)
+    - VTK uses XYZ ordering for dimensions, spacing, and extent
+    - The numpy array is raveled (flattened) in C-order, which VTK interprets correctly
+    
+    The function also:
+    - Converts 2D images to 3D by adding a singleton dimension
+    - Preserves image origin, spacing, and number of components
+    - Sets the direction matrix (for VTK version 9+)
+    
+    Args:
+        img: SimpleITK image to convert
+        debugOn: If True, print debug information about the conversion
+        
+    Returns:
+        VTK image data object with the same voxel data and metadata
+    """
 
     size = list(img.GetSize())
     origin = list(img.GetOrigin())
@@ -62,23 +81,20 @@ def sitk2vtk(img, debugOn=False):
     vtk_image.SetExtent(0, size[0] - 1, 0, size[1] - 1, 0, size[2] - 1)
 
     if vtk.vtkVersion.GetVTKMajorVersion() < 9:
-        print("Warning: VTK version <9.  No direction matrix.")
+        print("Warning: VTK version < 9. No direction matrix.")
     else:
         vtk_image.SetDirectionMatrix(direction)
 
-    # depth_array = numpy_support.numpy_to_vtk(i2.ravel(), deep=True,
-    #                                          array_type = vtktype)
     depth_array = numpy_support.numpy_to_vtk(i2.ravel())
     depth_array.SetNumberOfComponents(ncomp)
     vtk_image.GetPointData().SetScalars(depth_array)
 
     vtk_image.Modified()
-    #
+
     if debugOn:
         print("Volume object inside sitk2vtk")
         print(vtk_image)
-        #        print("type = ", vtktype)
-        print("num components = ", ncomp)
+        print("num components =", ncomp)
         print(size)
         print(origin)
         print(spacing)

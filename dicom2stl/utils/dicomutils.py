@@ -4,7 +4,7 @@
 Function to load the largest Dicom series in a directory.
 
 It scans the directory recursively search for files with the ".dcm"
-suffix.  Note that DICOM fails don't always have that suffix.  In
+suffix. Note that DICOM files don't always have that suffix. In
 that case this function will fail.
 
 Written by David T. Chen from the National Institute of Allergy
@@ -19,14 +19,22 @@ import sys
 import os
 import fnmatch
 import zipfile
+from typing import List, Optional, Tuple
 import SimpleITK as sitk
 
 from pydicom.filereader import read_file_meta_info
 from pydicom.errors import InvalidDicomError
 
 
-def testDicomFile(file_path):
-    """Test if given file is in DICOM format."""
+def testDicomFile(file_path: str) -> bool:
+    """Test if given file is in DICOM format.
+    
+    Args:
+        file_path: Path to file to test
+        
+    Returns:
+        True if file is valid DICOM, False otherwise
+    """
     try:
         read_file_meta_info(file_path)
         return True
@@ -34,8 +42,15 @@ def testDicomFile(file_path):
         return False
 
 
-def scanDirForDicom(dicomdir):
-    """Scan directory for dicom series."""
+def scanDirForDicom(dicomdir: str) -> Tuple[List[str], List[str]]:
+    """Scan directory recursively for DICOM files.
+    
+    Args:
+        dicomdir: Directory path to scan for .dcm files
+        
+    Returns:
+        Tuple of (list of DICOM file paths, list of directories containing DICOM files)
+    """
     matches = []
     found_dirs = []
     try:
@@ -45,14 +60,21 @@ def scanDirForDicom(dicomdir):
                 if root not in found_dirs:
                     found_dirs.append(root)
     except OSError as e:
-        print("Error in scanDirForDicom: ", e)
-        print("dicomdir = ", dicomdir)
+        print("Error in scanDirForDicom:", e)
+        print("dicomdir =", dicomdir)
 
     return (matches, found_dirs)
 
 
-def getAllSeries(target_dirs):
-    """Get all the Dicom series in a set of directories."""
+def getAllSeries(target_dirs: List[str]) -> List[List]:
+    """Get all the DICOM series in a set of directories.
+    
+    Args:
+        target_dirs: List of directory paths to scan for DICOM series
+        
+    Returns:
+        List of series information, where each element is [series_id, directory, file_list]
+    """
     isr = sitk.ImageSeriesReader()
     found_series = []
     for d in target_dirs:
@@ -64,8 +86,15 @@ def getAllSeries(target_dirs):
     return found_series
 
 
-def getModality(img):
-    """Get an image's modality, as stored in the Dicom meta data."""
+def getModality(img: sitk.Image) -> str:
+    """Get an image's modality from DICOM metadata.
+    
+    Args:
+        img: SimpleITK image with DICOM metadata
+        
+    Returns:
+        Modality string (e.g., 'CT', 'MR'), or empty string if not found
+    """
     modality = ""
     if (sitk.Version.MinorVersion() > 8) or (sitk.Version.MajorVersion() > 0):
         try:
@@ -75,34 +104,36 @@ def getModality(img):
     return modality
 
 
-def loadLargestSeries(dicomdir):
-    """
-    Load the largest Dicom series it finds in a recursive scan of
-    a directory.
-
-    Largest means has the most slices.  It also returns the modality
-    of the series.
+def loadLargestSeries(dicomdir: str) -> Optional[Tuple[sitk.Image, str]]:
+    """Load the largest DICOM series found in a directory.
+    
+    Scans the directory recursively for DICOM files and loads the series
+    with the most slices.
+    
+    Args:
+        dicomdir: Directory path to scan
+        
+    Returns:
+        Tuple of (SimpleITK image, modality string), or None if no series found
     """
 
     files, dirs = scanDirForDicom(dicomdir)
 
     if (len(files) == 0) or (len(dirs) == 0):
-        print("Error in loadLargestSeries.  No files found.")
-        print("dicomdir = ", dicomdir)
+        print("Error in loadLargestSeries. No files found.")
+        print("dicomdir =", dicomdir)
         return None
     seriessets = getAllSeries(dirs)
     maxsize = 0
     maxindex = -1
 
-    count = 0
-    for ss in seriessets:
+    for count, ss in enumerate(seriessets):
         size = len(ss[2])
         if size > maxsize:
             maxsize = size
             maxindex = count
-        count = count + 1
     if maxindex < 0:
-        print("Error:  no series found")
+        print("Error: no series found")
         return None
     isr = sitk.ImageSeriesReader()
     ss = seriessets[maxindex]
@@ -117,13 +148,21 @@ def loadLargestSeries(dicomdir):
     return img, modality
 
 
-def loadZipDicom(name, tempDir):
-    """Unzip a zipfile of dicom images into a temp directory, then
-    load the series that has the most slices.
+def loadZipDicom(name: str, tempDir: str) -> Optional[Tuple[sitk.Image, str]]:
+    """Extract and load DICOM series from a ZIP file.
+    
+    Unzips DICOM images to a temporary directory and loads the series
+    with the most slices.
+    
+    Args:
+        name: Path to ZIP file containing DICOM images
+        tempDir: Temporary directory for extraction
+        
+    Returns:
+        Tuple of (SimpleITK image, modality string), or None if loading fails
     """
-
     print("Reading Dicom zip file:", name)
-    print("tempDir = ", tempDir)
+    print("tempDir =", tempDir)
     with zipfile.ZipFile(name, "r") as myzip:
 
         try:
@@ -139,25 +178,25 @@ def loadZipDicom(name, tempDir):
 #
 
 if __name__ == "__main__":
-    print("")
-    print("dicomutils.py")
-    print(sys.argv[1])
-
-    #    img = loadLargestSeries(sys.argv[1])
-    #    print (img)
-    #    sys.exit(0)
-
+    if len(sys.argv) < 2:
+        print("Usage: dicomutils.py <dicom_directory>")
+        sys.exit(1)
+    
+    print("\ndicomutils.py")
+    print("Scanning:", sys.argv[1])
+    
     dcm_files, dcm_dirs = scanDirForDicom(sys.argv[1])
-    print("")
-    print("files")
-    print(dcm_files)
-    print("")
-    print("dirs")
-    print(dcm_dirs)
-
-    print("series")
+    
+    print("\nFiles found:")
+    for f in dcm_files:
+        print(" ", f)
+    
+    print("\nDirectories:")
+    for d in dcm_dirs:
+        print(" ", d)
+    
+    print("\nSeries:")
     series_found = getAllSeries(dcm_dirs)
     for sf in series_found:
-        print(sf[0], " ", sf[1])
-        print(len(sf[2]))
-        print("")
+        print(f"  {sf[0]} in {sf[1]}")
+        print(f"    {len(sf[2])} files\n")

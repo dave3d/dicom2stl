@@ -1,8 +1,13 @@
 #! /usr/bin/env python
 
-""" Command line argument parsing for dicom2stl """
-import argparse
+"""Command line argument parsing for dicom2stl.
 
+This module defines all command-line arguments and options for the dicom2stl tool,
+including volume processing options, mesh processing options, and filtering controls.
+"""
+
+import argparse
+from typing import Any, List, Optional, Sequence
 from importlib.metadata import version, PackageNotFoundError
 
 __version__ = "unknown"
@@ -15,45 +20,68 @@ except PackageNotFoundError:
 
 
 class disableFilter(argparse.Action):
-    """Disable a filter"""
+    """Custom argparse action to disable a filter by prepending 'no' to its name."""
 
-    def __call__(self, parser, args, values, option_string=None):
-        # print("action, baby!", self.dest, values)
-        # print(args, type(args))
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        args: argparse.Namespace,
+        values: Any,
+        option_string: Optional[str] = None
+    ) -> None:
         noval = "no" + values
-        if isinstance(args.filters, type(None)):
+        if args.filters is None:
             args.filters = [noval]
         else:
             args.filters.append(noval)
 
 
 class enableAnisotropic(argparse.Action):
-    """Enable anisotropic filtering"""
+    """Custom argparse action to enable anisotropic filtering."""
 
-    def __init__(self, nargs=0, **kw):
+    def __init__(self, nargs: int = 0, **kw: Any) -> None:
         super().__init__(nargs=nargs, **kw)
 
-    def __call__(self, parser, args, values, option_string=None):
-        # x = getattr(args, 'filters')
-        if isinstance(args.filters, type(None)):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        args: argparse.Namespace,
+        values: Any,
+        option_string: Optional[str] = None
+    ) -> None:
+        if args.filters is None:
             args.filters = ["anisotropic"]
-        # args.filters.append('anisotropic')
 
 
 class enableLargest(argparse.Action):
-    """Enable filtering for large objects"""
+    """Custom argparse action to enable filtering for largest connected component."""
 
-    def __init__(self, nargs=0, **kw):
+    def __init__(self, nargs: int = 0, **kw: Any) -> None:
         super().__init__(nargs=nargs, **kw)
 
-    def __call__(self, parser, args, values, option_string=None):
-        x = getattr(args, "filters")
-        x.append("largest")
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        args: argparse.Namespace,
+        values: Any,
+        option_string: Optional[str] = None
+    ) -> None:
+        if args.filters is None:
+            args.filters = []
+        args.filters.append("largest")
 
 
-def createParser():
-    """Create the command line argument parser"""
-    parser = argparse.ArgumentParser()
+def createParser() -> argparse.ArgumentParser:
+    """Create and configure the command line argument parser.
+    
+    Returns:
+        Configured ArgumentParser with all dicom2stl options
+    """
+    parser = argparse.ArgumentParser(
+        prog="dicom2stl",
+        description="Convert DICOM files to STL surface mesh",
+        epilog="For more information, visit: https://github.com/dave3d/dicom2stl"
+    )
 
     parser.add_argument("filenames", nargs="*")
 
@@ -63,7 +91,7 @@ def createParser():
         action="store_true",
         default=False,
         dest="verbose",
-        help="Enable verbose messages",
+        help="Enable verbose output messages",
     )
 
     parser.add_argument(
@@ -72,8 +100,7 @@ def createParser():
         action="store_true",
         default=False,
         dest="debug",
-        help="""Enable debugging messages
-                        """,
+        help="Enable detailed debugging messages",
     )
 
     parser.add_argument(
@@ -132,8 +159,8 @@ def createParser():
         "-t",
         action="store",
         dest="tissue",
-        choices=["skin", "bone", "soft_tissue", "fat"],
-        help="CT tissue type",
+        choices=["skin", "bone", "soft", "fat"],
+        help="Tissue type for CT extraction (skin, bone, soft tissue, or fat)",
     )
 
     vol_group.add_argument(
@@ -158,8 +185,7 @@ def createParser():
         "-d",
         action="store",
         dest="double_threshold",
-        help="""Double threshold with 4 semicolon separated floats
-                                """,
+        help='Double threshold with 4 semicolon-separated floats (e.g., "100;200;300;400")',
     )
 
     # Options that apply to the mesh processing portion of the pipeline
@@ -168,7 +194,7 @@ def createParser():
         "--largest",
         "-l",
         action=enableLargest,
-        help="Only keep the largest connected sub-mesh",
+        help="Keep only the largest connected component of the mesh",
     )
 
     mesh_group.add_argument(
@@ -186,7 +212,7 @@ def createParser():
         dest="rotangle",
         type=float,
         default=0.0,
-        help="Rotation angle in degrees (default=180)",
+        help="Rotation angle in degrees (default=0.0)",
     )
 
     mesh_group.add_argument(
@@ -204,7 +230,7 @@ def createParser():
         dest="reduce",
         type=float,
         default=0.9,
-        help="Mesh reduction factor (default=.9)",
+        help="Mesh reduction/decimation factor, 0.0-1.0 (default=0.9, reduces by 90%%)",
     )
 
     mesh_group.add_argument(
@@ -214,7 +240,7 @@ def createParser():
         dest="small",
         type=float,
         default=0.05,
-        help="Clean small parts factor (default=.05)",
+        help="Remove disconnected components smaller than this ratio of largest (default=0.05)",
     )
 
     # Filtering options
@@ -237,8 +263,12 @@ def createParser():
     return parser
 
 
-def parseargs():
-    """Parse the command line arguments"""
+def parseargs() -> argparse.Namespace:
+    """Parse command line arguments and return the parsed namespace.
+    
+    Returns:
+        Namespace object containing all parsed arguments
+    """
     parser = createParser()
     args = parser.parse_args()
     return args
