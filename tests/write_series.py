@@ -1,4 +1,11 @@
-#! /usr/bin/env python
+#!/usr/bin/env -S uv run
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#   "numpy>=2.4.1",
+#   "SimpleITK>=2.5.3",
+# ]
+# ///
 
 import os
 import sys

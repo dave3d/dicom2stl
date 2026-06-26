@@ -1,4 +1,12 @@
-#! /usr/bin/env python
+#!/usr/bin/env -S uv run
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#   "simpleitkutilities>=0.3.0",
+#   "SimpleITK>=2.5.3",
+#   "vtk>=9.5.2",
+# ]
+# ///
 
 import unittest
 

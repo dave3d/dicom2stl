@@ -1,4 +1,11 @@
-#! /usr/bin/env python
+#!/usr/bin/env -S uv run
+# /// script
+# requires-python = ">=3.9"
+# dependencies = [
+#   "pydicom>=3.0.1",
+#   "SimpleITK>=2.5.3",
+# ]
+# ///
 
 """
 Function to load the largest Dicom series in a directory.
