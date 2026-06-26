@@ -1,6 +1,6 @@
 #!/usr/bin/env -S uv run
 # /// script
-# requires-python = ">=3.10"
+# requires-python = ">=3.11"
 # dependencies = [
 #   "simpleitkutilities>=0.3.0",
 #   "SimpleITK>=2.5.3",
