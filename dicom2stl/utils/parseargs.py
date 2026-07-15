@@ -1,4 +1,8 @@
-#! /usr/bin/env python
+#!/usr/bin/env -S uv run
+# /// script
+# requires-python = ">=3.11"
+# dependencies = []
+# ///
 
 """Command line argument parsing for dicom2stl.
 

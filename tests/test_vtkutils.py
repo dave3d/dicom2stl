@@ -1,4 +1,12 @@
-#! /usr/bin/env python
+#!/usr/bin/env -S uv run
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "dicom2stl",
+#   "SimpleITK>=2.5.3",
+#   "vtk>=9.5.2",
+# ]
+# ///
 
 import os
 import unittest

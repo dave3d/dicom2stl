@@ -1,4 +1,10 @@
-#! /usr/bin/env python
+#!/usr/bin/env -S uv run
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "SimpleITK>=2.5.3",
+# ]
+# ///
 
 from utils import sitk2vtk
 

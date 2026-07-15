@@ -1,4 +1,12 @@
-#! /usr/bin/env python
+#!/usr/bin/env -S uv run
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "SimpleITK>=2.5.3",
+#   "simpleitkutilities>=0.3.0",
+#   "vtk>=9.5.2",
+# ]
+# ///
 
 """
 Script to take a Dicom series and generate an STL surface mesh.
@@ -25,6 +33,7 @@ import time
 import zipfile
 import re
 from glob import glob
+from typing import List, Optional, Tuple, Union
 import vtk
 import SimpleITK as sitk
 
@@ -36,21 +45,30 @@ from dicom2stl.utils import vtkutils
 from dicom2stl.utils import parseargs
 
 
-def roundThousand(x):
+def roundThousand(x: float) -> str:
     """Round to the nearest thousandth"""
     y = int(1000.0 * x + 0.5)
     return str(float(y) * 0.001)
 
 
-def elapsedTime(start_time):
+def elapsedTime(start_time: float) -> None:
     """Print the elapsed time"""
     dt = time.perf_counter() - start_time
     print(f"    {dt:4.3f} seconds")
 
 
-def loadVolume(fname, tempDir=None, verbose=0):
+def loadVolume(fname: List[str], tempDir: Optional[str] = None, verbose: int = 0) -> Tuple[sitk.Image, Optional[str]]:
     """Load the volume image from a zip file, a directory of Dicom files,
-    or a single volume image.  Return the SimpleITK image and the modality."""
+    or a single volume image.
+    
+    Args:
+        fname: List of file paths or patterns to load
+        tempDir: Temporary directory for zip extraction (optional)
+        verbose: Verbosity level (0=quiet, 1=basic, 2=detailed)
+        
+    Returns:
+        Tuple of (SimpleITK image, modality string)
+    """
     modality = None
     zipFlag = False
     dirFlag = False
@@ -87,7 +105,7 @@ def loadVolume(fname, tempDir=None, verbose=0):
             # Case for a single volume image
             if len(fname) == 1:
                 if verbose:
-                    print("Reading volume: ", fname[0])
+                    print("Reading volume:", fname[0])
                 img = sitk.ReadImage(fname[0])
                 modality = dicomutils.getModality(img)
 
@@ -106,14 +124,14 @@ def loadVolume(fname, tempDir=None, verbose=0):
 
                 if verbose:
                     if verbose > 1:
-                        print("Reading images: ", fname)
+                        print("Reading images:", fname)
                     else:
                         print(
-                            "Reading images: ",
+                            "Reading images:",
                             fname[0],
                             fname[1],
                             "...",
-                            fname[len(fname) - 1],
+                            fname[-1],
                         )
                 isr = sitk.ImageSeriesReader()
                 isr.SetFileNames(fname)
@@ -124,8 +142,13 @@ def loadVolume(fname, tempDir=None, verbose=0):
     return img, modality
 
 
-def writeMetadataFile(img, metaName):
-    """Write out the metadata to a text file"""
+def writeMetadataFile(img: sitk.Image, metaName: str) -> None:
+    """Write image metadata to a text file.
+    
+    Args:
+        img: SimpleITK image with metadata to write
+        metaName: Output file path
+    """
     with open(metaName, "wb") as fp:
         size = img.GetSize()
         spacing = img.GetSpacing()
@@ -137,8 +160,16 @@ def writeMetadataFile(img, metaName):
         fp.write(b"zspacing " + roundThousand(spacing[2]).encode() + b"\n")
 
 
-def shrinkVolume(input_image, newsize):
-    """Shrink the volume to a new size"""
+def shrinkVolume(input_image: sitk.Image, newsize: int) -> sitk.Image:
+    """Shrink the volume to a maximum dimension.
+    
+    Args:
+        input_image: Image to shrink
+        newsize: Maximum dimension size
+        
+    Returns:
+        Shrunk image, or original if no shrinking needed
+    """
     size = input_image.GetSize()
     total = 0
     sfactor = []
@@ -150,7 +181,7 @@ def shrinkVolume(input_image, newsize):
     if total > 3:
         # if total==3, no shrink happens
         t = time.perf_counter()
-        print("Shrink factors: ", sfactor)
+        print("Shrink factors:", sfactor)
         img = sitk.Shrink(input_image, sfactor)
         newsize = img.GetSize()
         print(size, "->", newsize)
@@ -159,14 +190,30 @@ def shrinkVolume(input_image, newsize):
 
     return input_image
 
+
 def volumeProcessingPipeline(
-    img, shrinkFlag=True, anisotropicSmoothing=False, thresholds=None, medianFilter=False
-):
-    """Apply a series of filters to the volume image"""
+    img: sitk.Image,
+    shrinkFlag: bool = True,
+    anisotropicSmoothing: bool = False,
+    thresholds: Optional[List[float]] = None,
+    medianFilter: bool = False,
+) -> sitk.Image:
+    """Apply a series of filters to the volume image.
+    
+    Args:
+        img: Input volume image
+        shrinkFlag: If True, shrink volume to 256^3 maximum
+        anisotropicSmoothing: If True, apply edge-preserving smoothing
+        thresholds: Four threshold values [t1, t2, t3, t4] for double threshold filter
+        medianFilter: If True, apply 3x3x1 median filter
+        
+    Returns:
+        Filtered volume image
+    """
     #
     # shrink the volume to 256 cubed
     if shrinkFlag:
-        shrinkVolume(img, 256)
+        img = shrinkVolume(img, 256)
 
     gc.collect()
 
@@ -185,8 +232,8 @@ def volumeProcessingPipeline(
 
     # Apply the double threshold filter to the volume
     #
-    if isinstance(thresholds, list) and len(thresholds)==4:
-        print("Double Threshold: ", thresholds)
+    if isinstance(thresholds, list) and len(thresholds) == 4:
+        print("Double Threshold:", thresholds)
         t = time.perf_counter()
         img = sitk.DoubleThreshold(
             img, thresholds[0], thresholds[1], thresholds[2], thresholds[3], 255, 0
@@ -221,15 +268,28 @@ def volumeProcessingPipeline(
 
 
 def meshProcessingPipeline(
-    mesh,
-    connectivityFilter=False,
-    smallFactor=0.05,
-    smoothN=25,
-    reduceFactor=0.9,
-    rotation=["X", 0.0],
-    debug=False,
-):
-    """Apply a series of filters to the mesh"""
+    mesh: vtk.vtkPolyData,
+    connectivityFilter: bool = False,
+    smallFactor: float = 0.05,
+    smoothN: int = 25,
+    reduceFactor: float = 0.9,
+    rotation: List[Union[str, float]] = ["X", 0.0],
+    debug: bool = False,
+) -> vtk.vtkPolyData:
+    """Apply a series of filters to the mesh.
+    
+    Args:
+        mesh: Input mesh
+        connectivityFilter: If True, extract only largest connected region
+        smallFactor: Ratio threshold for removing small disconnected parts (0.0-1.0)
+        smoothN: Number of smoothing iterations
+        reduceFactor: Target reduction factor for mesh decimation (0.0-1.0)
+        rotation: [axis, angle] where axis is 'X', 'Y', or 'Z' and angle in degrees
+        debug: If True, print debug information
+        
+    Returns:
+        Processed mesh
+    """
     if debug:
         print("Cleaning mesh")
     mesh2 = vtkutils.cleanMesh(mesh, connectivityFilter)
@@ -237,7 +297,7 @@ def meshProcessingPipeline(
     gc.collect()
 
     if debug:
-        print(f"Cleaning small parts ratio{smallFactor}")
+        print(f"Cleaning small parts ratio: {smallFactor}")
     mesh_cleaned_parts = vtkutils.removeSmallObjects(mesh2, smallFactor)
     mesh2 = None
     gc.collect()
@@ -254,15 +314,18 @@ def meshProcessingPipeline(
     mesh3 = None
     gc.collect()
 
-    print(rotation)
     axis_map = {"X": 0, "Y": 1, "Z": 2}
     try:
         rotAxis = axis_map[rotation[0]]
         if rotation[1] != 0.0:
+            if debug:
+                print(f"Rotating mesh: {rotation[0]} axis, {rotation[1]} degrees")
             mesh5 = vtkutils.rotateMesh(mesh4, rotAxis, rotation[1])
         else:
             mesh5 = mesh4
-    except RuntimeError:
+    except (KeyError, RuntimeError) as e:
+        if debug:
+            print(f"Rotation skipped: {e}")
         mesh5 = mesh4
     mesh4 = None
     gc.collect()
@@ -270,13 +333,20 @@ def meshProcessingPipeline(
     return mesh5
 
 
-def getTissueThresholds(tissueType):
-    """Get the double threshold values for a given tissue type."""
+def getTissueThresholds(tissueType: str) -> Tuple[Optional[List[float]], bool]:
+    """Get the double threshold values for a given tissue type.
+    
+    Args:
+        tissueType: Tissue type name ('bone', 'skin', 'soft', or 'fat')
+        
+    Returns:
+        Tuple of (threshold list [t1, t2, t3, t4], median filter flag)
+    """
     thresholds = []
     medianFilter = False
 
     # Convert tissue type name to threshold values
-    print("Tissue type: ", tissueType)
+    print("Tissue type:", tissueType)
     if tissueType.find("bone") > -1:
         thresholds = [200.0, 800.0, 1300.0, 1500.0]
     elif tissueType.find("skin") > -1:
@@ -293,10 +363,13 @@ def getTissueThresholds(tissueType):
     return thresholds, medianFilter
 
 
-def Dicom2STL(args):
-    """The primary dicom2stl function"""
-    # Global variables
-    #
+def Dicom2STL(args) -> None:
+    """Main conversion function from DICOM to STL.
+    
+    Args:
+        args: Parsed command-line arguments containing all conversion options
+    """
+    # Initialize filter flags
     thresholds = None
     shrinkFlag = True
     connectivityFilter = False
@@ -304,7 +377,6 @@ def Dicom2STL(args):
     medianFilter = False
 
     # Handle enable/disable filters
-
     if args.filters:
         for x in args.filters:
             val = True
@@ -324,7 +396,7 @@ def Dicom2STL(args):
     print("")
     if args.temp is None:
         args.temp = tempfile.mkdtemp()
-    print("Temp dir: ", args.temp)
+    print("Temp dir:", args.temp)
 
     if args.tissue:
         thresholds, medianFilter = getTissueThresholds(args.tissue)
@@ -334,26 +406,27 @@ def Dicom2STL(args):
         thresholds = []
         for x in words:
             thresholds.append(float(x))
-        # check that there are 4 threshold values.
-        print("Thresholds: ", thresholds)
+        print("Thresholds:", thresholds)
         if len(thresholds) != 4:
-            print("Error: Thresholds is not of len 4.", thresholds)
+            print(f"Error: Expected 4 threshold values, got {len(thresholds)}: {thresholds}")
             sys.exit(3)
     else:
-        print("Isovalue = ", args.isovalue)
+        print("Isovalue =", args.isovalue)
 
     if args.debug:
-        print("SimpleITK version: ", sitk.Version.VersionString())
-        print("SimpleITK: ", sitk, "\n")
+        print("SimpleITK version:", sitk.Version.VersionString())
+        print("SimpleITK:", sitk, "\n")
 
     #
     # Load the volume image
     img, modality = loadVolume(args.filenames, args.temp, args.verbose)
 
     if args.ctonly:
-        if modality.find("CT") == -1:
-            print("Imaging modality is not CT.  Exiting.")
+        if modality and modality.find("CT") == -1:
+            print(f"Error: Imaging modality is '{modality}', not CT. Exiting.")
             sys.exit(1)
+        elif not modality:
+            print("Warning: Could not determine modality, but CT-only mode is enabled.")
 
     # Write out the metadata text file
     if args.meta:
@@ -386,8 +459,7 @@ def Dicom2STL(args):
     gc.collect()
 
     if args.debug:
-        print("\nVTK version: ", vtk.vtkVersion.GetVTKVersion())
-        print("VTK: ", vtk, "\n")
+        print("\nVTK version:", vtk.vtkVersion.GetVTKVersion())
 
     # Extract the iso-surface
     if args.debug:
@@ -409,20 +481,14 @@ def Dicom2STL(args):
         args.debug,
     )
 
-    # We done!  Write out the results
+    # Write out the results
     vtkutils.writeMesh(mesh, args.output)
 
-    # remove the temp directory
-    if args.clean:
-        # shutil.rmtree(args.temp)
-        # with context manager the temp dir would be deleted any way
-        pass
-
-    print("")
+    print("\nConversion complete!")
 
 
-def main():
-    """Main function"""
+def main() -> None:
+    """Main entry point for the dicom2stl command-line tool."""
     args = parseargs.parseargs()
     Dicom2STL(args)
 
