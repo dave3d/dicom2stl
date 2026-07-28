@@ -7,6 +7,8 @@
 # ]
 # ///
 
+"""Unit tests for DICOM utility functions."""
+
 import os
 import shutil
 import unittest
@@ -19,6 +21,7 @@ from dicom2stl.utils import dicomutils
 
 
 class TestDicomUtils(unittest.TestCase):
+    """Test suite for DICOM utility functions."""
     TMPDIR = "testtmp"
     SIZE = 32
 
@@ -28,7 +31,7 @@ class TestDicomUtils(unittest.TestCase):
         cyl = create_data.make_cylinder(TestDicomUtils.SIZE, sitk.sitkUInt16)
         try:
             os.mkdir(TestDicomUtils.TMPDIR)
-        except BaseException:
+        except OSError:
             print("Oopsie")
         write_series.write_series(cyl, TestDicomUtils.TMPDIR)
 
@@ -38,13 +41,13 @@ class TestDicomUtils(unittest.TestCase):
         shutil.rmtree(TestDicomUtils.TMPDIR)
 
     def test_scanDirForDicom(self):
-        print("\nTesting DicomUtils.scanDirForDicom")
+        """Test scanning directory for DICOM files."""
         matches, dirs = dicomutils.scanDirForDicom(TestDicomUtils.TMPDIR)
         print(matches, dirs)
         self.assertEqual(len(matches), TestDicomUtils.SIZE)
 
     def test_getAllSeries(self):
-        print("\nTesting DicomUtils.getAllSeries")
+        """Test getting all DICOM series from directories."""
         seriessets = dicomutils.getAllSeries([TestDicomUtils.TMPDIR])
         print(seriessets)
         self.assertEqual(len(seriessets), 1)
@@ -55,7 +58,7 @@ class TestDicomUtils(unittest.TestCase):
             self.fail("    Bad series: " + series_id)
 
     def test_getModality(self):
-        print("\nTesting DicomUtils.getModality")
+        """Test getting image modality from metadata."""
         img = sitk.Image(10, 10, sitk.sitkUInt16)
         m1 = dicomutils.getModality(img)
         self.assertEqual(m1, "")
@@ -64,7 +67,7 @@ class TestDicomUtils(unittest.TestCase):
         self.assertEqual(m2, "dude")
 
     def test_loadLargestSeries(self):
-        print("\nTesting DicomUtils.loadLargestSeries")
+        """Test loading the largest DICOM series from a directory."""
         img, mod = dicomutils.loadLargestSeries(TestDicomUtils.TMPDIR)
         self.assertEqual(
             img.GetSize(),
@@ -73,11 +76,10 @@ class TestDicomUtils(unittest.TestCase):
         self.assertEqual(mod, "CT")
 
     def test_loadZipDicom(self):
-        print("\nTesting DicomUtils.loadZipDicom")
-        zf = zipfile.ZipFile("tests/testzip.zip", "w")
-        for z in range(TestDicomUtils.SIZE):
-            zf.write(TestDicomUtils.TMPDIR + "/" + str(z) + ".dcm")
-        zf.close()
+        """Test loading DICOM files from a ZIP archive."""
+        with zipfile.ZipFile("tests/testzip.zip", "w") as zf:
+            for z in range(TestDicomUtils.SIZE):
+                zf.write(TestDicomUtils.TMPDIR + "/" + str(z) + ".dcm")
         img, mod = dicomutils.loadZipDicom("tests/testzip.zip", "tests/ziptmp")
         print(img.GetSize())
         print(mod)

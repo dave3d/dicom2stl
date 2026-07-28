@@ -8,6 +8,8 @@
 # ]
 # ///
 
+"""Unit tests for VTK utility functions."""
+
 import os
 import unittest
 
@@ -18,6 +20,7 @@ from dicom2stl.utils import vtkutils
 
 
 class TestVTKUtils(unittest.TestCase):
+    """Test suite for VTK utility functions."""
     BALL = None
 
     @classmethod
@@ -44,38 +47,38 @@ class TestVTKUtils(unittest.TestCase):
             os.remove("ball.stl")
             os.remove("ball.vtk")
             os.remove("ball.ply")
-        except BaseException:
+        except OSError:
             print("")
 
     def test_cleanMesh(self):
-        print("Testing cleanMesh")
+        """Test cleaning mesh with optional connectivity filtering."""
         result = vtkutils.cleanMesh(TestVTKUtils.BALL, False)
         print(result.GetNumberOfPolys())
         result = vtkutils.cleanMesh(TestVTKUtils.BALL, True)
         print(result.GetNumberOfPolys())
 
     def test_smoothMesh(self):
-        print("Testing smoothMesh")
+        """Test mesh smoothing."""
         result = vtkutils.smoothMesh(TestVTKUtils.BALL)
         print(result.GetNumberOfPolys())
 
     def test_rotateMesh(self):
-        print("Testing rotateMesh")
+        """Test mesh rotation."""
         result = vtkutils.rotateMesh(TestVTKUtils.BALL, 0, 30)
         print(result.GetNumberOfPolys())
 
     def test_reduceMesh(self):
-        print("Testing reduceMesh")
+        """Test mesh decimation/reduction."""
         result = vtkutils.reduceMesh(TestVTKUtils.BALL, 0.5)
         print(result.GetNumberOfPolys())
 
     def test_meshIO(self):
-        print("Testing Mesh I/O")
+        """Test mesh input/output operations."""
         try:
             vtkutils.writeMesh(TestVTKUtils.BALL, "ball.stl")
             vtkutils.writeMesh(TestVTKUtils.BALL, "ball.vtk")
             vtkutils.writeMesh(TestVTKUtils.BALL, "ball.ply")
-        except BaseException:
+        except (RuntimeError, IOError):
             print("Bad write")
             self.fail("writeMesh failed")
 
@@ -86,24 +89,24 @@ class TestVTKUtils(unittest.TestCase):
             print("Read", m.GetNumberOfPolys(), "polygons")
             m = vtkutils.readMesh("ball.ply")
             print("Read", m.GetNumberOfPolys(), "polygons")
-        except BaseException:
+        except (RuntimeError, IOError):
             print("Bad read")
             self.fail("readMesh failed")
 
     def test_readVTKVolume(self):
-        print("Testing readVTKVolume")
+        """Test reading VTK volume files."""
         tetra = create_data.make_tetra(32)
         sitk.WriteImage(tetra, "tetra.vtk")
         try:
             vtkvol = vtkutils.readVTKVolume("tetra.vtk")
             print(type(vtkvol))
             print(vtkvol.GetDimensions())
-        except BaseException:
-            sitk.fail("readVTKVolume failed")
+        except (RuntimeError, IOError):
+            self.fail("readVTKVolume failed")
 
         try:
             os.remove("tetra.vtk")
-        except BaseException:
+        except OSError:
             print("remove tetra.vtk failed")
 
 

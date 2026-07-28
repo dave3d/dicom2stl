@@ -1,3 +1,5 @@
+"""Unit tests for DICOM to STL conversion functionality."""
+
 import unittest
 import os
 
@@ -9,8 +11,10 @@ from tests import create_data
 
 
 class TestDicom2STL(unittest.TestCase):
+    """Test suite for Dicom2STL conversion."""
+
     @classmethod
-    def setUpClass(self):
+    def setUpClass(cls):
         print("Setting up dicom2stl tests")
         img = create_data.make_tetra()
         sitk.WriteImage(img, "tetra-test.nii.gz")
@@ -22,7 +26,7 @@ class TestDicom2STL(unittest.TestCase):
         os.remove("testout.stl")
 
     def test_dicom2stl(self):
-        print("\nDicom2stl test")
+        """Test DICOM to STL conversion with standard parameters."""
         print("cwd:", os.getcwd())
 
         parser = parseargs.createParser()
@@ -35,8 +39,8 @@ class TestDicom2STL(unittest.TestCase):
 
         try:
             Dicom2STL(args)
-        except BaseException:
-            self.fail("dicom2stl: exception thrown")
+        except (RuntimeError, ValueError) as e:
+            self.fail(f"dicom2stl: exception thrown: {e}")
 
         if not os.path.exists("testout.stl"):
             self.fail("dicom2stl: no output file")

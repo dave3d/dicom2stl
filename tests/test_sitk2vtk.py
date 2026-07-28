@@ -8,16 +8,19 @@
 # ]
 # ///
 
+"""Unit tests for SimpleITK to VTK image conversion."""
+
 import unittest
+
 import vtk
 import SimpleITK as sitk
 from SimpleITK.utilities.vtk import sitk2vtk
-import platform
 
 
 class TestSITK2VTK(unittest.TestCase):
+    """Test suite for SITK2VTK conversion."""
     def test_sitk2vtk(self):
-        print("Testing sitk2vtk")
+        """Test converting SimpleITK images to VTK with direction matrix."""
         dims = [102, 102, 102]
         img = sitk.GaussianSource(sitk.sitkUInt8, dims)
         direction = [0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, -1.0]

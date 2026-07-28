@@ -35,10 +35,10 @@ from pydicom.errors import InvalidDicomError
 
 def testDicomFile(file_path: str) -> bool:
     """Test if given file is in DICOM format.
-    
+
     Args:
         file_path: Path to file to test
-        
+
     Returns:
         True if file is valid DICOM, False otherwise
     """
@@ -51,10 +51,10 @@ def testDicomFile(file_path: str) -> bool:
 
 def scanDirForDicom(dicomdir: str) -> Tuple[List[str], List[str]]:
     """Scan directory recursively for DICOM files.
-    
+
     Args:
         dicomdir: Directory path to scan for .dcm files
-        
+
     Returns:
         Tuple of (list of DICOM file paths, list of directories containing DICOM files)
     """
@@ -75,10 +75,10 @@ def scanDirForDicom(dicomdir: str) -> Tuple[List[str], List[str]]:
 
 def getAllSeries(target_dirs: List[str]) -> List[List]:
     """Get all the DICOM series in a set of directories.
-    
+
     Args:
         target_dirs: List of directory paths to scan for DICOM series
-        
+
     Returns:
         List of series information, where each element is [series_id, directory, file_list]
     """
@@ -95,10 +95,10 @@ def getAllSeries(target_dirs: List[str]) -> List[List]:
 
 def getModality(img: sitk.Image) -> str:
     """Get an image's modality from DICOM metadata.
-    
+
     Args:
         img: SimpleITK image with DICOM metadata
-        
+
     Returns:
         Modality string (e.g., 'CT', 'MR'), or empty string if not found
     """
@@ -113,13 +113,13 @@ def getModality(img: sitk.Image) -> str:
 
 def loadLargestSeries(dicomdir: str) -> Optional[Tuple[sitk.Image, str]]:
     """Load the largest DICOM series found in a directory.
-    
+
     Scans the directory recursively for DICOM files and loads the series
     with the most slices.
-    
+
     Args:
         dicomdir: Directory path to scan
-        
+
     Returns:
         Tuple of (SimpleITK image, modality string), or None if no series found
     """
@@ -157,26 +157,24 @@ def loadLargestSeries(dicomdir: str) -> Optional[Tuple[sitk.Image, str]]:
 
 def loadZipDicom(name: str, tempDir: str) -> Optional[Tuple[sitk.Image, str]]:
     """Extract and load DICOM series from a ZIP file.
-    
+
     Unzips DICOM images to a temporary directory and loads the series
     with the most slices.
-    
+
     Args:
         name: Path to ZIP file containing DICOM images
         tempDir: Temporary directory for extraction
-        
+
     Returns:
         Tuple of (SimpleITK image, modality string), or None if loading fails
     """
     print("Reading Dicom zip file:", name)
     print("tempDir =", tempDir)
     with zipfile.ZipFile(name, "r") as myzip:
-
         try:
             myzip.extractall(tempDir)
         except RuntimeError:
             print("Zip extract failed")
-
     return loadLargestSeries(tempDir)
 
 
@@ -188,20 +186,20 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: dicomutils.py <dicom_directory>")
         sys.exit(1)
-    
+
     print("\ndicomutils.py")
     print("Scanning:", sys.argv[1])
-    
+
     dcm_files, dcm_dirs = scanDirForDicom(sys.argv[1])
-    
+
     print("\nFiles found:")
     for f in dcm_files:
         print(" ", f)
-    
+
     print("\nDirectories:")
     for d in dcm_dirs:
         print(" ", d)
-    
+
     print("\nSeries:")
     series_found = getAllSeries(dcm_dirs)
     for sf in series_found:

@@ -6,4 +6,4 @@ import dicom2stl.utils.parseargs
 def main():
     """Entry point for the application script"""
     args = dicom2stl.utils.parseargs.parseargs()
-    Dicom2STL.Dicom2STL(args)
+    Dicom2STL(args)

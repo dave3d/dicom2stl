@@ -6,12 +6,7 @@
 # ]
 # ///
 
-import argparse
-
-import SimpleITK as sitk
-
-
-def make_tetra(dim=128, scale=200.0, pixel_type=sitk.sitkUInt8):
+"""Utility functions to create test data for DICOM to STL conversion tests."""\n\nimport argparse\n\nimport SimpleITK as sitk\n\n\ndef make_tetra(dim=128, scale=200.0, pixel_type=sitk.sitkUInt8):\n    """Create a test image with a tetrahedral shape.\n\n    Args:\n        dim: Dimension of the cubic output image\n        scale: Gaussian peak intensity scale\n        pixel_type: SimpleITK pixel type for the output image\n\n    Returns:\n        SimpleITK image with tetrahedral shape\n    """
     # vertices of a tetrahedron
     tverts = [
         [0.732843, 0.45, 0.35],
@@ -32,7 +27,7 @@ def make_tetra(dim=128, scale=200.0, pixel_type=sitk.sitkUInt8):
     return vol
 
 
-def make_cylinder(dim=64, scale=200.0, pixel_type=sitk.sitkUInt8):
+def make_cylinder(dim=64, scale=200.0, pixel_type=sitk.sitkUInt8):\n    """Create a test image with a cylindrical shape.\n\n    Args:\n        dim: Dimension of the output image (cubic)\n        scale: Gaussian peak intensity scale\n        pixel_type: SimpleITK pixel type for the output image\n\n    Returns:\n        SimpleITK 3D image with cylindrical shape\n    """
     mean = [dim / 2, dim / 2]
     sigma = [dim / 4, dim / 4]
     img = sitk.GaussianSource(
