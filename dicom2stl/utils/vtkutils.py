@@ -37,11 +37,11 @@ def elapsedTime(start_time: float) -> None:
 #
 def extractSurface(vol: vtk.vtkImageData, isovalue: float = 0.0) -> Optional[vtk.vtkPolyData]:
     """Extract an isosurface from a volume using the marching cubes algorithm.
-    
+
     Args:
         vol: VTK image data volume
         isovalue: Threshold value for the isosurface
-        
+
     Returns:
         Surface mesh as vtkPolyData, or None if extraction fails
     """
@@ -71,11 +71,11 @@ def extractSurface(vol: vtk.vtkImageData, isovalue: float = 0.0) -> Optional[vtk
 #
 def cleanMesh(mesh: vtk.vtkPolyData, connectivityFilter: bool = False) -> Optional[vtk.vtkPolyData]:
     """Clean a mesh using VTK's CleanPolyData filter.
-    
+
     Args:
         mesh: Input mesh to clean
         connectivityFilter: If True, extract only the largest connected region
-        
+
     Returns:
         Cleaned mesh, or None if cleaning fails
     """
@@ -110,11 +110,11 @@ def cleanMesh(mesh: vtk.vtkPolyData, connectivityFilter: bool = False) -> Option
 
 def smoothMesh(mesh: vtk.vtkPolyData, nIterations: int = 10) -> Optional[vtk.vtkPolyData]:
     """Smooth a mesh using VTK's WindowedSincPolyData filter.
-    
+
     Args:
         mesh: Input mesh to smooth
         nIterations: Number of smoothing iterations
-        
+
     Returns:
         Smoothed mesh, or None if smoothing fails
     """
@@ -141,12 +141,12 @@ def smoothMesh(mesh: vtk.vtkPolyData, nIterations: int = 10) -> Optional[vtk.vtk
 
 def rotateMesh(mesh: vtk.vtkPolyData, axis: int = 1, angle: float = 0) -> Optional[vtk.vtkPolyData]:
     """Rotate a mesh about an arbitrary axis.
-    
+
     Args:
         mesh: Input mesh to rotate
         axis: Rotation axis (0=X, 1=Y, 2=Z)
         angle: Rotation angle in degrees
-        
+
     Returns:
         Rotated mesh, or None if rotation fails
     """
@@ -176,11 +176,11 @@ def rotateMesh(mesh: vtk.vtkPolyData, axis: int = 1, angle: float = 0) -> Option
 
 def reduceMesh(mesh: vtk.vtkPolyData, reductionFactor: float) -> Optional[vtk.vtkPolyData]:
     """Reduce the number of triangles in a mesh using VTK's vtkDecimatePro filter.
-    
+
     Args:
         mesh: Input mesh to reduce
         reductionFactor: Target reduction as a fraction (0.0 to 1.0)
-        
+
     Returns:
         Reduced mesh, or None if reduction fails
     """
@@ -261,12 +261,12 @@ def removeSmallObjects(mesh, ratio):
 
 def readMesh(name: str) -> Optional[vtk.vtkPolyData]:
     """Read a mesh from file. Uses suffix to determine file type.
-    
+
     Supported formats: .vtk, .ply, .stl
-    
+
     Args:
         name: Path to mesh file
-        
+
     Returns:
         Mesh as vtkPolyData, or None if reading fails
     """
@@ -282,10 +282,10 @@ def readMesh(name: str) -> Optional[vtk.vtkPolyData]:
 
 def readVTKMesh(name: str) -> Optional[vtk.vtkPolyData]:
     """Read a VTK mesh file.
-    
+
     Args:
         name: Path to VTK file
-        
+
     Returns:
         Mesh as vtkPolyData, or None if reading fails
     """
@@ -308,10 +308,10 @@ def readVTKMesh(name: str) -> Optional[vtk.vtkPolyData]:
 
 def readSTL(name: str) -> Optional[vtk.vtkPolyData]:
     """Read an STL mesh file.
-    
+
     Args:
         name: Path to STL file
-        
+
     Returns:
         Mesh as vtkPolyData, or None if reading fails
     """
@@ -334,10 +334,10 @@ def readSTL(name: str) -> Optional[vtk.vtkPolyData]:
 
 def readPLY(name: str) -> Optional[vtk.vtkPolyData]:
     """Read a PLY mesh file.
-    
+
     Args:
         name: Path to PLY file
-        
+
     Returns:
         Mesh as vtkPolyData, or None if reading fails
     """
@@ -361,9 +361,9 @@ def readPLY(name: str) -> Optional[vtk.vtkPolyData]:
 
 def writeMesh(mesh: vtk.vtkPolyData, name: str) -> None:
     """Write a mesh to file. Uses suffix to determine file type.
-    
+
     Supported formats: .vtk, .ply, .stl
-    
+
     Args:
         mesh: Mesh to write
         name: Output file path
@@ -383,7 +383,7 @@ def writeMesh(mesh: vtk.vtkPolyData, name: str) -> None:
 
 def writeVTKMesh(mesh: vtk.vtkPolyData, name: str) -> None:
     """Write a VTK mesh file.
-    
+
     Args:
         mesh: Mesh to write
         name: Output VTK file path
@@ -406,7 +406,7 @@ def writeVTKMesh(mesh: vtk.vtkPolyData, name: str) -> None:
 
 def writeSTL(mesh: vtk.vtkPolyData, name: str) -> None:
     """Write an STL mesh file.
-    
+
     Args:
         mesh: Mesh to write
         name: Output STL file path
@@ -429,7 +429,7 @@ def writeSTL(mesh: vtk.vtkPolyData, name: str) -> None:
 
 def writePLY(mesh: vtk.vtkPolyData, name: str) -> None:
     """Write a PLY mesh file.
-    
+
     Args:
         mesh: Mesh to write
         name: Output PLY file path
@@ -457,10 +457,10 @@ def writePLY(mesh: vtk.vtkPolyData, name: str) -> None:
 
 def readVTKVolume(name: str) -> Optional[vtk.vtkStructuredPoints]:
     """Read a VTK volume image file.
-    
+
     Args:
         name: Path to VTK volume file
-        
+
     Returns:
         Volume as vtkStructuredPoints, or None if reading fails
     """
@@ -483,7 +483,7 @@ def readVTKVolume(name: str) -> Optional[vtk.vtkStructuredPoints]:
 
 def writeVTKVolume(vtkimg: vtk.vtkImageData, name: str) -> None:
     """Write the old VTK Image file format.
-    
+
     Args:
         vtkimg: Volume to write
         name: Output file path
@@ -504,10 +504,10 @@ def writeVTKVolume(vtkimg: vtk.vtkImageData, name: str) -> None:
 
 def readVTIVolume(name: str) -> Optional[vtk.vtkImageData]:
     """Read a VTK XML volume image file.
-    
+
     Args:
         name: Path to VTI file
-        
+
     Returns:
         Volume as vtkImageData, or None if reading fails
     """
@@ -530,7 +530,7 @@ def readVTIVolume(name: str) -> Optional[vtk.vtkImageData]:
 
 def writeVTIVolume(vtkimg: vtk.vtkImageData, name: str) -> None:
     """Write the new XML VTK Image file format.
-    
+
     Args:
         vtkimg: Volume to write
         name: Output VTI file path
@@ -551,11 +551,11 @@ def writeVTIVolume(vtkimg: vtk.vtkImageData, name: str) -> None:
 if __name__ == "__main__":
     print("vtkutils.py")
     print("VTK version:", vtk.vtkVersion.GetVTKVersion())
-    
+
     if len(sys.argv) != 3:
         print("Usage: vtkutils.py input_mesh output_mesh")
         sys.exit(1)
-    
+
     try:
         inmesh = readMesh(sys.argv[1])
         if inmesh:

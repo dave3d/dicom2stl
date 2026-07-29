@@ -7,6 +7,8 @@
 # ]
 # ///
 
+"""Utility functions to write SimpleITK images as DICOM series for testing."""
+
 import os
 import sys
 import time
@@ -18,6 +20,15 @@ pixel_dtypes = {"int16": np.int16, "float64": np.float64}
 
 
 def writeSlices(series_tag_values, new_img, out_dir, writer, i):
+    """Write a single slice of a 3D image to DICOM format.
+
+    Args:
+        series_tag_values: List of DICOM tag tuples to set on the slice
+        new_img: The 3D SimpleITK image to extract slice from
+        out_dir: Output directory for DICOM file
+        writer: SimpleITK ImageFileWriter instance
+        i: Slice index to write
+    """
     image_slice = new_img[:, :, i]
 
     # Tags shared by the series.
@@ -69,6 +80,13 @@ def writeSlices(series_tag_values, new_img, out_dir, writer, i):
 
 
 def write_series(new_img, data_directory, pixel_dtype=np.int16):
+    """Write a 3D image as a DICOM series to disk.
+
+    Args:
+        new_img: SimpleITK 3D image to write
+        data_directory: Output directory for DICOM files
+        pixel_dtype: NumPy data type for pixel values (int16 or float64)
+    """
     writer = sitk.ImageFileWriter()
     # Use the study/series/frame of reference information given in the
     # meta-data dictionary and not the automatically generated information
@@ -143,8 +161,19 @@ def write_series(new_img, data_directory, pixel_dtype=np.int16):
     )
 
 
-def do_test(data_directory):
-    # Re-read the series
+def do_test(data_directory, new_img=None):
+    """Test reading back a written DICOM series.
+
+    Args:
+        data_directory: Directory containing DICOM series to read
+        new_img: Optional original image to compare against
+    """
+    if new_img is None:
+        try:
+            new_img = globals()["new_img"]
+        except KeyError as exc:
+            raise ValueError("new_img must be provided when calling do_test().") from exc
+
     # Read the original series. First obtain the series file names using the
     # image series reader.
     series_IDs = sitk.ImageSeriesReader.GetGDCMSeriesIDs(data_directory)

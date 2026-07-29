@@ -55,3 +55,7 @@ docs/_build/
 # Vscode
 .vscode
 
+
+# Editor backup files
+*~
+*.py~

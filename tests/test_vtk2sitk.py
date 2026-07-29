@@ -8,12 +8,15 @@
 # ]
 # ///
 
+"""Unit tests for VTK to SimpleITK image conversion."""
+
 import unittest
 
 import SimpleITK as sitk
 import vtk
-from tests import compare_stats
 from SimpleITK.utilities.vtk import vtk2sitk
+
+from tests import compare_stats
 
 
 def printStats(stats):
@@ -24,7 +27,10 @@ def printStats(stats):
 
 
 class TestVTK2SITK(unittest.TestCase):
+    """Test suite for VTK to SimpleITK conversion."""
+
     def test_vtk2sitk(self):
+        """Test converting VTK images to SimpleITK with direction matrix."""
         source = vtk.vtkImageSinusoidSource()
         source.Update()
 

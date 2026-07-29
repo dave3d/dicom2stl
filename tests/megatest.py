@@ -6,11 +6,13 @@
 # ]
 # ///
 
-from utils import sitk2vtk
+"""Mega test suite for DICOM to STL conversion with various image formats."""
 
 import glob
 import os
 import sys
+
+from utils import sitk2vtk
 
 import SimpleITK as sitk
 import compare_stats
@@ -60,7 +62,7 @@ for n in img_names:
     img = sitk.ReadImage(n)
     try:
         vtkimg = sitk2vtk.sitk2vtk(img)
-    except BaseException:
+    except (RuntimeError, ValueError):
         print("File", n, "didn't convert")
         continue
 
@@ -69,7 +71,7 @@ for n in img_names:
         continue
     try:
         ok = compare_stats.compare_stats(img, vtkimg)
-    except BaseException:
+    except (RuntimeError, ValueError, TypeError):
         print("exception: probably wrong image type")
         print("UNSUPPORTED")
         unsupport_count = unsupport_count + 1

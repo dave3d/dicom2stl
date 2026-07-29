@@ -57,7 +57,11 @@ def elapsedTime(start_time: float) -> None:
     print(f"    {dt:4.3f} seconds")
 
 
-def loadVolume(fname: List[str], tempDir: Optional[str] = None, verbose: int = 0) -> Tuple[sitk.Image, Optional[str]]:
+def loadVolume(
+    fname: List[str],
+    tempDir: Optional[str] = None,
+    verbose: int = 0
+) -> Tuple[sitk.Image, Optional[str]]:
     """Load the volume image from a zip file, a directory of Dicom files,
     or a single volume image.
     
@@ -273,7 +277,7 @@ def meshProcessingPipeline(
     smallFactor: float = 0.05,
     smoothN: int = 25,
     reduceFactor: float = 0.9,
-    rotation: List[Union[str, float]] = ["X", 0.0],
+    rotation: Optional[List[Union[str, float]]] = None,
     debug: bool = False,
 ) -> vtk.vtkPolyData:
     """Apply a series of filters to the mesh.
@@ -314,19 +318,23 @@ def meshProcessingPipeline(
     mesh3 = None
     gc.collect()
 
-    axis_map = {"X": 0, "Y": 1, "Z": 2}
-    try:
-        rotAxis = axis_map[rotation[0]]
-        if rotation[1] != 0.0:
-            if debug:
-                print(f"Rotating mesh: {rotation[0]} axis, {rotation[1]} degrees")
-            mesh5 = vtkutils.rotateMesh(mesh4, rotAxis, rotation[1])
-        else:
-            mesh5 = mesh4
-    except (KeyError, RuntimeError) as e:
-        if debug:
-            print(f"Rotation skipped: {e}")
+    # Apply rotation if specified
+    if rotation is None:
         mesh5 = mesh4
+    else:
+        axis_map = {"X": 0, "Y": 1, "Z": 2}
+        try:
+            rotAxis = axis_map[rotation[0]]
+            if rotation[1] != 0.0:
+                if debug:
+                    print(f"Rotating mesh: {rotation[0]} axis, {rotation[1]} degrees")
+                mesh5 = vtkutils.rotateMesh(mesh4, rotAxis, rotation[1])
+            else:
+                mesh5 = mesh4
+        except (KeyError, RuntimeError) as e:
+            if debug:
+                print(f"Rotation skipped: {e}")
+            mesh5 = mesh4
     mesh4 = None
     gc.collect()
 

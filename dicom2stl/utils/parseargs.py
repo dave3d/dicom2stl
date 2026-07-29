@@ -11,7 +11,7 @@ including volume processing options, mesh processing options, and filtering cont
 """
 
 import argparse
-from typing import Any, List, Optional, Sequence
+from typing import Any, Optional
 from importlib.metadata import version, PackageNotFoundError
 
 __version__ = "unknown"

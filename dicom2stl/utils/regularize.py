@@ -14,24 +14,24 @@ This module resamples medical image volumes so that:
 3. The volume is properly bounded to contain all original data
 """
 
-import sys
-from typing import List, Tuple
+import argparse
+from typing import Tuple
 import SimpleITK as sitk
 
 
 def regularize(img: sitk.Image, maxdim: int = -1, verbose: bool = False) -> sitk.Image:
     """Resample a volume to have cubic voxels and identity orientation matrix.
-    
+
     This function resamples the input image so that:
     - Voxels are cubic (isotropic spacing)
     - Orientation matrix is identity
     - All original data is preserved within the bounding box
-    
+
     Args:
         img: Input SimpleITK image to regularize
         maxdim: Maximum dimension for the output volume. If -1, uses max dimension of input.
         verbose: If True, print detailed processing information
-        
+
     Returns:
         Regularized SimpleITK image with cubic voxels and identity orientation
     """
@@ -90,7 +90,7 @@ def regularize(img: sitk.Image, maxdim: int = -1, verbose: bool = False) -> sitk
     # Resample to create regularized volume with cubic voxels and identity orientation
     identity_direction = [1, 0, 0, 0, 1, 0, 0, 0, 1]
     isotropic_spacing = [newspacing, newspacing, newspacing]
-    
+
     newimg = sitk.Resample(
         img,
         newdims,
@@ -107,8 +107,6 @@ def regularize(img: sitk.Image, maxdim: int = -1, verbose: bool = False) -> sitk
 
 def main() -> None:
     """Main entry point for the regularize command-line tool."""
-    import argparse
-    
     parser = argparse.ArgumentParser(
         description="Regularize a volume to have cubic voxels and identity orientation."
     )
@@ -134,9 +132,9 @@ def main() -> None:
         action="store_true",
         help="Enable verbose output"
     )
-    
+
     args = parser.parse_args()
-    
+
     # Test mode - no input file provided
     if args.input is None:
         print("Running in test mode...")
@@ -163,12 +161,12 @@ def main() -> None:
         # Normal mode - process input file
         if args.output is None:
             parser.error("Output file is required when input file is provided")
-        
+
         print(f"Reading: {args.input}")
         input_img = sitk.ReadImage(args.input)
-        
+
         out_img = regularize(input_img, args.dim, args.verbose)
-        
+
         print(f"Writing: {args.output}")
         sitk.WriteImage(out_img, args.output)
         print("Done!")

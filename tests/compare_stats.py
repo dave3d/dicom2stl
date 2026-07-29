@@ -7,11 +7,18 @@
 # ]
 # ///
 
+"""Statistics comparison utilities for DICOM to STL conversion tests."""
+
 import SimpleITK as sitk
 import vtk
 
 
 def printStats(stats):
+    """Print image statistics in a formatted manner.
+
+    Args:
+        stats: List of [min, max, mean, stddev] statistics
+    """
     print("    Min:", stats[0])
     print("    Max:", stats[1])
     print("    Mean:", stats[2])
@@ -19,7 +26,15 @@ def printStats(stats):
 
 
 def compare_stats(sitkimg, vtkimg):
-    """Compare the statistics of a SimpleITK image and a VTK image."""
+    """Compare image statistics between SimpleITK and VTK images.
+
+    Args:
+        sitkimg: SimpleITK image to compare
+        vtkimg: VTK image to compare
+
+    Returns:
+        True if statistics match within tolerance, False otherwise
+    """
 
     # Compute the VTK image histogram statistics
     histo = vtk.vtkImageHistogramStatistics()
