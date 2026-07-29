@@ -161,13 +161,19 @@ def write_series(new_img, data_directory, pixel_dtype=np.int16):
     )
 
 
-def do_test(data_directory, new_img):
+def do_test(data_directory, new_img=None):
     """Test reading back a written DICOM series.
 
     Args:
         data_directory: Directory containing DICOM series to read
-        new_img: Original image to compare against
+        new_img: Optional original image to compare against
     """
+    if new_img is None:
+        try:
+            new_img = globals()["new_img"]
+        except KeyError as exc:
+            raise ValueError("new_img must be provided when calling do_test().") from exc
+
     # Read the original series. First obtain the series file names using the
     # image series reader.
     series_IDs = sitk.ImageSeriesReader.GetGDCMSeriesIDs(data_directory)
