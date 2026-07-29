@@ -19,6 +19,7 @@ def printStats(stats):
     Args:
         stats: List of [min, max, mean, stddev] statistics
     """
+    print("    Min:", stats[0])
     print("    Max:", stats[1])
     print("    Mean:", stats[2])
     print("    StdDev:", stats[3])
