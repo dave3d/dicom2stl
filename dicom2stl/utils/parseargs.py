@@ -54,7 +54,8 @@ class enableAnisotropic(argparse.Action):
         option_string: Optional[str] = None
     ) -> None:
         if args.filters is None:
-            args.filters = ["anisotropic"]
+            args.filters = []
+        args.filters.append("anisotropic")
 
 
 class enableLargest(argparse.Action):
