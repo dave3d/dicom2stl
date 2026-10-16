@@ -15,7 +15,7 @@ Written by David T. Chen from the National Institute of Allergy & Infectious Dis
 Prerequisites
 =============
 
-- **Python 3.7 or higher**
+- **Python 3.11 or higher**
 - Compatible with Linux, macOS, and Windows
 
 The script uses 4 external packages:
