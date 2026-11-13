@@ -10,6 +10,7 @@ from dicom2stl.utils import parseargs
 from dicom2stl.Dicom2STL import Dicom2STL, loadVolume
 
 from tests import create_data
+from tests import write_series
 
 
 class TestDicom2STL(unittest.TestCase):
@@ -50,6 +51,28 @@ class TestDicom2STL(unittest.TestCase):
 
 class TestLoadVolume(unittest.TestCase):
     """Test suite for loading a DICOM series from a directory or zip file."""
+
+    def test_dicom_without_suffix(self):
+        """Test loading DICOM files that don't have the ".dcm" suffix."""
+        size = 16
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dcmdir = os.path.join(tmpdir, "series")
+            os.mkdir(dcmdir)
+            cyl = create_data.make_cylinder(size, pixel_type=sitk.sitkUInt16)
+            write_series.write_series(cyl, dcmdir)
+            for name in os.listdir(dcmdir):
+                path = os.path.join(dcmdir, name)
+                os.rename(path, os.path.splitext(path)[0])
+            zipname = os.path.join(tmpdir, "series.zip")
+            with zipfile.ZipFile(zipname, "w") as zf:
+                for name in os.listdir(dcmdir):
+                    zf.write(os.path.join(dcmdir, name), name)
+
+            for name in [dcmdir, zipname]:
+                with self.subTest(name=name):
+                    img, modality = loadVolume([name])
+                    self.assertEqual(img.GetSize(), (size, size, size))
+                    self.assertEqual(modality, "CT")
 
     def test_no_dicom_series(self):
         """Test the error exit when the input has no DICOM series."""

@@ -11,8 +11,10 @@
 
 import os
 import shutil
+import tempfile
 import unittest
 import zipfile
+from unittest import mock
 
 import SimpleITK as sitk
 from tests import create_data
@@ -40,11 +42,62 @@ class TestDicomUtils(unittest.TestCase):
         print("\nTearin' it down!")
         shutil.rmtree(TestDicomUtils.TMPDIR)
 
+    @staticmethod
+    def copy_series(dest, suffix):
+        """Copy the test series to dest, replacing the ".dcm" suffix."""
+        for z in range(TestDicomUtils.SIZE):
+            shutil.copy(
+                os.path.join(TestDicomUtils.TMPDIR, str(z) + ".dcm"),
+                os.path.join(dest, str(z) + suffix),
+            )
+
+    def test_testDicomFile(self):
+        """Test recognizing a DICOM file by its header."""
+        dcm = os.path.join(TestDicomUtils.TMPDIR, "0.dcm")
+        self.assertTrue(dicomutils.testDicomFile(dcm))
+        self.assertFalse(dicomutils.testDicomFile(__file__))
+        self.assertFalse(dicomutils.testDicomFile(TestDicomUtils.TMPDIR))
+        with mock.patch.object(
+            dicomutils, "is_dicom", side_effect=PermissionError
+        ):
+            self.assertFalse(dicomutils.testDicomFile(dcm))
+
     def test_scanDirForDicom(self):
         """Test scanning directory for DICOM files."""
         matches, dirs = dicomutils.scanDirForDicom(TestDicomUtils.TMPDIR)
         print(matches, dirs)
         self.assertEqual(len(matches), TestDicomUtils.SIZE)
+
+    def test_scanDirForDicom_without_suffix(self):
+        """Test finding DICOM files that don't have the ".dcm" suffix."""
+        for suffix in ["", ".IMA", ".DCM"]:
+            with self.subTest(suffix=suffix):
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    self.copy_series(tmpdir, suffix)
+                    matches, dirs = dicomutils.scanDirForDicom(tmpdir)
+                self.assertEqual(len(matches), TestDicomUtils.SIZE)
+                self.assertEqual(dirs, [tmpdir])
+
+    def test_scanDirForDicom_skips_other_files(self):
+        """Test that files which are not DICOM images are left out."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            self.copy_series(tmpdir, "")
+            os.mkdir(os.path.join(tmpdir, "viewer"))
+            for name, data in [
+                ("README", b"Not a DICOM file.\n"),
+                ("EMPTY", b""),
+                ("thumbnail.jpg", b"\xff\xd8\xff\xe0" + bytes(300)),
+                ("DICOMDIR", bytes(128) + b"DICM"),
+                (os.path.join("viewer", "viewer.cfg"), b"[viewer]\n"),
+            ]:
+                with open(os.path.join(tmpdir, name), "wb") as fp:
+                    fp.write(data)
+            matches, dirs = dicomutils.scanDirForDicom(tmpdir)
+        slices = [
+            os.path.join(tmpdir, str(z)) for z in range(TestDicomUtils.SIZE)
+        ]
+        self.assertEqual(sorted(matches), sorted(slices))
+        self.assertEqual(dirs, [tmpdir])
 
     def test_getAllSeries(self):
         """Test getting all DICOM series from directories."""
