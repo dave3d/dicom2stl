@@ -172,7 +172,7 @@ Troubleshooting
 
 **Common Issues:**
 
-- **"No valid input given"** - Check that your DICOM files have the `.dcm` extension
+- **"No DICOM series found"** - Check that your DICOM files have the `.dcm` extension
 - **Empty or incorrect mesh** - Try adjusting the tissue type or using custom threshold values
 - **Out of memory** - The shrink filter is enabled by default to reduce memory usage. For very large datasets, consider processing on a machine with more RAM
 - **Slice ordering issues** - Always use a zip file or directory rather than individual DICOM files on the command line
