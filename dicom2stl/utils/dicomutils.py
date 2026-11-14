@@ -11,8 +11,8 @@
 Function to load the largest Dicom series in a directory.
 
 It scans the directory recursively search for files with the ".dcm"
-suffix. Note that DICOM files don't always have that suffix. In
-that case this function will fail.
+suffix. DICOM files don't always have that suffix, so files without
+it are also accepted if they start with the DICOM file header.
 
 Written by David T. Chen from the National Institute of Allergy
 and Infectious Diseases, dchen@mail.nih.gov.
@@ -29,31 +29,39 @@ import zipfile
 from typing import List, Optional, Tuple
 import SimpleITK as sitk
 
-from pydicom.filereader import read_file_meta_info
-from pydicom.errors import InvalidDicomError
+from pydicom.misc import is_dicom
 
 
 def testDicomFile(file_path: str) -> bool:
     """Test if given file is in DICOM format.
 
+    Only the start of the file is read, to look for the DICOM file header
+    (a 128 byte preamble followed by "DICM").
+
     Args:
         file_path: Path to file to test
 
     Returns:
-        True if file is valid DICOM, False otherwise
+        True if file has the DICOM file header, False otherwise or if the
+        file cannot be read
     """
     try:
-        read_file_meta_info(file_path)
-        return True
-    except InvalidDicomError:
+        # Opening a named pipe would block, so only look at regular files.
+        return os.path.isfile(file_path) and is_dicom(file_path)
+    except OSError:
         return False
 
 
 def scanDirForDicom(dicomdir: str) -> Tuple[List[str], List[str]]:
     """Scan directory recursively for DICOM files.
 
+    A file is taken to be DICOM if its name ends in ".dcm" or, failing
+    that, if it starts with the DICOM file header. The DICOMDIR index of
+    a DICOM media set has that header too, but it is not an image, so it
+    is left out.
+
     Args:
-        dicomdir: Directory path to scan for .dcm files
+        dicomdir: Directory path to scan for DICOM files
 
     Returns:
         Tuple of (list of DICOM file paths, list of directories containing DICOM files)
@@ -62,10 +70,14 @@ def scanDirForDicom(dicomdir: str) -> Tuple[List[str], List[str]]:
     found_dirs = []
     try:
         for root, _, filenames in os.walk(dicomdir):
-            for filename in fnmatch.filter(filenames, "*.dcm"):
-                matches.append(os.path.join(root, filename))
-                if root not in found_dirs:
-                    found_dirs.append(root)
+            for filename in filenames:
+                if filename.upper() == "DICOMDIR":
+                    continue
+                path = os.path.join(root, filename)
+                if fnmatch.fnmatch(filename, "*.dcm") or testDicomFile(path):
+                    matches.append(path)
+                    if root not in found_dirs:
+                        found_dirs.append(root)
     except OSError as e:
         print("Error in scanDirForDicom:", e)
         print("dicomdir =", dicomdir)

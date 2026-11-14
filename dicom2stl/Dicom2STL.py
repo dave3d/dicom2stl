@@ -57,6 +57,16 @@ def elapsedTime(start_time: float) -> None:
     print(f"    {dt:4.3f} seconds")
 
 
+def checkSeries(
+    series: Optional[Tuple[sitk.Image, str]], name: str
+) -> Tuple[sitk.Image, str]:
+    """Return the Dicom series loaded from name, or exit if none was found"""
+    if series is None:
+        print(f"Error: no DICOM series found in '{name}'.")
+        sys.exit(5)
+    return series
+
+
 def loadVolume(
     fname: List[str],
     tempDir: Optional[str] = None,
@@ -97,13 +107,15 @@ def loadVolume(
         # Case for a zip file of images
         if not tempDir:
             with tempfile.TemporaryDirectory() as defaultTempDir:
-                img, modality = dicomutils.loadZipDicom(fname[0], defaultTempDir)
+                series = dicomutils.loadZipDicom(fname[0], defaultTempDir)
         else:
-            img, modality = dicomutils.loadZipDicom(fname[0], tempDir)
+            series = dicomutils.loadZipDicom(fname[0], tempDir)
+        img, modality = checkSeries(series, fname[0])
 
     else:
         if dirFlag:
-            img, modality = dicomutils.loadLargestSeries(fname[0])
+            series = dicomutils.loadLargestSeries(fname[0])
+            img, modality = checkSeries(series, fname[0])
 
         else:
             # Case for a single volume image

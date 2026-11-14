@@ -52,8 +52,8 @@ The script starts by reading in a series of 2-d images or a simple 3-d image.
 It can read any
 [image file format supported by SimpleITK](https://simpleitk.readthedocs.io/en/latest/IO.html).
 If the input name is a zip file or
-a directory name, the script expects a single series of DCM images, all with
-the \".dcm\" suffix.
+a directory name, the script expects a single series of DICOM images. Files
+without the \".dcm\" suffix are recognized by their DICOM file header.
 
 **Important:** When processing DICOM files, always use a zip file or directory rather than listing individual files on the command line. DICOM slices are not necessarily ordered alphabetically the same as they are physically. When given a zip file or directory, the script uses [SimpleITK's ImageSeriesReader](https://simpleitk.readthedocs.io/en/master/link_DicomSeriesReader_docs.html) which correctly orders slices by their physical layout using DICOM metadata.
 
@@ -172,7 +172,7 @@ Troubleshooting
 
 **Common Issues:**
 
-- **"No valid input given"** - Check that your DICOM files have the `.dcm` extension
+- **"No DICOM series found"** - Check that the directory or zip file contains DICOM images. Files need the `.dcm` extension or the standard DICOM file header to be recognized
 - **Empty or incorrect mesh** - Try adjusting the tissue type or using custom threshold values
 - **Out of memory** - The shrink filter is enabled by default to reduce memory usage. For very large datasets, consider processing on a machine with more RAM
 - **Slice ordering issues** - Always use a zip file or directory rather than individual DICOM files on the command line
